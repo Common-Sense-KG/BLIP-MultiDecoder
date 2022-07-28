@@ -9,6 +9,7 @@ from data.flickr30k_dataset import flickr30k_train, flickr30k_retrieval_eval
 from data.vqa_dataset import vqa_dataset
 from data.nlvr_dataset import nlvr_dataset
 from data.pretrain_dataset import pretrain_dataset
+from data.dense_dataset import dense_train,dense_test,dense_eval
 from transform.randaugment import RandomAugment
 
 def create_dataset(dataset, config, min_scale=0.5):
@@ -67,7 +68,13 @@ def create_dataset(dataset, config, min_scale=0.5):
         val_dataset = nlvr_dataset(transform_test, config['image_root'], config['ann_root'],'val')
         test_dataset = nlvr_dataset(transform_test, config['image_root'], config['ann_root'],'test')     
         return train_dataset, val_dataset, test_dataset   
-    
+
+    elif dataset=='dense':          
+        train_dataset = dense_train(transform_train, config['image_root'], config['ann_root'])
+        val_dataset = dense_eval(transform_test, config['image_root'], config['ann_root']) 
+        test_dataset = dense_test(transform_test, config['image_root'], config['ann_root'])          
+        return train_dataset, val_dataset, test_dataset 
+
     
 def create_sampler(datasets, shuffles, num_tasks, global_rank):
     samplers = []

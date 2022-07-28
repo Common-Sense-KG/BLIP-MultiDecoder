@@ -27,11 +27,13 @@ import utils
 from utils import cosine_lr_schedule
 from data import create_dataset, create_sampler, create_loader
 from data.utils import save_result, coco_caption_eval
+from torch.utils.tensorboard import SummaryWriter
 
 def train(model, data_loader, optimizer, epoch, device):
     # train
     model.train()  
-    
+
+    writer = SummaryWriter(log_dir='./tensorboard_temp/' + time.strftime('%y-%m-%d_%H.%M', time.localtime())) # 确定路径
     metric_logger = utils.MetricLogger(delimiter="  ")
     metric_logger.add_meter('lr', utils.SmoothedValue(window_size=1, fmt='{value:.6f}'))
     metric_logger.add_meter('loss', utils.SmoothedValue(window_size=1, fmt='{value:.4f}'))
@@ -47,6 +49,7 @@ def train(model, data_loader, optimizer, epoch, device):
         loss.backward()
         optimizer.step()    
         
+        writer.add_scalar('train_loss(per 50 item)',loss.item(),i)
         metric_logger.update(loss=loss.item())
         metric_logger.update(lr=optimizer.param_groups[0]["lr"])
 
@@ -93,7 +96,8 @@ def main(args, config):
 
     #### Dataset #### 
     print("Creating captioning dataset")
-    train_dataset, val_dataset, test_dataset = create_dataset('caption_coco', config)  
+    # train_dataset, val_dataset, test_dataset = create_dataset('caption_coco', config) 
+    train_dataset, val_dataset, test_dataset = create_dataset('dense', config)  
 
     if args.distributed:
         num_tasks = utils.get_world_size()
@@ -141,37 +145,37 @@ def main(args, config):
         test_result = evaluate(model_without_ddp, test_loader, device, config)  
         test_result_file = save_result(test_result, args.result_dir, 'test_epoch%d'%epoch, remove_duplicate='image_id')  
 
-        if utils.is_main_process():   
-            coco_val = coco_caption_eval(config['coco_gt_root'],val_result_file,'val')
-            coco_test = coco_caption_eval(config['coco_gt_root'],test_result_file,'test')
+        # if utils.is_main_process():   
+        #     coco_val = coco_caption_eval(config['coco_gt_root'],val_result_file,'val')
+        #     coco_test = coco_caption_eval(config['coco_gt_root'],test_result_file,'test')
             
-            if args.evaluate:            
-                log_stats = {**{f'val_{k}': v for k, v in coco_val.eval.items()},
-                             **{f'test_{k}': v for k, v in coco_test.eval.items()},                       
-                            }
-                with open(os.path.join(args.output_dir, "evaluate.txt"),"a") as f:
-                    f.write(json.dumps(log_stats) + "\n")                   
-            else:             
-                save_obj = {
-                    'model': model_without_ddp.state_dict(),
-                    'optimizer': optimizer.state_dict(),
-                    'config': config,
-                    'epoch': epoch,
-                }
+        #     if args.evaluate:            
+        #         log_stats = {**{f'val_{k}': v for k, v in coco_val.eval.items()},
+        #                      **{f'test_{k}': v for k, v in coco_test.eval.items()},                       
+        #                     }
+        #         with open(os.path.join(args.output_dir, "evaluate.txt"),"a") as f:
+        #             f.write(json.dumps(log_stats) + "\n")                   
+        #     else:             
+        #         save_obj = {
+        #             'model': model_without_ddp.state_dict(),
+        #             'optimizer': optimizer.state_dict(),
+        #             'config': config,
+        #             'epoch': epoch,
+        #         }
 
-                if coco_val.eval['CIDEr'] + coco_val.eval['Bleu_4'] > best:
-                    best = coco_val.eval['CIDEr'] + coco_val.eval['Bleu_4']
-                    best_epoch = epoch                
-                    torch.save(save_obj, os.path.join(args.output_dir, 'checkpoint_best.pth')) 
+        #         if coco_val.eval['CIDEr'] + coco_val.eval['Bleu_4'] > best:
+        #             best = coco_val.eval['CIDEr'] + coco_val.eval['Bleu_4']
+        #             best_epoch = epoch                
+        #             torch.save(save_obj, os.path.join(args.output_dir, 'checkpoint_best.pth')) 
                     
-                log_stats = {**{f'train_{k}': v for k, v in train_stats.items()},
-                             **{f'val_{k}': v for k, v in coco_val.eval.items()},
-                             **{f'test_{k}': v for k, v in coco_test.eval.items()},                       
-                             'epoch': epoch,
-                             'best_epoch': best_epoch,
-                            }
-                with open(os.path.join(args.output_dir, "log.txt"),"a") as f:
-                    f.write(json.dumps(log_stats) + "\n")     
+        #         log_stats = {**{f'train_{k}': v for k, v in train_stats.items()},
+        #                      **{f'val_{k}': v for k, v in coco_val.eval.items()},
+        #                      **{f'test_{k}': v for k, v in coco_test.eval.items()},                       
+        #                      'epoch': epoch,
+        #                      'best_epoch': best_epoch,
+        #                     }
+        #         with open(os.path.join(args.output_dir, "log.txt"),"a") as f:
+        #             f.write(json.dumps(log_stats) + "\n")     
                     
         if args.evaluate: 
             break
@@ -184,8 +188,10 @@ def main(args, config):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--config', default='./configs/caption_coco.yaml')
-    parser.add_argument('--output_dir', default='output/Caption_coco')        
+    # parser.add_argument('--config', default='./configs/caption_coco.yaml')
+    # parser.add_argument('--output_dir', default='output/Caption_coco')        
+    parser.add_argument('--config', default='./configs/caption_dense.yaml')
+    parser.add_argument('--output_dir', default='output/Caption_dense')   
     parser.add_argument('--evaluate', action='store_true')    
     parser.add_argument('--device', default='cuda')
     parser.add_argument('--seed', default=42, type=int)
