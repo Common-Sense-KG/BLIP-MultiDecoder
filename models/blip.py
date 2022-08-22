@@ -11,9 +11,11 @@ warnings.filterwarnings("ignore")
 from models.vit import VisionTransformer, interpolate_pos_embed
 from models.med import BertConfig, BertModel, BertLMHeadModel
 from transformers import BertTokenizer
+from transformers import BertModel as OrgBertModel
 
 import torch
-from torch import nn
+from torch import tensor
+from torch import nn as nn
 import torch.nn.functional as F
 
 import os
@@ -83,6 +85,7 @@ class BLIP_Decoder(nn.Module):
                  vit_grad_ckpt = False,
                  vit_ckpt_layer = 0,
                  prompt = 'a picture of ',
+                 max_length = 5,#理论上是88，但启动太慢，且后半部分多为闲置
                  ):
         """
         Args:
@@ -96,36 +99,131 @@ class BLIP_Decoder(nn.Module):
         self.tokenizer = init_tokenizer()   
         med_config = BertConfig.from_json_file(med_config)
         med_config.encoder_width = vision_width
-        self.text_decoder = BertLMHeadModel(config=med_config)    
+        self.text_decoder = BertLMHeadModel(config=med_config) #多头实现
+        # self.text_decoder_list = []
+        # for i in range(0,max_length):
+        #     self.text_decoder = BertLMHeadModel(config=med_config)    
+        #     self.text_decoder_list.append(self.text_decoder)
         
         self.prompt = prompt
         self.prompt_length = len(self.tokenizer(self.prompt).input_ids)-1
 
         
-    def forward(self, image, caption):
+    def forward(self, image, caption, tensor_list, max_caption_num, caption_actual_num, modelnew):
+        #逐一item拆解
+        batch_size = image.shape[0]#首先获取batch size
+        img_list = image.chunk(batch_size,dim=0)
+        # loss_overall = torch.zeros_like(1)
+        loss_list = []
         
-        image_embeds = self.visual_encoder(image) 
-        image_atts = torch.ones(image_embeds.size()[:-1],dtype=torch.long).to(image.device)
+        for i in range(0,batch_size):
+            
+            # prediction_res_list = []
+            image_embeds = self.visual_encoder(img_list[i]) #1*（576+1）*768  24*24+全局 768为patch的representation的dimension
+            #image_atts = torch.ones(image_embeds.size()[:-1],dtype=torch.long).to(image.device)#1*577 #image embed需要改，要切一部分
+            all_decoder_targets = []
+            all_org_text = []
+            all_text = []
+
+            idx = 0
+            for content in caption:#先将当前item的 所有caption 转为decoder_targets 与 text
+                if idx >= min(caption_actual_num[i].item(),max_caption_num):
+                    break#防止越界
+                all_org_text.append(content[i])
+                idx += 1
+
+            # print(all_org_text)
+            all_encodings = self.tokenizer(all_org_text,padding=True, return_tensors="pt").to(image.device) 
+
+                # # text = self.tokenizer(content[i], padding='longest', truncation=True, max_length=40, return_tensors="pt").to(image.device) 
+                # text = self.tokenizer(content[i], padding=True, return_tensors="pt").to(image.device) 
+                # #self.tokenizer.vocab_size为30522
+                # text.input_ids[:,0] = self.tokenizer.bos_token_id#最前面一位为[DEC]
         
-        text = self.tokenizer(caption, padding='longest', truncation=True, max_length=40, return_tensors="pt").to(image.device) 
+                # decoder_targets = text.input_ids.masked_fill(text.input_ids == self.tokenizer.pad_token_id, -100)         
+                # decoder_targets[:,:self.prompt_length] = -100
+
+                # all_decoder_targets.append(decoder_targets)#最前面一位为-100 最后面一位为[CLS] 
+                # all_text.append(text) #最前面一位为[DEC] 最后面一位为[CLS] 
+                # idx += 1
+            lr = nn.Linear(1024,self.tokenizer.vocab_size+2,device=image.device)
+
+            # model = OrgBertModel.from_pretrained('bert-large-cased')
+            # model.resize_token_embeddings(len(self.tokenizer)) 
+            # model = model.eval()
+            # model = model.to(image.device)
+            with torch.no_grad():
+                # idx = 0
+                # while idx < caption_actual_num[i].item():
+                #     all_text[idx].embeds = model(**all_text[idx])[0]
+                #     idx += 1
+                embeds = modelnew(**all_encodings)
+                embeds = lr(embeds[0])
+                
+
+            # print(embeds.shape)
+
+            idx = 0
+            while idx < min(caption_actual_num[i].item(),max_caption_num):
+            # for content_new in caption:
+            #     if idx >= caption_actual_num[i].item():
+            #         break#防止越界
+            # text = self.tokenizer(content, padding='longest', truncation=True, max_length=40, return_tensors="pt").to(image.device) 
         
-        text.input_ids[:,0] = self.tokenizer.bos_token_id
+            # text.input_ids[:,0] = self.tokenizer.bos_token_id
         
-        decoder_targets = text.input_ids.masked_fill(text.input_ids == self.tokenizer.pad_token_id, -100)         
-        decoder_targets[:,:self.prompt_length] = -100
-     
-        decoder_output = self.text_decoder(text.input_ids, 
-                                           attention_mask = text.attention_mask, 
-                                           encoder_hidden_states = image_embeds,
-                                           encoder_attention_mask = image_atts,                  
-                                           labels = decoder_targets,
-                                           return_dict = True,   
-                                          )   
-        loss_lm = decoder_output.loss
+            # decoder_targets = text.input_ids.masked_fill(text.input_ids == self.tokenizer.pad_token_id, -100)         
+            # decoder_targets[:,:self.prompt_length] = -100
+            # now_text_decoder = self.text_decoder_list[i]
+                # decoder_output = self.text_decoder(all_text[idx].input_ids, 
+                #                                attention_mask = all_text[idx].attention_mask, 
+                #                                encoder_hidden_states = image_embeds,
+                #                                encoder_attention_mask = image_atts,                  
+                #                                labels = embeds,#传入该pic对应的所有caption逐一做crossEntropyloss
+                #                                return_dict = True, ) 
+                decoder_output = self.text_decoder(all_encodings['input_ids'][idx].unsqueeze(0), 
+                                               attention_mask = all_encodings['attention_mask'][idx].unsqueeze(0), 
+                                               encoder_hidden_states = image_embeds,
+                                               encoder_attention_mask = tensor_list[idx][i].to(image.device),                  
+                                               labels = embeds,#传入该pic对应的所有caption逐一做crossEntropyloss
+                                               return_dict = True, ) 
+                  
+                idx += 1
+
+                if idx == 1:
+                    crossentropy_loss = decoder_output.loss.to(image.device)
+                    prediction_res = decoder_output.logits.to(image.device)
+                    #prediction_res_list.append(decoder_output.logits)#将预测结果加入到list
+                else:
+                    crossentropy_loss += decoder_output.loss
+                    prediction_res = torch.cat([prediction_res,decoder_output.logits],0)
+
+                # prediction_res_list.append(decoder_output.logits[:,-1,:])#将最后一个token（即cls加入到list）
+            # loss_overall += decoder_output.loss
+            #缺regulaizor
+            loss_thisimg = crossentropy_loss / min(caption_actual_num[i].item(),max_caption_num)
+            main_idx = 0
+            sum_reg_loss = torch.zeros_like(torch.ones([1,embeds.shape[1]])).to(image.device)
+            for main_idx in range(0,prediction_res.shape[0]):
+                # print(main_idx)
+                mainTensor = prediction_res[main_idx].to(image.device)#caption length * vocab size
+                # for res_new in prediction_res_list[main_idx+1:]:
+                for submain_idx in range(main_idx+1 , prediction_res.shape[0]):
+                    # print("inside")
+                    # print(res_new)
+                    output = F.cosine_similarity(mainTensor,prediction_res[submain_idx])
+                    sum_reg_loss += output#sum_reg_loss 1*caption length
+            loss_thisimg += sum_reg_loss.sum()/embeds.shape[1]
+            loss_list.append(loss_thisimg.to(image.device))
+            # if i == 0:
+            #     loss_overall = loss_thisimg
+            # else:
+            #     loss_overall = torch.cat([loss_overall])
+
         
-        return loss_lm
+        return loss_list
         
-    def generate(self, image, sample=False, num_beams=3, max_length=30, min_length=10, top_p=0.9, repetition_penalty=1.0):
+    def generate(self, image, decoder_num=15,sample=False, num_beams=3, max_length=30, min_length=10, top_p=0.9, repetition_penalty=1.0):
         image_embeds = self.visual_encoder(image)
 
         if not sample:
@@ -138,34 +236,41 @@ class BLIP_Decoder(nn.Module):
         input_ids = self.tokenizer(prompt, return_tensors="pt").input_ids.to(image.device) 
         input_ids[:,0] = self.tokenizer.bos_token_id
         input_ids = input_ids[:, :-1] 
+        captions = []    
 
         if sample:
             #nucleus sampling
-            outputs = self.text_decoder.generate(input_ids=input_ids,
-                                                  max_length=max_length,
-                                                  min_length=min_length,
-                                                  do_sample=True,
-                                                  top_p=top_p,
-                                                  num_return_sequences=1,
-                                                  eos_token_id=self.tokenizer.sep_token_id,
-                                                  pad_token_id=self.tokenizer.pad_token_id, 
-                                                  repetition_penalty=1.1,                                            
-                                                  **model_kwargs)
+            for i in range(0,decoder_num):
+                outputs = self.text_decoder.generate(input_ids=input_ids,
+                                                    max_length=max_length,
+                                                    min_length=min_length,
+                                                    do_sample=True,
+                                                    top_p=top_p,
+                                                    num_return_sequences=1,
+                                                    eos_token_id=self.tokenizer.sep_token_id,
+                                                    pad_token_id=self.tokenizer.pad_token_id, 
+                                                    repetition_penalty=1.1,                                            
+                                                    **model_kwargs)
+                for output in outputs:
+                    caption = self.tokenizer.decode(output, skip_special_tokens=True)    
+                    captions.append(caption[len(self.prompt):])
+
         else:
             #beam search
-            outputs = self.text_decoder.generate(input_ids=input_ids,
-                                                  max_length=max_length,
-                                                  min_length=min_length,
-                                                  num_beams=num_beams,
-                                                  eos_token_id=self.tokenizer.sep_token_id,
-                                                  pad_token_id=self.tokenizer.pad_token_id,     
-                                                  repetition_penalty=repetition_penalty,
-                                                  **model_kwargs)            
+            for i in range(0,decoder_num):
+                outputs = self.text_decoder.generate(input_ids=input_ids,
+                                                    max_length=max_length,
+                                                    min_length=min_length,
+                                                    num_beams=num_beams,
+                                                    eos_token_id=self.tokenizer.sep_token_id,
+                                                    pad_token_id=self.tokenizer.pad_token_id,     
+                                                    repetition_penalty=repetition_penalty,
+                                                    **model_kwargs)  
+                for output in outputs:
+                    caption = self.tokenizer.decode(output, skip_special_tokens=True)    
+                    captions.append(caption[len(self.prompt):])          
             
-        captions = []    
-        for output in outputs:
-            caption = self.tokenizer.decode(output, skip_special_tokens=True)    
-            captions.append(caption[len(self.prompt):])
+        
         return captions
     
 
@@ -190,6 +295,13 @@ def init_tokenizer():
     tokenizer.enc_token_id = tokenizer.additional_special_tokens_ids[0]  
     return tokenizer
 
+def init_tokenizer_model():
+    tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+    model = BertTokenizer.from_pretrained('bert-base-uncased')
+    tokenizer.add_special_tokens({'bos_token':'[DEC]'})
+    tokenizer.add_special_tokens({'additional_special_tokens':['[ENC]']})       
+    tokenizer.enc_token_id = tokenizer.additional_special_tokens_ids[0]  
+    return tokenizer,model
 
 def create_vit(vit, image_size, use_grad_checkpointing=False, ckpt_layer=0, drop_path_rate=0):
         

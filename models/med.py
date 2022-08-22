@@ -10,6 +10,7 @@
 
 import math
 import os
+from turtle import position
 import warnings
 from dataclasses import dataclass
 from typing import Optional, Tuple
@@ -80,15 +81,19 @@ class BertEmbeddings(nn.Module):
 
         if position_ids is None:
             position_ids = self.position_ids[:, past_key_values_length : seq_length + past_key_values_length]
+            position_ids = position_ids.to(input_ids.device)
 
         if inputs_embeds is None:
-            inputs_embeds = self.word_embeddings(input_ids)
+            self.word_embeddings.to(input_ids.device)
+            inputs_embeds = self.word_embeddings(input_ids).to(input_ids.device)
 
         embeddings = inputs_embeds
 
         if self.position_embedding_type == "absolute":
+            self.position_embeddings.to(input_ids.device)
             position_embeddings = self.position_embeddings(position_ids)
             embeddings += position_embeddings
+        self.LayerNorm.to(input_ids.device)
         embeddings = self.LayerNorm(embeddings)
         embeddings = self.dropout(embeddings)
         return embeddings
@@ -150,6 +155,8 @@ class BertSelfAttention(nn.Module):
         past_key_value=None,
         output_attentions=False,
     ):
+        self.to(hidden_states.device)
+
         mixed_query_layer = self.query(hidden_states)
 
         # If this is instantiated as a cross-attention module, the keys
@@ -778,6 +785,7 @@ class BertModel(BertPreTrainedModel):
         else:
             embedding_output = encoder_embeds
             
+        self.encoder.to(device)    
         encoder_outputs = self.encoder(
             embedding_output,
             attention_mask=extended_attention_mask,
@@ -792,6 +800,8 @@ class BertModel(BertPreTrainedModel):
             mode=mode,
         )
         sequence_output = encoder_outputs[0]
+        if self.pooler is not None:
+            self.pooler.to(device)
         pooled_output = self.pooler(sequence_output) if self.pooler is not None else None
 
         if not return_dict:
@@ -882,6 +892,7 @@ class BertLMHeadModel(BertPreTrainedModel):
         return_dict = return_dict if return_dict is not None else self.config.use_return_dict
         if labels is not None:
             use_cache = False
+        self.to(input_ids.device)
 
         outputs = self.bert(
             input_ids,
@@ -898,21 +909,37 @@ class BertLMHeadModel(BertPreTrainedModel):
             return_dict=return_dict,
             is_decoder=is_decoder,
             mode=mode,
-        )
+        )#train——输出的predict结果与input id长度一样
         
         sequence_output = outputs[0]
-        prediction_scores = self.cls(sequence_output)
+
+        prediction_scores = self.cls(sequence_output)#1*caption length*30524(768->30524)
         
         if return_logits:
             return prediction_scores[:, :-1, :].contiguous()  
 
         lm_loss = None
+        now_min_lm_loss = None
         if labels is not None:
             # we are doing next-token prediction; shift prediction scores and input ids by one
-            shifted_prediction_scores = prediction_scores[:, :-1, :].contiguous()
-            labels = labels[:, 1:].contiguous()
+            # shifted_prediction_scores = prediction_scores[:, :-1, :].contiguous()#1*6*30524 去掉了最后一维
             loss_fct = CrossEntropyLoss(reduction=reduction, label_smoothing=0.1) 
-            lm_loss = loss_fct(shifted_prediction_scores.view(-1, self.config.vocab_size), labels.view(-1))
+            now_min_lm_loss = torch.tensor([10000],device=input_ids.device)
+            # predict_caption_length = shifted_prediction_scores.shape[1]
+            idx = 0
+            while idx < labels.shape[0]:
+            # for label in labels: #长度不匹配问题...只能在长度匹配的里面寻找了
+            #     label = label[:,1:].contiguous()#去掉首个token
+            #     if label.shape[1] != predict_caption_length:
+            #         continue
+            # labels = labels[:, 1:].contiguous()
+                now_lm_loss = loss_fct(prediction_scores, labels[idx].unsqueeze(0))
+                if now_lm_loss.item() < now_min_lm_loss.item():
+                    now_min_lm_loss = now_lm_loss.to(input_ids.device)
+                idx += 1
+            # lm_loss = loss_fct(shifted_prediction_scores.view(-1, self.config.vocab_size), labels.view(-1))
+            
+            # below is not changing
             if reduction=='none':
                 lm_loss = lm_loss.view(prediction_scores.size(0),-1).sum(1)               
 
@@ -921,7 +948,7 @@ class BertLMHeadModel(BertPreTrainedModel):
             return ((lm_loss,) + output) if lm_loss is not None else output
 
         return CausalLMOutputWithCrossAttentions(
-            loss=lm_loss,
+            loss=now_min_lm_loss,
             logits=prediction_scores,
             past_key_values=outputs.past_key_values,
             hidden_states=outputs.hidden_states,

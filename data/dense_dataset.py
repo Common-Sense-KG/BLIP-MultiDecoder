@@ -8,7 +8,8 @@ from torchvision.datasets.utils import download_url
 from PIL import Image
 
 from data.utils import pre_caption
-from data.utils import pre_caption_dense
+import numpy as np
+# from data.utils import pre_caption_dense
 
 class dense_train(Dataset):
     def __init__(self, transform, image_root, ann_root, max_words=30, prompt=''):        
@@ -20,7 +21,6 @@ class dense_train(Dataset):
         filename = 'dense_train.json'
 
         #download_url(url,ann_root)#ann_root = annotation
-        
         self.annotation = json.load(open(os.path.join(ann_root,filename),'r'))
         self.transform = transform
         self.image_root = image_root
@@ -47,14 +47,23 @@ class dense_train(Dataset):
         image = self.transform(image)
 
         caption = ''
+        captions_list = []
+        tensor_list = []
         for phrase in ann['phrase_list']:
-            caption = caption + pre_caption_dense (phrase)#最后一个句子后留有SEP
+            # caption = caption + pre_caption_dense (phrase)#最后一个句子后留有SEP
+            captions_list.append(pre_caption(phrase['caption']))#大小不一——进行补全
+            tensor_list.append(np.array(phrase['tensor']))
+
+        max_caption_num = 88
+        truly_length = len(captions_list)
+        captions_list += [" " for i in range(max_caption_num - truly_length)]
+        tensor_list  += [np.zeros((1,577),np.float64) for j in range(max_caption_num - truly_length)]
         
         #caption = self.prompt+pre_caption(ann['caption'], self.max_words) #此处待更改  pre_caption内部拼接与max_words
         # caption[-1] = '[EOS]'
         # caption = caption.strip('[PAD]')
         
-        return image, caption, self.img_ids[ann['image_id']] 
+        return image, captions_list, tensor_list, self.img_ids[ann['image_id']] , truly_length
     
     
 class dense_eval(Dataset):
@@ -67,7 +76,7 @@ class dense_eval(Dataset):
         # urls = {'val':'https://storage.googleapis.com/sfr-vision-language-research/datasets/coco_karpathy_val.json',
         #         'test':'https://storage.googleapis.com/sfr-vision-language-research/datasets/coco_karpathy_test.json'}
         # filenames = {'val':'coco_karpathy_val.json','test':'coco_karpathy_test.json'}
-        filename = 'dense_eval_new.json'
+        filename = 'dense_eval.json'
         # download_url(urls[split],ann_root)
         
         self.annotation = json.load(open(os.path.join(ann_root,filename),'r'))
@@ -81,11 +90,11 @@ class dense_eval(Dataset):
         
         ann = self.annotation[index]
         
-        image_path = os.path.join(self.image_root,str(ann['image'])+'.jpg')        
+        image_path = os.path.join(self.image_root,str(ann['image_id'])+'.jpg')        
         image = Image.open(image_path).convert('RGB')   
         image = self.transform(image)          
         
-        img_id = ann['image']
+        img_id = ann['image_id']
         
         return image, int(img_id)   
         
@@ -104,7 +113,7 @@ class dense_test(Dataset):
         
         # download_url(urls[split],ann_root)
 
-        filename = 'dense_test_new.json'
+        filename = 'dense_test.json'
         
         self.annotation = json.load(open(os.path.join(ann_root,filename),'r'))
         self.transform = transform
@@ -117,10 +126,10 @@ class dense_test(Dataset):
         
         txt_id = 0
         for img_id, ann in enumerate(self.annotation):
-            self.image.append(self.image_root+str(ann['image'])+'.jpg')#存路径
+            self.image.append(self.image_root+str(ann['image_id'])+'.jpg')#存路径
             self.img2txt[img_id] = []#逐项初始化
             for i, caption in enumerate(ann['phrase_list']):#对每一个caption进行预处理 append id
-                self.text.append(pre_caption(caption,max_words))#是否有不同？ 此处仍为拼接 还是逐个存储
+                self.text.append(pre_caption(caption['caption'],max_words))#是否有不同？ 此处仍为拼接 还是逐个存储
                 self.img2txt[img_id].append(txt_id)
                 self.txt2img[txt_id] = img_id#互相认定
                 txt_id += 1
@@ -130,8 +139,8 @@ class dense_test(Dataset):
     
     def __getitem__(self, index):    
         
-        image_path = os.path.join(self.image_root, str(self.annotation[index]['image'])+'.jpg')        
+        image_path = os.path.join(self.image_root, str(self.annotation[index]['image_id'])+'.jpg')        
         image = Image.open(image_path).convert('RGB')    
         image = self.transform(image)  
 
-        return image, int(self.annotation[index]['image'])
+        return image, int(self.annotation[index]['image_id'])
