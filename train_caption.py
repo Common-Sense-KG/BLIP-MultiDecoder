@@ -7,7 +7,7 @@
 '''
 import argparse
 import os
-import ruamel_yaml as yaml
+import ruamel.yaml as yaml
 import numpy as np
 import random
 import time
@@ -22,7 +22,7 @@ import torch.backends.cudnn as cudnn
 import torch.distributed as dist
 from torch.utils.data import DataLoader
 
-from models.blip import blip_decoder
+from models.blip_org import blip_decoder
 import utils
 from utils import cosine_lr_schedule
 from data import create_dataset, create_sampler, create_loader
@@ -96,8 +96,8 @@ def main(args, config):
 
     #### Dataset #### 
     print("Creating captioning dataset")
-    # train_dataset, val_dataset, test_dataset = create_dataset('caption_coco', config) 
-    train_dataset, val_dataset, test_dataset = create_dataset('dense', config)  
+    train_dataset, val_dataset, test_dataset = create_dataset('caption_coco', config) 
+    # train_dataset, val_dataset, test_dataset = create_dataset('dense', config)  
 
     if args.distributed:
         num_tasks = utils.get_world_size()
@@ -188,10 +188,10 @@ def main(args, config):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    # parser.add_argument('--config', default='./configs/caption_coco.yaml')
-    # parser.add_argument('--output_dir', default='output/Caption_coco')        
-    parser.add_argument('--config', default='./configs/caption_dense.yaml')
-    parser.add_argument('--output_dir', default='output/Caption_dense')   
+    parser.add_argument('--config', default='./configs/caption_coco.yaml')
+    parser.add_argument('--output_dir', default='output/Caption_coco')        
+    # parser.add_argument('--config', default='./configs/caption_dense.yaml')
+    # parser.add_argument('--output_dir', default='output/Caption_dense')   
     parser.add_argument('--evaluate', action='store_true')    
     parser.add_argument('--device', default='cuda')
     parser.add_argument('--seed', default=42, type=int)

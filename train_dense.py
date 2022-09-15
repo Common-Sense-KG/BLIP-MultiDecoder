@@ -7,7 +7,7 @@
 '''
 import argparse
 import os
-import ruamel_yaml as yaml
+import ruamel.yaml as yaml
 import numpy as np
 import random
 import time
@@ -43,10 +43,10 @@ def train(model, data_loader, optimizer, epoch, device, max_caption_num = 15):#�
     print_freq = 50
     i = 0
 
-    modelnew = OrgBertModel.from_pretrained('bert-large-cased')
-    modelnew.resize_token_embeddings(30524) #写死了
-    modelnew = modelnew.eval()
-    modelnew = modelnew.to(device)
+    # modelnew = OrgBertModel.from_pretrained('bert-large-cased')
+    # modelnew.resize_token_embeddings(30524) #写死了
+    # modelnew = modelnew.eval()
+    # modelnew = modelnew.to(device)
 
     for image, caption, tensor_list, _, caption_actual_num in tqdm.tqdm(data_loader):#image:batch_size*3*384*384 caption
 
@@ -55,17 +55,22 @@ def train(model, data_loader, optimizer, epoch, device, max_caption_num = 15):#�
         
         model = model.to(device)
 
-        loss_list = model(image, caption, tensor_list,max_caption_num, caption_actual_num, modelnew)      
+        loss_list, ctploss_list, regloss_list = model(image, caption, tensor_list, max_caption_num, caption_actual_num)      
         
         optimizer.zero_grad()
-        for loss in loss_list:
+        for loss in ctploss_list:
             loss.backward()
         optimizer.step()    
         
-        writer.add_scalar('train_loss(per 50 i',loss.item(),i)
+        writer.add_scalar('train_overall_loss',loss.item(),i)
+        writer.add_scalar('train_ctp_loss',ctploss_list[-1].item(),i)
+        if len(regloss_list) > 0:
+            writer.add_scalar('train_reg_loss',regloss_list[-1],i)
         i += 1
         metric_logger.update(loss=loss.item())
         metric_logger.update(lr=optimizer.param_groups[0]["lr"])
+        if i >= 300:
+            break
 
     # gather the stats from all processes
     metric_logger.synchronize_between_processes()
@@ -81,17 +86,28 @@ def evaluate(model, data_loader, device, config):
     metric_logger = utils.MetricLogger(delimiter="  ")
     header = 'Caption generation:'
     print_freq = 10
+    decoder_num = 15
 
     result = []
-    for image, image_id in metric_logger.log_every(data_loader, print_freq, header): 
+    iter0 = 0
+    for image, tensor_list, image_id in metric_logger.log_every(data_loader, print_freq, header): 
         
         image = image.to(device)       
         
-        captions = model.generate(image, sample=False, num_beams=config['num_beams'], max_length=config['max_length'], 
+        captions = model.generate(image, tensor_list, sample=False, num_beams=config['num_beams'], max_length=config['max_length'], 
                                   min_length=config['min_length'])
         
-        for caption, img_id in zip(captions, image_id):
-            result.append({"image_id": img_id.item(), "caption": caption})
+        i = 1   #可能image_id只有单一元素 尚未考虑
+        for caption in captions:
+            if i % 2 == 1:
+                result.append({"image_id": image_id[0].item(), "caption": caption})
+            else:
+                result.append({"image_id": image_id[1].item(), "caption": caption})
+            i += 1
+
+        iter0 += 1
+        if iter0 >= 50:
+            break      
   
     return result
 
@@ -100,6 +116,7 @@ def main(args, config):
     if args.distributed:
         utils.init_distributed_mode(args)    
     device = torch.device(args.device)
+    config['prompt'] = 'an area of '
 
     # fix the seed for reproducibility
     seed = args.seed + utils.get_rank()
@@ -141,6 +158,7 @@ def main(args, config):
             
     best = 0
     best_epoch = 0
+    args.evaluate = False
 
     print("Start training")
     start_time = time.time()    
@@ -193,7 +211,7 @@ def main(args, config):
                     
         if args.evaluate: 
             break
-        dist.barrier()     
+        # dist.barrier()     
 
     total_time = time.time() - start_time
     total_time_str = str(datetime.timedelta(seconds=int(total_time)))

@@ -179,7 +179,7 @@ class VisionTransformer(nn.Module):
 
     def forward(self, x, register_blk=-1):
         B = x.shape[0]
-        x = self.patch_embed(x)
+        x = self.patch_embed(x)#1*3*384*384  -> 1*576*768
 
         cls_tokens = self.cls_token.expand(B, -1, -1)  # stole cls_tokens impl from Phil Wang, thanks
         x = torch.cat((cls_tokens, x), dim=1)

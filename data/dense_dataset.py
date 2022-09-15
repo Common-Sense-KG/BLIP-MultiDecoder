@@ -12,7 +12,7 @@ import numpy as np
 # from data.utils import pre_caption_dense
 
 class dense_train(Dataset):
-    def __init__(self, transform, image_root, ann_root, max_words=30, prompt=''):        
+    def __init__(self, transform, image_root, ann_root, max_words=30, prompt='an area of '):        
         '''
         image_root (string): Root directory of images (e.g. coco/images/)
         ann_root (string): directory to store the annotation file
@@ -50,8 +50,8 @@ class dense_train(Dataset):
         captions_list = []
         tensor_list = []
         for phrase in ann['phrase_list']:
-            # caption = caption + pre_caption_dense (phrase)#最后一个句子后留有SEP
-            captions_list.append(pre_caption(phrase['caption']))#大小不一——进行补全
+            caption = self.prompt + pre_caption(phrase['caption'])#最后一个句子后留有SEP
+            captions_list.append(caption)#大小不一——进行补全
             tensor_list.append(np.array(phrase['tensor']))
 
         max_caption_num = 88
@@ -89,14 +89,20 @@ class dense_eval(Dataset):
     def __getitem__(self, index):    
         
         ann = self.annotation[index]
+        tensor_list = []
         
         image_path = os.path.join(self.image_root,str(ann['image_id'])+'.jpg')        
         image = Image.open(image_path).convert('RGB')   
-        image = self.transform(image)          
-        
+        image = self.transform(image)    
+        for phrase in ann['phrase_list']:
+            tensor_list.append(np.array(phrase['tensor']))    
+              
+        max_caption_num = 70
+        truly_length = len(tensor_list)
         img_id = ann['image_id']
+        tensor_list  += [np.zeros((1,577),np.float64) for j in range(max_caption_num - truly_length)]
         
-        return image, int(img_id)   
+        return image, tensor_list, int(img_id)   
         
     
     

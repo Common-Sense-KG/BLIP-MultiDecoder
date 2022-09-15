@@ -1,81 +1,81 @@
 import json
 import random
 import math
-import spacy
-from itertools import combinations
+# import spacy
+# from itertools import combinations
 import os
 from PIL import Image
 from torch import tensor
 import torch
 
-def pre_process(titles):
-    """
-    Pre-processes titles by removing stopwords and lemmatizing text.
-    :param titles: list of strings, contains target titles,.
-    :return: preprocessed_title_docs, list containing pre-processed titles.
-    """
+# def pre_process(titles):
+#     """
+#     Pre-processes titles by removing stopwords and lemmatizing text.
+#     :param titles: list of strings, contains target titles,.
+#     :return: preprocessed_title_docs, list containing pre-processed titles.
+#     """
 
-    # Preprocess all the titles
-    title_docs = [nlp(x) for x in titles]
-    preprocessed_title_docs = []
-    lemmatized_tokens = []
-    for title_doc in title_docs:
-        for token in title_doc:
-            if not token.is_stop:
-                lemmatized_tokens.append(token.lemma_)
-        preprocessed_title_docs.append(" ".join(lemmatized_tokens))
-        del lemmatized_tokens[
-            :
-            ]  # empty the lemmatized tokens list as the code moves onto a new title
+#     # Preprocess all the titles
+#     title_docs = [nlp(x) for x in titles]
+#     preprocessed_title_docs = []
+#     lemmatized_tokens = []
+#     for title_doc in title_docs:
+#         for token in title_doc:
+#             if not token.is_stop:
+#                 lemmatized_tokens.append(token.lemma_)
+#         preprocessed_title_docs.append(" ".join(lemmatized_tokens))
+#         del lemmatized_tokens[
+#             :
+#             ]  # empty the lemmatized tokens list as the code moves onto a new title
 
-    return preprocessed_title_docs
+#     return preprocessed_title_docs
 
-def similarity_filter(titles):
-    """
-    Recursively check if titles pass a similarity filter.
-    :param titles: list of strings, contains titles.
-    If the function finds titles that fail the similarity test, the above param will be the function output.
-    :return: this method upon itself unless there are no similar titles; in that case the feed that was passed
-    in is returned.
-    """
+# def similarity_filter(titles):
+#     """
+#     Recursively check if titles pass a similarity filter.
+#     :param titles: list of strings, contains titles.
+#     If the function finds titles that fail the similarity test, the above param will be the function output.
+#     :return: this method upon itself unless there are no similar titles; in that case the feed that was passed
+#     in is returned.
+#     """
 
-    # Preprocess titles
-    preprocessed_title_docs = pre_process(titles)
+#     # Preprocess titles
+#     preprocessed_title_docs = pre_process(titles)
 
-    # Remove similar titles
-    all_summary_pairs = list(combinations(preprocessed_title_docs, 2))
-    similar_titles = []
-    for pair in all_summary_pairs:
-        title1 = nlp(pair[0])
-        title2 = nlp(pair[1])
-        similarity = title1.similarity(title2)
-        if similarity > 0.8:
-            similar_titles.append(pair)
+#     # Remove similar titles
+#     all_summary_pairs = list(combinations(preprocessed_title_docs, 2))
+#     similar_titles = []
+#     for pair in all_summary_pairs:
+#         title1 = nlp(pair[0])
+#         title2 = nlp(pair[1])
+#         similarity = title1.similarity(title2)
+#         if similarity > 0.8:
+#             similar_titles.append(pair)
 
-    titles_to_remove = []
-    for a_title in similar_titles:
-        # Get the index of the first title in the pair
-        index_for_removal = preprocessed_title_docs.index(a_title[0])
-        titles_to_remove.append(index_for_removal)
+#     titles_to_remove = []
+#     for a_title in similar_titles:
+#         # Get the index of the first title in the pair
+#         index_for_removal = preprocessed_title_docs.index(a_title[0])
+#         titles_to_remove.append(index_for_removal)
 
-    # Get indices of similar titles and remove them
-    similar_title_counts = set(titles_to_remove)
-    similar_titles = [
-        x[1] for x in enumerate(titles) if x[0] in similar_title_counts
-    ]
+#     # Get indices of similar titles and remove them
+#     similar_title_counts = set(titles_to_remove)
+#     similar_titles = [
+#         x[1] for x in enumerate(titles) if x[0] in similar_title_counts
+#     ]
 
-    # Exit the recursion if there are no longer any similar titles
-    if len(similar_title_counts) == 0:
-        return titles
+#     # Exit the recursion if there are no longer any similar titles
+#     if len(similar_title_counts) == 0:
+#         return titles
 
-    # Continue the recursion if there are still titles to remove
-    else:
-        # Remove similar titles from the next input
-        for title in similar_titles:
-            idx = titles.index(title)
-            titles.pop(idx)
+#     # Continue the recursion if there are still titles to remove
+#     else:
+#         # Remove similar titles from the next input
+#         for title in similar_titles:
+#             idx = titles.index(title)
+#             titles.pop(idx)
             
-        return similarity_filter(titles)
+#         return similarity_filter(titles)
 
 def judgeNotTheSame(phrase,now_phrase_list):
     for now_phrase in now_phrase_list:
@@ -147,8 +147,8 @@ def getImgEmbedAccordingtoPos(PicW,PicH,x1,y1,w1,h1,x2,y2,w2,h2):
     return empty
 
 if __name__ == '__main__':
-    nlp = spacy.load("en_core_web_md")
-    with open("/archive/hot0/fxy/BLIP/annotation/relational_captions.json",'r') as load_org:
+    # nlp = spacy.load("en_core_web_md")
+    with open("/local/scratch/hcui25/data/enroot/ucuda/root/relational_captions.json",'r') as load_org:
         load_dict=json.load(load_org)
 
     new_data={}
@@ -156,7 +156,7 @@ if __name__ == '__main__':
     for content in load_dict:
         relationships=content['relationships']
         now_img_id=content['image_id']
-        width,height = getPicSize('/archive/hot0/fxy/BLIP/data/dense/VG_100K_2',now_img_id)
+        width,height = getPicSize('/local/scratch/hcui25/data/enroot/ucuda/root/DenseRelationalCaptioning/data/visual-genome/VG_100K_2',now_img_id)
         now_phrase_list=[]
         new_data={}
         if len(relationships) == 0:
@@ -168,7 +168,7 @@ if __name__ == '__main__':
             # new_phrase_with_tensor={'caption':phrase,'tensor':tensor}
             if judgeNotTheSame(phrase,now_phrase_list):#实现相同caption去重
                 tensor = getImgEmbedAccordingtoPos(width,height,relation['object']['x'],relation['object']['y'],relation['object']['w'],relation['object']['h'],relation['subject']['x'],relation['subject']['y'],relation['subject']['w'],relation['subject']['h'])
-                new_phrase_with_tensor={'caption':phrase,'tensor':tensor.numpy().tolist()}
+                new_phrase_with_tensor={'caption':phrase,'tensor':tensor.numpy().tolist()}#更精细化
                 now_phrase_list.append(new_phrase_with_tensor)
 
         # similarity_filter(now_phrase_list)

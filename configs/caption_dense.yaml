@@ -1,4 +1,4 @@
-image_root: '/archive/hot0/fxy/BLIP/data/dense/VG_100K_2/'
+image_root: '/local/scratch/hcui25/data/enroot/ucuda/root/DenseRelationalCaptioning/data/visual-genome/VG_100K_2/'
 ann_root: 'annotation'
 dense_gt_root: 'annotation/dense_gt'
 

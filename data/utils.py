@@ -50,30 +50,30 @@ def save_result(result, result_dir, filename, remove_duplicate=''):
     
     json.dump(result,open(result_file,'w'))
 
-    dist.barrier()
+    # dist.barrier()
 
-    if utils.is_main_process():   
-        # combine results from all processes
-        result = []
+    # if utils.is_main_process():   
+    #     # combine results from all processes
+    #     result = []
 
-        for rank in range(utils.get_world_size()):
-            result_file = os.path.join(result_dir, '%s_rank%d.json'%(filename,rank))
-            res = json.load(open(result_file,'r'))
-            result += res
+    #     for rank in range(utils.get_world_size()):
+    #         result_file = os.path.join(result_dir, '%s_rank%d.json'%(filename,rank))
+    #         res = json.load(open(result_file,'r'))
+    #         result += res
 
-        if remove_duplicate:
-            result_new = []
-            id_list = []    
-            for res in result:
-                if res[remove_duplicate] not in id_list:
-                    id_list.append(res[remove_duplicate])
-                    result_new.append(res)
-            result = result_new             
+    #     if remove_duplicate:
+    #         result_new = []
+    #         id_list = []    
+    #         for res in result:
+    #             if res[remove_duplicate] not in id_list:
+    #                 id_list.append(res[remove_duplicate])
+    #                 result_new.append(res)
+    #         result = result_new             
                 
-        json.dump(result,open(final_result_file,'w'))            
-        print('result file saved to %s'%final_result_file)
+    #     json.dump(result,open(final_result_file,'w'))            
+    #     print('result file saved to %s'%final_result_file)
 
-    return final_result_file
+    return result_file
 
 
 

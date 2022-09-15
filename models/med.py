@@ -914,6 +914,8 @@ class BertLMHeadModel(BertPreTrainedModel):
         sequence_output = outputs[0]
 
         prediction_scores = self.cls(sequence_output)#1*caption length*30524(768->30524)
+        # prediction_res = torch.argmax(prediction_scores,dim=2)  
+        # print(prediction_res)
         
         if return_logits:
             return prediction_scores[:, :-1, :].contiguous()  
@@ -922,7 +924,7 @@ class BertLMHeadModel(BertPreTrainedModel):
         now_min_lm_loss = None
         if labels is not None:
             # we are doing next-token prediction; shift prediction scores and input ids by one
-            # shifted_prediction_scores = prediction_scores[:, :-1, :].contiguous()#1*6*30524 去掉了最后一维
+            shifted_prediction_scores = prediction_scores[:, :-1, :].contiguous()#1*6*30524 去掉了最后一维
             loss_fct = CrossEntropyLoss(reduction=reduction, label_smoothing=0.1) 
             now_min_lm_loss = torch.tensor([10000],device=input_ids.device)
             # predict_caption_length = shifted_prediction_scores.shape[1]
@@ -933,7 +935,8 @@ class BertLMHeadModel(BertPreTrainedModel):
             #     if label.shape[1] != predict_caption_length:
             #         continue
             # labels = labels[:, 1:].contiguous()
-                now_lm_loss = loss_fct(prediction_scores, labels[idx].unsqueeze(0))
+                # now_lm_loss = loss_fct(prediction_scores, labels[idx].unsqueeze(0))
+                now_lm_loss = loss_fct(prediction_scores.view(-1,30524), labels[idx])
                 if now_lm_loss.item() < now_min_lm_loss.item():
                     now_min_lm_loss = now_lm_loss.to(input_ids.device)
                 idx += 1
@@ -955,6 +958,59 @@ class BertLMHeadModel(BertPreTrainedModel):
             attentions=outputs.attentions,
             cross_attentions=outputs.cross_attentions,
         )
+
+
+        # return_dict = return_dict if return_dict is not None else self.config.use_return_dict
+        # if labels is not None:
+        #     use_cache = False
+
+        # outputs = self.bert(
+        #     input_ids,
+        #     attention_mask=attention_mask,
+        #     position_ids=position_ids,
+        #     head_mask=head_mask,
+        #     inputs_embeds=inputs_embeds,
+        #     encoder_hidden_states=encoder_hidden_states,
+        #     encoder_attention_mask=encoder_attention_mask,
+        #     past_key_values=past_key_values,
+        #     use_cache=use_cache,
+        #     output_attentions=output_attentions,
+        #     output_hidden_states=output_hidden_states,
+        #     return_dict=return_dict,
+        #     is_decoder=is_decoder,
+        #     mode=mode,
+        # )
+        
+        # sequence_output = outputs[0]
+        # prediction_scores = self.cls(sequence_output)#32#seq_length*768
+        # prediction_res = torch.argmax(prediction_scores,dim=2)  
+        # print(prediction_res)
+        
+        # if return_logits:
+        #     return prediction_scores[:, :-1, :].contiguous()  
+
+        # lm_loss = None
+        # if labels is not None:
+        #     # we are doing next-token prediction; shift prediction scores and input ids by one
+        #     shifted_prediction_scores = prediction_scores[:, :-1, :].contiguous()
+        #     labels = labels[:, 1:].contiguous()
+        #     loss_fct = CrossEntropyLoss(reduction=reduction, label_smoothing=0.1) 
+        #     lm_loss = loss_fct(shifted_prediction_scores.view(-1, self.config.vocab_size), labels.view(-1))
+        #     if reduction=='none':
+        #         lm_loss = lm_loss.view(prediction_scores.size(0),-1).sum(1)               
+
+        # if not return_dict:
+        #     output = (prediction_scores,) + outputs[2:]
+        #     return ((lm_loss,) + output) if lm_loss is not None else output
+
+        # return CausalLMOutputWithCrossAttentions(
+        #     loss=lm_loss,
+        #     logits=prediction_scores,
+        #     past_key_values=outputs.past_key_values,
+        #     hidden_states=outputs.hidden_states,
+        #     attentions=outputs.attentions,
+        #     cross_attentions=outputs.cross_attentions,
+        # )
 
     def prepare_inputs_for_generation(self, input_ids, past=None, attention_mask=None, **model_kwargs):
         input_shape = input_ids.shape

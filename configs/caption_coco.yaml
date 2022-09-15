@@ -1,4 +1,4 @@
-image_root: '/export/share/datasets/vision/coco/images/'
+image_root: '/local/scratch/hcui25/Data/coco/'
 ann_root: 'annotation'
 coco_gt_root: 'annotation/coco_gt'
 
