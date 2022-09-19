@@ -191,7 +191,7 @@ class BLIP_Decoder(nn.Module):
                                                attention_mask = all_encodings['attention_mask'][idx].unsqueeze(0), 
                                                encoder_hidden_states = image_embeds,
                                                encoder_attention_mask = tensor_list[idx][i].to(image.device),                  
-                                               labels = decoder_targets,#传入该pic对应的所有caption逐一做crossEntropyloss 是否正确？
+                                               labels = decoder_targets[idx].unsqueeze(0),#传入该pic对应的所有caption逐一做crossEntropyloss 是否正确？
                                                return_dict = True, ) 
                   
                 idx += 1
@@ -241,7 +241,7 @@ class BLIP_Decoder(nn.Module):
                     sum_reg_loss += output#1
             # sum_reg_loss = sum_reg_loss // (sum_reg_loss // crossentropy_loss)
             if prediction_res.shape[0] >= 2:
-                loss_thisimg += sum_reg_loss.item() / (prediction_res.shape[0] * (prediction_res.shape[0] - 1) / 2 ) * 3
+                loss_thisimg += sum_reg_loss.item() / (prediction_res.shape[0] * (prediction_res.shape[0] - 1) / 2 ) * 6
                 regloss_list.append(sum_reg_loss.item() / (prediction_res.shape[0] * (prediction_res.shape[0] - 1) / 2 ))
             loss_list.append(loss_thisimg.to(image.device))
             # if i == 0:

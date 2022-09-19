@@ -35,7 +35,7 @@ def train(model, data_loader, optimizer, epoch, device, max_caption_num = 15):#�
     # train
     model.train()  
 
-    writer = SummaryWriter(log_dir='./tensorboard_dense/' + time.strftime('%y-%m-%d_%H.%M', time.localtime())) # 确定路径
+    writer = SummaryWriter(log_dir='./tensorboard_dense/backward_with_regulazior' )#+ time.strftime('%y-%m-%d_%H.%M', time.localtime())) # 确定路径
     metric_logger = utils.MetricLogger(delimiter="  ")
     metric_logger.add_meter('lr', utils.SmoothedValue(window_size=1, fmt='{value:.6f}'))
     metric_logger.add_meter('loss', utils.SmoothedValue(window_size=1, fmt='{value:.4f}'))
@@ -58,7 +58,7 @@ def train(model, data_loader, optimizer, epoch, device, max_caption_num = 15):#�
         loss_list, ctploss_list, regloss_list = model(image, caption, tensor_list, max_caption_num, caption_actual_num)      
         
         optimizer.zero_grad()
-        for loss in ctploss_list:
+        for loss in loss_list:
             loss.backward()
         optimizer.step()    
         
@@ -69,7 +69,7 @@ def train(model, data_loader, optimizer, epoch, device, max_caption_num = 15):#�
         i += 1
         metric_logger.update(loss=loss.item())
         metric_logger.update(lr=optimizer.param_groups[0]["lr"])
-        if i >= 300:
+        if i >= 7000:
             break
 
     # gather the stats from all processes
@@ -106,7 +106,7 @@ def evaluate(model, data_loader, device, config):
             i += 1
 
         iter0 += 1
-        if iter0 >= 50:
+        if iter0 >= 100:
             break      
   
     return result
@@ -116,6 +116,7 @@ def main(args, config):
     if args.distributed:
         utils.init_distributed_mode(args)    
     device = torch.device(args.device)
+    # device = 'cuda:3'
     config['prompt'] = 'an area of '
 
     # fix the seed for reproducibility
@@ -174,8 +175,8 @@ def main(args, config):
         val_result = evaluate(model_without_ddp, val_loader, device, config)  
         val_result_file = save_result(val_result, args.result_dir, 'val_epoch%d'%epoch, remove_duplicate='image_id')        
   
-        test_result = evaluate(model_without_ddp, test_loader, device, config)  
-        test_result_file = save_result(test_result, args.result_dir, 'test_epoch%d'%epoch, remove_duplicate='image_id')  
+        # test_result = evaluate(model_without_ddp, test_loader, device, config)  
+        # test_result_file = save_result(test_result, args.result_dir, 'test_epoch%d'%epoch, remove_duplicate='image_id')  
 
         # if utils.is_main_process():   
         #     coco_val = coco_caption_eval(config['coco_gt_root'],val_result_file,'val')
