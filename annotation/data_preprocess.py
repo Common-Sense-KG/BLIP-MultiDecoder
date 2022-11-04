@@ -7,6 +7,9 @@ import os
 from PIL import Image
 from torch import tensor
 import torch
+import numpy as np
+from tf_idf_preprocess2 import tf_idf_process
+org_data = 'relational_captions.json'
 
 # def pre_process(titles):
 #     """
@@ -76,6 +79,12 @@ import torch
 #             titles.pop(idx)
             
 #         return similarity_filter(titles)
+def getMaxshape(object_info,subject_info):
+    min_x = object_info['x'] if object_info['x'] <= subject_info['x'] else subject_info['x']
+    min_y = object_info['y'] if object_info['y'] <= subject_info['y'] else subject_info['y']
+    max_x = object_info['x'] + object_info['w'] if object_info['x'] + object_info['w'] >= subject_info['x'] + subject_info['w']  else subject_info['x'] + subject_info['w']
+    max_y = object_info['y'] + object_info['h'] if object_info['y'] + object_info['h'] >= subject_info['y'] + subject_info['h']  else subject_info['y'] + subject_info['h']
+    return np.array([min_x,min_y,max_x,max_y]).tolist()
 
 def judgeNotTheSame(phrase,now_phrase_list):
     for now_phrase in now_phrase_list:
@@ -148,7 +157,8 @@ def getImgEmbedAccordingtoPos(PicW,PicH,x1,y1,w1,h1,x2,y2,w2,h2):
 
 if __name__ == '__main__':
     # nlp = spacy.load("en_core_web_md")
-    with open("/local/scratch/hcui25/data/enroot/ucuda/root/relational_captions.json",'r') as load_org:
+    now_directory = '/local/scratch/hcui25/data/VisualGenomeData'
+    with open(os.path.join(now_directory,org_data),'r') as load_org:
         load_dict=json.load(load_org)
 
     new_data={}
@@ -156,19 +166,21 @@ if __name__ == '__main__':
     for content in load_dict:
         relationships=content['relationships']
         now_img_id=content['image_id']
-        width,height = getPicSize('/local/scratch/hcui25/data/enroot/ucuda/root/DenseRelationalCaptioning/data/visual-genome/VG_100K_2',now_img_id)
+        width, height = getPicSize('/local/scratch/hcui25/data/VisualGenomeData/VG_100K_2',now_img_id)
         now_phrase_list=[]
         new_data={}
         if len(relationships) == 0:
             continue
         for relation in relationships:
-            phrase=relation['phrase'].lower()
+            phrase = relation['phrase'].lower()
+            predicate = relation['predicate'].lower()
+            shape = getMaxshape(relation['object'],relation['subject'])
             # phrase = relation['phrase'].lower()
             #tensor = getImgEmbedAccordingtoPos(width,height,relation['object']['x'],relation['object']['y'],relation['object']['w'],relation['object']['h'],relation['subject']['x'],relation['subject']['y'],relation['subject']['w'],relation['subject']['h'])
             # new_phrase_with_tensor={'caption':phrase,'tensor':tensor}
             if judgeNotTheSame(phrase,now_phrase_list):#实现相同caption去重
                 tensor = getImgEmbedAccordingtoPos(width,height,relation['object']['x'],relation['object']['y'],relation['object']['w'],relation['object']['h'],relation['subject']['x'],relation['subject']['y'],relation['subject']['w'],relation['subject']['h'])
-                new_phrase_with_tensor={'caption':phrase,'tensor':tensor.numpy().tolist()}#更精细化
+                new_phrase_with_tensor={'caption':phrase,'tensor':tensor.numpy().tolist(),'predicate':predicate,'boxes':shape}#更精细化
                 now_phrase_list.append(new_phrase_with_tensor)
 
         # similarity_filter(now_phrase_list)
@@ -180,7 +192,9 @@ if __name__ == '__main__':
     dense_data_train=new_data_list[0:math.floor(len(new_data_list)*0.6*0.5)]
     dense_data_eval=new_data_list[math.floor(len(new_data_list)*0.6*0.5):math.floor(len(new_data_list)*0.6*0.5)+math.floor(len(new_data_list)*0.2*0.5)]
     dense_data_test=new_data_list[math.floor(len(new_data_list)*0.6*0.5)+math.floor(len(new_data_list)*0.2*0.5):math.floor(len(new_data_list)*0.5)]
+    print("======dense data prepare finish======")
 
+    
     # dense_train_new = []
     # for content in dense_data_train:
     #     image_id=content['image_id']
@@ -197,7 +211,7 @@ if __name__ == '__main__':
     with open("dense_train.json","w") as f1:
         json.dump(dense_data_train,f1)
 
-    
+    print("======dense train data prepare finish======")
     dense_eval_new = []
     dense_eval_gt = {'annotations':[],'images':[]}
     caption_idx = 1
@@ -215,13 +229,13 @@ if __name__ == '__main__':
         if phrase_length >= 5:
             ran = random.sample(range(0,phrase_length),5)
             for i in ran:
-                dense_eval_gt['annotations'].append({'image_id':image_id,"caption":phrase_list[i]['caption'],"tensor":phrase_list[i]['tensor'],"id":caption_idx})
+                dense_eval_gt['annotations'].append({'image_id':image_id,"caption":phrase_list[i]['caption'],"tensor":phrase_list[i]['tensor'],"id":caption_idx,"boxes":phrase_list[i]['boxes']})
                 caption_idx += 1
         else:
             num = 0
             while num < 5:
                 i = random.randint(0,phrase_length-1)
-                dense_eval_gt['annotations'].append({'image_id':image_id,"caption":phrase_list[i]['caption'],"tensor":phrase_list[i]['tensor'],"id":caption_idx})
+                dense_eval_gt['annotations'].append({'image_id':image_id,"caption":phrase_list[i]['caption'],"tensor":phrase_list[i]['tensor'],"id":caption_idx,"boxes":phrase_list[i]['boxes']})
                 caption_idx += 1
                 num += 1
 
@@ -231,7 +245,7 @@ if __name__ == '__main__':
     
     with open("dense_eval_gt.json","w") as f3:
         json.dump(dense_eval_gt,f3)
-
+    print("======dense eval data stored finish======")
 
     dense_test_new = []
     dense_test_gt = {'annotations':[],'images':[]}
@@ -250,13 +264,13 @@ if __name__ == '__main__':
         if phrase_length >=5 :
             ran = random.sample(range(0,phrase_length),5)
             for i in ran:
-                dense_test_gt['annotations'].append({'image_id':image_id,"caption":phrase_list[i]['caption'],"tensor":phrase_list[i]['tensor'],"id":caption_idx})
+                dense_test_gt['annotations'].append({'image_id':image_id,"caption":phrase_list[i]['caption'],"tensor":phrase_list[i]['tensor'],"id":caption_idx,"boxes":phrase_list[i]['boxes']})
                 caption_idx += 1
         else:
             num = 0
             while num < 5:
                 i =random.randint(0,phrase_length-1)
-                dense_test_gt['annotations'].append({'image_id':image_id,"caption":phrase_list[i]['caption'],"tensor":phrase_list[i]['tensor'],"id":caption_idx})
+                dense_test_gt['annotations'].append({'image_id':image_id,"caption":phrase_list[i]['caption'],"tensor":phrase_list[i]['tensor'],"id":caption_idx,"boxes":phrase_list[i]['boxes']})
                 caption_idx += 1
                 num += 1
 
@@ -267,7 +281,9 @@ if __name__ == '__main__':
     with open("dense_test_gt.json","w") as f5:
         json.dump(dense_test_gt,f5)
 
+    print("======dense test data prepare finish======")
 
+    tf_idf_process()
     
 
 

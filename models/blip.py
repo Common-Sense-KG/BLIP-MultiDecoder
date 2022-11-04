@@ -135,6 +135,8 @@ class BLIP_Decoder(nn.Module):
                 idx += 1
 
             # print(all_org_text)
+            if all_org_text == []:
+                continue 
             all_encodings = self.tokenizer(all_org_text,padding=True, return_tensors="pt").to(image.device) 
             all_encodings['input_ids'][:,0] = self.tokenizer.bos_token_id
             decoder_targets = all_encodings.input_ids.masked_fill(all_encodings.input_ids == self.tokenizer.pad_token_id, -100)         
@@ -301,8 +303,6 @@ class BLIP_Decoder(nn.Module):
                 for output in outputs:
                     caption = self.tokenizer.decode(output, skip_special_tokens=True)    
                     captions.append(caption[len(self.prompt):])          
-            
-        
         return captions
     
 

@@ -96,8 +96,8 @@ def main(args, config):
 
     #### Dataset #### 
     print("Creating captioning dataset")
-    train_dataset, val_dataset, test_dataset = create_dataset('caption_coco', config) 
-    # train_dataset, val_dataset, test_dataset = create_dataset('dense', config)  
+    # train_dataset, val_dataset, test_dataset = create_dataset('caption_coco', config) 
+    train_dataset, val_dataset, test_dataset = create_dataset('dense', config)  
 
     if args.distributed:
         num_tasks = utils.get_world_size()
@@ -128,6 +128,8 @@ def main(args, config):
     best = 0
     best_epoch = 0
 
+    args.evaluate = False
+
     print("Start training")
     start_time = time.time()    
     for epoch in range(0, config['max_epoch']):
@@ -142,8 +144,8 @@ def main(args, config):
         val_result = evaluate(model_without_ddp, val_loader, device, config)  
         val_result_file = save_result(val_result, args.result_dir, 'val_epoch%d'%epoch, remove_duplicate='image_id')        
   
-        test_result = evaluate(model_without_ddp, test_loader, device, config)  
-        test_result_file = save_result(test_result, args.result_dir, 'test_epoch%d'%epoch, remove_duplicate='image_id')  
+        # test_result = evaluate(model_without_ddp, test_loader, device, config)  
+        # test_result_file = save_result(test_result, args.result_dir, 'test_epoch%d'%epoch, remove_duplicate='image_id')  
 
         # if utils.is_main_process():   
         #     coco_val = coco_caption_eval(config['coco_gt_root'],val_result_file,'val')

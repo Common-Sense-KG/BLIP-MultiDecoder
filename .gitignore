@@ -1,0 +1,12 @@
+datasets/*
+data/__pycache__/*
+tensorboard_dense/*
+tensorboard_temp/*
+output/*
+annotation/*
+__pycache__/*
+model
+model_final_f05665.pkl
+models/__pycache__/*
+runs/*
+transform/__pycache__/*

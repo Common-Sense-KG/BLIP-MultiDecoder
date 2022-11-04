@@ -30,10 +30,17 @@ from data import create_dataset, create_sampler, create_loader
 from data.utils import save_result, coco_caption_eval
 from torch.utils.tensorboard import SummaryWriter
 from transformers import BertModel as OrgBertModel
+from data.dense_dataset import blip_collate_fn
+from densecap_pytorch.model.densecap import densecap_resnet50_fpn
+from torchvision.models.detection.faster_rcnn import fasterrcnn_resnet50_fpn
 
-def train(model, data_loader, optimizer, epoch, device, max_caption_num = 15):#实际应为88
+device = torch.device('cpu')
+
+# def train(model, mask_model, data_loader, optimizer, epoch, device, max_caption_num = 15):#实际应为88
+def train(mask_model, data_loader, epoch, device, max_caption_num = 15):#实际应为88
+
     # train
-    model.train()  
+    # model.train()  
 
     writer = SummaryWriter(log_dir='./tensorboard_dense/backward_with_regulazior' )#+ time.strftime('%y-%m-%d_%H.%M', time.localtime())) # 确定路径
     metric_logger = utils.MetricLogger(delimiter="  ")
@@ -43,34 +50,30 @@ def train(model, data_loader, optimizer, epoch, device, max_caption_num = 15):#�
     print_freq = 50
     i = 0
 
-    # modelnew = OrgBertModel.from_pretrained('bert-large-cased')
-    # modelnew.resize_token_embeddings(30524) #写死了
-    # modelnew = modelnew.eval()
-    # modelnew = modelnew.to(device)
-
-    for image, caption, tensor_list, _, caption_actual_num in tqdm.tqdm(data_loader):#image:batch_size*3*384*384 caption
-
+    for image, targets, caption_actual_num in tqdm.tqdm(data_loader):#image:batch_size*3*384*384 caption
+        # for i in range(len(image)):
     # for i, (image, caption, _) in enumerate(metric_logger.log_every(data_loader, print_freq, header)):
-        image = image.to(device)       
+            # image = image.to(device)    
+            loss = mask_model(image, targets).to(device)   
         
-        model = model.to(device)
+            # model = model.to(device)
 
-        loss_list, ctploss_list, regloss_list = model(image, caption, tensor_list, max_caption_num, caption_actual_num)      
+            # loss_list, ctploss_list, regloss_list = model(image, caption, tensor_list, max_caption_num, caption_actual_num)      
         
-        optimizer.zero_grad()
-        for loss in loss_list:
-            loss.backward()
-        optimizer.step()    
+            # optimizer.zero_grad()
+            # for loss in loss_list:
+            #     loss.backward()
+            # optimizer.step()    
         
-        writer.add_scalar('train_overall_loss',loss.item(),i)
-        writer.add_scalar('train_ctp_loss',ctploss_list[-1].item(),i)
-        if len(regloss_list) > 0:
-            writer.add_scalar('train_reg_loss',regloss_list[-1],i)
-        i += 1
-        metric_logger.update(loss=loss.item())
-        metric_logger.update(lr=optimizer.param_groups[0]["lr"])
-        if i >= 7000:
-            break
+            # writer.add_scalar('train_overall_loss',loss.item(),i)
+            # writer.add_scalar('train_ctp_loss',ctploss_list[-1].item(),i)
+            # if len(regloss_list) > 0:
+            #     writer.add_scalar('train_reg_loss',regloss_list[-1],i)
+            # i += 1
+            # metric_logger.update(loss=loss.item())
+            # metric_logger.update(lr=optimizer.param_groups[0]["lr"])
+            # if i >= 7000:
+            #     break
 
     # gather the stats from all processes
     metric_logger.synchronize_between_processes()
@@ -115,7 +118,7 @@ def evaluate(model, data_loader, device, config):
 def main(args, config):
     if args.distributed:
         utils.init_distributed_mode(args)    
-    device = torch.device(args.device)
+    # device = torch.device(args.device)
     # device = 'cuda:3'
     config['prompt'] = 'an area of '
 
@@ -139,23 +142,39 @@ def main(args, config):
         samplers = [None, None, None]
     
     train_loader, val_loader, test_loader = create_loader([train_dataset, val_dataset, test_dataset],samplers,
-                                                          batch_size=[config['batch_size']]*3,num_workers=[2,2,2],
-                                                          is_trains=[True, False, False], collate_fns=[None,None,None])         
+                                                          batch_size=[config['batch_size']]*3,num_workers=[1,2,2],
+                                                          is_trains=[True, False, False], collate_fns=[blip_collate_fn,None,None])         
 
     #### Model #### 
-    print("Creating model")
-    model = blip_decoder(pretrained=config['pretrained'], image_size=config['image_size'], vit=config['vit'], 
-                           vit_grad_ckpt=config['vit_grad_ckpt'], vit_ckpt_layer=config['vit_ckpt_layer'], 
-                           prompt=config['prompt'])
+    # print("Creating model")
+    # model = blip_decoder(pretrained=config['pretrained'], image_size=config['image_size'], vit=config['vit'], 
+    #                        vit_grad_ckpt=config['vit_grad_ckpt'], vit_ckpt_layer=config['vit_ckpt_layer'], 
+    #                        prompt=config['prompt'])
 
-    model = model.to(device)   
+    # model = model.to(device)   
+
+
+    mask_model = densecap_resnet50_fpn(backbone_pretrained=config['backbone_pretrained'],#True
+                                  feat_size=config['feat_size'],#4096
+                                  hidden_size=config['hidden_size'],#512
+                                  max_len=config['max_len'],#16
+                                  emb_size=config['emb_size'],#512
+                                  rnn_num_layers=config['rnn_num_layers'],#1
+                                  vocab_size=config['vocab_size'],#10629
+                                  fusion_type=config['fusion_type'],#init_inject
+                                  box_detections_per_img=config['box_detections_per_img'])#50
+    # if config['use_pretrain_fasterrcnn']:#true
+    mask_model.backbone.load_state_dict(fasterrcnn_resnet50_fpn(pretrained=True).backbone.state_dict(), strict=False)
+    mask_model.rpn.load_state_dict(fasterrcnn_resnet50_fpn(pretrained=True).rpn.state_dict(), strict=False)
+
+    mask_model.to(device)
     print("Finish Creating model- pretrain")
-    model_without_ddp = model
-    if args.distributed:
-        model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[args.gpu])
-        model_without_ddp = model.module    
+    # model_without_ddp = model
+    # if args.distributed:
+    #     model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[args.gpu])
+    #     model_without_ddp = model.module    
     
-    optimizer = torch.optim.AdamW(params=model.parameters(), lr=config['init_lr'], weight_decay=config['weight_decay'])
+    # optimizer = torch.optim.AdamW(params=model.parameters(), lr=config['init_lr'], weight_decay=config['weight_decay'])
             
     best = 0
     best_epoch = 0
@@ -168,12 +187,14 @@ def main(args, config):
             if args.distributed:
                 train_loader.sampler.set_epoch(epoch)
                 
-            cosine_lr_schedule(optimizer, epoch, config['max_epoch'], config['init_lr'], config['min_lr'])
+            # cosine_lr_schedule(optimizer, epoch, config['max_epoch'], config['init_lr'], config['min_lr'])
                 
-            train_stats = train(model, train_loader, optimizer, epoch, device) 
+            # train_stats = train(model, mask_model, train_loader, optimizer, epoch, device)
+            train_stats = train(mask_model, train_loader, epoch, device) 
+             
         
-        val_result = evaluate(model_without_ddp, val_loader, device, config)  
-        val_result_file = save_result(val_result, args.result_dir, 'val_epoch%d'%epoch, remove_duplicate='image_id')        
+        # val_result = evaluate(model_without_ddp, val_loader, device, config)  
+        # val_result_file = save_result(val_result, args.result_dir, 'val_epoch%d'%epoch, remove_duplicate='image_id')        
   
         # test_result = evaluate(model_without_ddp, test_loader, device, config)  
         # test_result_file = save_result(test_result, args.result_dir, 'test_epoch%d'%epoch, remove_duplicate='image_id')  
