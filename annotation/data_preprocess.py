@@ -8,7 +8,7 @@ from PIL import Image
 from torch import tensor
 import torch
 import numpy as np
-from tf_idf_preprocess2 import tf_idf_process
+from annotation.tf_idf_preprocess2 import tf_idf_process
 org_data = 'relational_captions.json'
 
 # def pre_process(titles):

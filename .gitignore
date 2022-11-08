@@ -10,3 +10,6 @@ model_final_f05665.pkl
 models/__pycache__/*
 runs/*
 transform/__pycache__/*
+nlg-eval/*
+.vscode/launch.json
+.vscode/settings.json

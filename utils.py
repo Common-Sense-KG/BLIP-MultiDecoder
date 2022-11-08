@@ -275,4 +275,62 @@ def init_distributed_mode(args):
     torch.distributed.barrier()
     setup_for_distributed(args.rank == 0)        
         
+from annotation.data_preprocess import squareOverlap
+def getImgEmbed(predict_region_list,image_org_size):#xx*4张量
+    Img_mask = []
+    for predict_region_tensor , img_size in zip(predict_region_list,image_org_size):
+        pixelW = img_size[0] / 24
+        pixelH = img_size[1] / 24
+        image_mask_per_image = torch.zeros([predict_region_tensor.shape[0],577])
+        for idx in range(predict_region_tensor.shape[0]):
+            x = predict_region_tensor[idx][0].item()
+            y = predict_region_tensor[idx][1].item()
+            w = predict_region_tensor[idx][2].item() - predict_region_tensor[idx][0].item()
+            h = predict_region_tensor[idx][3].item() - predict_region_tensor[idx][1].item()
+            empty = torch.zeros(1,577)
+            for i in range(0,576):
+                x0 = i % 24 * pixelW
+                y0 = i // 24 * pixelH
+                if squareOverlap(x0,y0,pixelW,pixelH,x,y,w,h):
+                    empty[0][i] = 1
+            # print(i)
+            empty[0][576] = 1
+            image_mask_per_image[idx] = empty
+        Img_mask.append(image_mask_per_image)
+    # print(empty)
+    return Img_mask
+
+    
+def postprocess(res,org_size,now_size,device):
+    predict_boxes_list = res['predict_region']
+    gt_boxes_list = res['matched_gt_boxes']
+    ratios = [
+        torch.tensor(s_org, dtype=torch.float32, device=device)
+        / torch.tensor(s, dtype=torch.float32, device=device)
+        for s, s_org in zip(now_size, org_size)
+    ]
+    # ratio_height, ratio_width = ratios
+    for i,(predict_item,gt_item) in enumerate(zip(predict_boxes_list,gt_boxes_list)):
+        ratio_height, ratio_width = ratios[i].t() 
+        for idx in range(predict_item.shape[0]):
+            xmin, ymin, xmax, ymax = predict_item[idx].t()
+            xmin = xmin * ratio_width
+            xmax = xmax * ratio_width
+            ymin = ymin * ratio_height
+            ymax = ymax * ratio_height
+            predict_item[idx] = torch.stack((xmin.unsqueeze(0), ymin.unsqueeze(0), xmax.unsqueeze(0), ymax.unsqueeze(0)), dim=1).squeeze(0)
+            xmin, ymin, xmax, ymax = gt_item[idx].t()
+            xmin = xmin * ratio_width
+            xmax = xmax * ratio_width
+            ymin = ymin * ratio_height
+            ymax = ymax * ratio_height
+            gt_item[idx] = torch.stack((xmin.unsqueeze(0), ymin.unsqueeze(0), xmax.unsqueeze(0), ymax.unsqueeze(0)), dim=1).squeeze(0)
+            
+    res['predict_region'] = predict_boxes_list
+    res['matched_gt_boxes'] = gt_boxes_list
+    return res
+
+    # return torch.stack((xmin, ymin, xmax, ymax), dim=1)
+    
+    
         

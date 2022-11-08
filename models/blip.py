@@ -109,37 +109,40 @@ class BLIP_Decoder(nn.Module):
         self.prompt_length = len(self.tokenizer(self.prompt).input_ids)-1
 
         
-    def forward(self, image, caption, tensor_list, max_caption_num, caption_actual_num):
+    def forward(self, image, max_caption_num, caption_actual_num, res, mask_tensor_list):
         #逐一item拆解
-        batch_size = image.shape[0]#首先获取batch size
-        img_list = image.chunk(batch_size,dim=0)
+        
+        batch_size = len(image)#首先获取batch size
+        # img_list = image.chunk(batch_size,dim=0)
         # loss_overall = torch.zeros_like(1)
         loss_list = []
         ctploss_list = []
         regloss_list = []
         
         for i in range(0,batch_size):
+            caption_actual_num = res['corr_region_cap'][i].shape[0]
             
             # prediction_res_list = []
-            image_embeds = self.visual_encoder(img_list[i]) #1*（576+1）*768  24*24+全局 768为patch的representation的dimension
+            image_embeds = self.visual_encoder(image[i].unsqueeze(0)) #1*（576+1）*768  24*24+全局 768为patch的representation的dimension
             #image_atts = torch.ones(image_embeds.size()[:-1],dtype=torch.long).to(image.device)#1*577 #image embed需要改，要切一部分
             # all_decoder_targets = []
             all_org_text = []
             all_text = []
 
-            idx = 0
-            for content in caption:#先将当前item的 所有caption 转为decoder_targets 与 text
-                if idx >= min(caption_actual_num[i].item(),max_caption_num):
-                    break#防止越界
-                all_org_text.append(content[i])
-                idx += 1
+            # idx = 0
+            # for content in caption:#先将当前item的 所有caption 转为decoder_targets 与 text
+            #     if idx >= min(caption_actual_num[i].item(),max_caption_num):
+            #         break#防止越界
+            #     all_org_text.append(content[i])
+            #     idx += 1
 
             # print(all_org_text)
-            if all_org_text == []:
-                continue 
-            all_encodings = self.tokenizer(all_org_text,padding=True, return_tensors="pt").to(image.device) 
-            all_encodings['input_ids'][:,0] = self.tokenizer.bos_token_id
-            decoder_targets = all_encodings.input_ids.masked_fill(all_encodings.input_ids == self.tokenizer.pad_token_id, -100)         
+            # if all_org_text == []:
+            #     continue 
+            # all_encodings = self.tokenizer(all_org_text,padding=True, return_tensors="pt").to(image.device) 
+            all_encodings = res['corr_region_cap'][i]
+            all_encodings[:,0] = self.tokenizer.bos_token_id
+            decoder_targets = all_encodings.masked_fill(all_encodings == self.tokenizer.pad_token_id, -100)         
             decoder_targets[:,:self.prompt_length] = -100 # why -100
                 # # text = self.tokenizer(content[i], padding='longest', truncation=True, max_length=40, return_tensors="pt").to(image.device) 
                 # text = self.tokenizer(content[i], padding=True, return_tensors="pt").to(image.device) 
@@ -172,7 +175,7 @@ class BLIP_Decoder(nn.Module):
             # print(embeds.shape)
 
             idx = 0
-            while idx < min(caption_actual_num[i].item(),max_caption_num):
+            while idx < min(caption_actual_num,max_caption_num):
             # for content_new in caption:
             #     if idx >= caption_actual_num[i].item():
             #         break#防止越界
@@ -189,22 +192,25 @@ class BLIP_Decoder(nn.Module):
                 #                                encoder_attention_mask = image_atts,                  
                 #                                labels = embeds,#传入该pic对应的所有caption逐一做crossEntropyloss
                 #                                return_dict = True, ) 
-                decoder_output = self.text_decoder(all_encodings['input_ids'][idx].unsqueeze(0), 
-                                               attention_mask = all_encodings['attention_mask'][idx].unsqueeze(0), 
+                cap_mask = all_encodings[idx].masked_fill(all_encodings[idx] > 0, 1)  
+                decoder_output = self.text_decoder(all_encodings[idx].unsqueeze(0), 
+                                               attention_mask = cap_mask.unsqueeze(0),
+                                            #    attention_mask = torch.cat(torch.ones([1,torch.count_nonzero(all_encodings[idx]).item()]),torch.ones([1,all_encodings[idx].shape[0] - ])),
                                                encoder_hidden_states = image_embeds,
-                                               encoder_attention_mask = tensor_list[idx][i].to(image.device),                  
+                                            #    encoder_attention_mask = tensor_list[idx][i].to(image.device),   
+                                               encoder_attention_mask =  mask_tensor_list[i][idx].unsqueeze(0),           
                                                labels = decoder_targets[idx].unsqueeze(0),#传入该pic对应的所有caption逐一做crossEntropyloss 是否正确？
                                                return_dict = True, ) 
                   
                 idx += 1
 
                 if idx == 1:
-                    crossentropy_loss = decoder_output.loss.to(image.device)
-                    prediction_res = torch.argmax(decoder_output.logits,dim=2).to(image.device)
+                    crossentropy_loss = decoder_output.loss
+                    prediction_res = torch.argmax(decoder_output.logits,dim=2)
                     #prediction_res_list.append(decoder_output.logits)#将预测结果加入到list
                 else:
                     crossentropy_loss += decoder_output.loss
-                    lg = torch.argmax(decoder_output.logits,dim=2).to(image.device)
+                    lg = torch.argmax(decoder_output.logits,dim=2)
                     prediction_res = torch.cat([prediction_res,lg],0)
 
                 # prediction_res_list.append(decoder_output.logits[:,-1,:])#将最后一个token（即cls加入到list）
@@ -226,15 +232,15 @@ class BLIP_Decoder(nn.Module):
             # loss_thisimg += sum_reg_loss.sum()/embeds.shape[1]
             # loss_list.append(loss_thisimg.to(image.device))
 
-            ctploss_thisimg = crossentropy_loss / min(caption_actual_num[i].item(),max_caption_num)
-            ctploss_list.append(ctploss_thisimg.to(image.device))
-            loss_thisimg = crossentropy_loss / min(caption_actual_num[i].item(),max_caption_num)
+            ctploss_thisimg = crossentropy_loss / min(caption_actual_num,max_caption_num)
+            ctploss_list.append(ctploss_thisimg)
+            loss_thisimg = crossentropy_loss / min(caption_actual_num,max_caption_num)
             main_idx = 0
             # sum_reg_loss = torch.zeros_like(torch.ones([1,embeds.shape[1]])).to(image.device)
-            sum_reg_loss = torch.tensor([0.00]).to(image.device)
+            sum_reg_loss = torch.tensor([0.00])
             for main_idx in range(0,prediction_res.shape[0]):
                 # print(main_idx)
-                mainTensor = prediction_res[main_idx].to(image.device)#caption length 
+                mainTensor = prediction_res[main_idx]#caption length 
                 # for res_new in prediction_res_list[main_idx+1:]:
                 for submain_idx in range(main_idx+1 , prediction_res.shape[0]):
                     # print("inside")
@@ -245,7 +251,7 @@ class BLIP_Decoder(nn.Module):
             if prediction_res.shape[0] >= 2:
                 loss_thisimg += sum_reg_loss.item() / (prediction_res.shape[0] * (prediction_res.shape[0] - 1) / 2 ) * 6
                 regloss_list.append(sum_reg_loss.item() / (prediction_res.shape[0] * (prediction_res.shape[0] - 1) / 2 ))
-            loss_list.append(loss_thisimg.to(image.device))
+            loss_list.append(loss_thisimg)
             # if i == 0:
             #     loss_overall = loss_thisimg
             # else:
@@ -260,11 +266,11 @@ class BLIP_Decoder(nn.Module):
         if not sample:
             image_embeds = image_embeds.repeat_interleave(num_beams,dim=0)
             
-        image_atts = torch.ones(image_embeds.size()[:-1],dtype=torch.long).to(image.device)
+        image_atts = torch.ones(image_embeds.size()[:-1],dtype=torch.long)
         model_kwargs = {"encoder_hidden_states": image_embeds}
         
         prompt = ['an area of '] * image.size(0)
-        input_ids = self.tokenizer(prompt, return_tensors="pt").input_ids.to(image.device) 
+        input_ids = self.tokenizer(prompt, return_tensors="pt").input_ids
         input_ids[:,0] = self.tokenizer.bos_token_id
         input_ids = input_ids[:, :-1] 
         captions = []    
@@ -298,7 +304,7 @@ class BLIP_Decoder(nn.Module):
                                                     pad_token_id=self.tokenizer.pad_token_id,     
                                                     repetition_penalty=repetition_penalty,
                                                     output_scores = True,
-                                                    encoder_attention_mask=tensor_list[i].repeat_interleave(num_beams,dim=0).to(image.device),
+                                                    encoder_attention_mask=tensor_list[i].repeat_interleave(num_beams,dim=0),
                                                     **model_kwargs)  
                 for output in outputs:
                     caption = self.tokenizer.decode(output, skip_special_tokens=True)    

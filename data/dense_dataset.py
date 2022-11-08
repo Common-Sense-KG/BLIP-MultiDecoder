@@ -60,7 +60,9 @@ class dense_train(Dataset):
         
         image_path = os.path.join(self.image_root,str(ann['image_id'])+'.jpg')        
         image = Image.open(image_path).convert('RGB')   
+        width,height = image.size[0],image.size[1]
         image = self.transform(image)
+        image_org_size = [width,height]
 
         caption = ''
         captions_list = []
@@ -117,7 +119,7 @@ class dense_train(Dataset):
         # caption = caption.strip('[PAD]')
         
         # return image, captions_list, output_targets, truly_length #,self.img_ids[ann['image_id']] 
-        return image, output_targets, truly_length #,self.img_ids[ann['image_id']] 
+        return image, image_org_size, output_targets, truly_length #,self.img_ids[ann['image_id']] 
     
     
 class dense_eval(Dataset):
@@ -211,13 +213,14 @@ class dense_test(Dataset):
         return image, int(self.annotation[index]['image_id'])
 
 def blip_collate_fn(data):
-    image_list, output_targets, truly_length = [],[],[]
-    for image_item, targets_item, truly_length_item in data:
+    image_list, image_org_size, output_targets, truly_length = [],[],[],[]
+    for image_item,size,targets_item, truly_length_item in data:
         image_list.append(image_item)
+        image_org_size.append(size)
         # captions_list.append(captions_item)
         output_targets.append(targets_item)
         truly_length.append(truly_length_item)
 
-    return image_list, output_targets, truly_length
+    return image_list, image_org_size, output_targets, truly_length
 
 
