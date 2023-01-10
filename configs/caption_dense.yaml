@@ -1,4 +1,4 @@
-image_root: '/local/scratch/hcui25/data/VisualGenomeData/VG_100K_2/'
+image_root: '/local/scratch3/xfang31/DATA/overallVGIMG'
 ann_root: 'annotation'
 dense_gt_root: 'annotation/dense_gt'
 
@@ -30,7 +30,7 @@ prompt: ''
 # optimizer
 weight_decay: 0.05
 min_lr: 0
-max_epoch: 3
+max_epoch: 20
 
 #mask detect model config
 backbone_pretrained: True

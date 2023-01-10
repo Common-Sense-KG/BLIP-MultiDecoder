@@ -301,36 +301,66 @@ def getImgEmbed(predict_region_list,image_org_size):#xx*4张量
     return Img_mask
 
     
-def postprocess(res,org_size,now_size,device):
-    predict_boxes_list = res['predict_region']
-    gt_boxes_list = res['matched_gt_boxes']
+# def postprocess(res,org_size,now_size,device):
+#     predict_boxes_list = res['predict_region']
+#     gt_boxes_list = res['matched_gt_boxes']
+#     ratios = [
+#         torch.tensor(s_org, dtype=torch.float32, device=device)
+#         / torch.tensor(s, dtype=torch.float32, device=device)
+#         for s, s_org in zip(now_size, org_size)
+#     ]
+    
+#     # ratio_height, ratio_width = ratios
+#     for i,(predict_item,gt_item) in enumerate(zip(predict_boxes_list,gt_boxes_list)):
+#         ratio_height, ratio_width = ratios[i].t() 
+#         for idx in range(predict_item.shape[0]):
+#             xmin, ymin, xmax, ymax = predict_item[idx].t()
+#             xmin = xmin * ratio_width
+#             xmax = xmax * ratio_width
+#             ymin = ymin * ratio_height
+#             ymax = ymax * ratio_height
+#             predict_item[idx] = torch.stack((xmin.unsqueeze(0), ymin.unsqueeze(0), xmax.unsqueeze(0), ymax.unsqueeze(0)), dim=1).squeeze(0)
+#             xmin, ymin, xmax, ymax = gt_item[idx].t()
+#             xmin = xmin * ratio_width
+#             xmax = xmax * ratio_width
+#             ymin = ymin * ratio_height
+#             ymax = ymax * ratio_height
+#             gt_item[idx] = torch.stack((xmin.unsqueeze(0), ymin.unsqueeze(0), xmax.unsqueeze(0), ymax.unsqueeze(0)), dim=1).squeeze(0)
+            
+#     res['predict_region'] = predict_boxes_list
+#     res['matched_gt_boxes'] = gt_boxes_list
+#     return res
+
+#     # return torch.stack((xmin, ymin, xmax, ymax), dim=1)
+    
+    
+def postprocess(tensor,org_size,now_size,device):
     ratios = [
         torch.tensor(s_org, dtype=torch.float32, device=device)
         / torch.tensor(s, dtype=torch.float32, device=device)
         for s, s_org in zip(now_size, org_size)
     ]
     # ratio_height, ratio_width = ratios
-    for i,(predict_item,gt_item) in enumerate(zip(predict_boxes_list,gt_boxes_list)):
-        ratio_height, ratio_width = ratios[i].t() 
-        for idx in range(predict_item.shape[0]):
-            xmin, ymin, xmax, ymax = predict_item[idx].t()
+    for i,(item) in enumerate(tensor):
+        ratio_width, ratio_height = ratios[i].t() 
+        for idx in range(item.shape[0]):
+            xmin, ymin, xmax, ymax = item[idx].t()
             xmin = xmin * ratio_width
             xmax = xmax * ratio_width
             ymin = ymin * ratio_height
             ymax = ymax * ratio_height
-            predict_item[idx] = torch.stack((xmin.unsqueeze(0), ymin.unsqueeze(0), xmax.unsqueeze(0), ymax.unsqueeze(0)), dim=1).squeeze(0)
-            xmin, ymin, xmax, ymax = gt_item[idx].t()
-            xmin = xmin * ratio_width
-            xmax = xmax * ratio_width
-            ymin = ymin * ratio_height
-            ymax = ymax * ratio_height
-            gt_item[idx] = torch.stack((xmin.unsqueeze(0), ymin.unsqueeze(0), xmax.unsqueeze(0), ymax.unsqueeze(0)), dim=1).squeeze(0)
+            item[idx] = torch.stack((xmin.unsqueeze(0), ymin.unsqueeze(0), xmax.unsqueeze(0), ymax.unsqueeze(0)), dim=1).squeeze(0)
             
-    res['predict_region'] = predict_boxes_list
-    res['matched_gt_boxes'] = gt_boxes_list
-    return res
+    return tensor    
 
-    # return torch.stack((xmin, ymin, xmax, ymax), dim=1)
-    
-    
-        
+def packToJsonAndVisualize(result,predict_region,matched_gt_boxes,text,img_id,tokenizer):
+    for i in range(len(predict_region)):
+        region = predict_region[i].detach().cpu().numpy().tolist()
+        gt_boxes = matched_gt_boxes[i].detach().cpu().numpy().tolist()
+        imgID = img_id[i]
+        sentence_list = text[i].detach().cpu().numpy().tolist()
+        true_sentence_list = []
+        for sentence in sentence_list:
+            caption = tokenizer.decode(sentence, skip_special_tokens=True)
+            true_sentence_list.append(caption)
+        result.append({'image_id':imgID,'region_proposal':region,'gt_boxes':gt_boxes,'corr_sentence':true_sentence_list})

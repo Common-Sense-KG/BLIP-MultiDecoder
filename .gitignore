@@ -13,3 +13,4 @@ transform/__pycache__/*
 nlg-eval/*
 .vscode/launch.json
 .vscode/settings.json
+tensorboard_region/*

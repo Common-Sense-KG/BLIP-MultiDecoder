@@ -124,9 +124,16 @@ def squareOverlap(x1,y1,w1,h1,x2,y2,w2,h2):
     else:
         area = width * height
         area1 = w1 * h1
-        ratio1 = area/area1
+        if area1 == 0:
+            ratio1 = 0
+        else:
+            ratio1 = area/area1
+
         area2 = w2 * h2
-        ratio2 = area/area2
+        if area2 == 0:
+            ratio2 = 0
+        else:
+            ratio2 = area/area2
     
     if ratio1 == 0:
         return 0

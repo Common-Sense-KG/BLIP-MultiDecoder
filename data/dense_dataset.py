@@ -13,6 +13,7 @@ import numpy as np
 import cv2
 import torch
 from transformers import BertTokenizer
+import torchvision.transforms as trans
 
 # from data.utils import pre_caption_dense
 def init_tokenizer():
@@ -23,7 +24,7 @@ def init_tokenizer():
     return tokenizer
 
 class dense_train(Dataset):
-    def __init__(self, transform, image_root, ann_root, max_words=30, prompt='an area of '):        
+    def __init__(self, transform, image_root, ann_root, device, max_words=30, prompt='an area of '):        
         '''
         image_root (string): Root directory of images (e.g. coco/images/)
         ann_root (string): directory to store the annotation file
@@ -31,7 +32,6 @@ class dense_train(Dataset):
         #url = 'https://storage.googleapis.com/sfr-vision-language-research/datasets/coco_karpathy_train.json'
         filename = 'dense_train.json'
         
-        #download_url(url,ann_root)#ann_root = annotation
         self.annotation = json.load(open(os.path.join(ann_root,filename),'r'))
         tf_idf_name = 'dense_train_predicate_tfidf_score.json'
         self.corresponding_tf_idf = json.load(open(os.path.join(ann_root,tf_idf_name),'r'))
@@ -40,6 +40,7 @@ class dense_train(Dataset):
         self.max_words = max_words      
         self.prompt = prompt
         self.tokenizer = init_tokenizer()
+        self.device = device
         
         self.img_ids = {}  
         n = 0
@@ -53,6 +54,8 @@ class dense_train(Dataset):
         return len(self.annotation)
     
     def __getitem__(self, index):    
+
+        trans1 = trans.ToTensor()
         
         ann = self.annotation[index]#根据index获取annotation
         match_tf_idf = self.corresponding_tf_idf[index]
@@ -60,53 +63,52 @@ class dense_train(Dataset):
         
         image_path = os.path.join(self.image_root,str(ann['image_id'])+'.jpg')        
         image = Image.open(image_path).convert('RGB')   
-        width,height = image.size[0],image.size[1]
-        image = self.transform(image)
+        image_tensor = trans1(image)
+        width,height = image.size[1],image.size[0]
+        # image = self.transform(image)
         image_org_size = [width,height]
 
         caption = ''
         captions_list = []
         boxes_list = []
-        # tensor_list = []
-        original_captions_list = []
-        max_caption_num = 15
-        signal = True
-        while signal:
-            if len(captions_list) >= len(ann['phrase_list']) * 0.6 :
-                break
-            for i,(phrase) in enumerate(ann['phrase_list']):
-                original_captions_list.append(self.prompt + pre_caption(phrase['caption']))
-                # above_predicate = '' if i==0 else match_tf_idf['predicate_tf_idf_score'][i-1]['predicate']
-                tf_idf_score = match_tf_idf['predicate_tf_idf_score'][i]
-                # additional_similar_values = 0.1 if tf_idf_score['predicate'] == above_predicate else 0
-                if tf_idf_score['tf_idf_score']< 0.4 and random.uniform(tf_idf_score['tf_idf_score'], 1) < 0.55 :
-                    continue
-                caption = self.prompt + pre_caption(phrase['caption'])#最后一个句子后留有SEP
-                captions_list.append(caption)#大小不一——进行补全
-                phrase['boxes'] = [x + 1 for x in phrase['boxes']]
-                boxes_list.append(phrase['boxes'])
-                # tensor_list.append(np.array(phrase['tensor']))
-                if len(captions_list) >= max_caption_num:
-                    signal = False
-                    break
-        # with open('caption_compare.txt',"a") as f:    #设置文件对象
-        #     f.write("before preocessing image {}\n".format(str(ann['image_id']))) 
-        #     f.writelines(original_captions_list)
-        #     f.write("after\n")  
-        #     f.writelines(captions_list)
+        # original_captions_list = []
+        max_caption_num = 20
+        #signal = True
+        ###引入tf idf对数据做筛选(some bugs)
+        # while signal:
+        #     if len(captions_list) >= len(ann['phrase_list']) * 0.6 :
+        #         break
+        #     for i,(phrase) in enumerate(ann['phrase_list']):
+        #         # original_captions_list.append(self.prompt + pre_caption(phrase['caption']))#操作的意义？
+        #         # above_predicate = '' if i==0 else match_tf_idf['predicate_tf_idf_score'][i-1]['predicate']
+        #         tf_idf_score = match_tf_idf['predicate_tf_idf_score'][i]
+        #         # additional_similar_values = 0.1 if tf_idf_score['predicate'] == above_predicate else 0
+        #         if tf_idf_score['tf_idf_score']< 0.4 and random.uniform(tf_idf_score['tf_idf_score'], 1) < 0.55 :
+        #             continue
+        #         caption = self.prompt + pre_caption(phrase['caption'])
+        #         captions_list.append(caption)
+        #         phrase['boxes'] = [x + 0.1 for x in phrase['boxes']]#防止0对后边回归的参数影响，x的参数影响
+        #         boxes_list.append(phrase['boxes'])
+        #         if len(captions_list) >= max_caption_num:
+        #             signal = False
+        #             break
 
-        # print("before preocessing image {}\n".format(str(ann['image_id']))) 
-        # print(original_captions_list)
-        # print("after\n")  
-        # print(captions_list)
+        ###region 训练，全部放入
+        for i,(phrase) in enumerate(ann['phrase_list']):
+            caption = self.prompt + pre_caption(phrase['caption'])
+            captions_list.append(caption)
+            phrase['boxes'] = [x + 0.1 for x in phrase['boxes']]#防止0对后边回归的参数影响，x的参数影响
+            boxes_list.append(phrase['boxes'])
+            # if len(captions_list) >= max_caption_num:
+            #     break
 
         truly_length = len(captions_list)
-        if truly_length < max_caption_num:
+        if truly_length < max_caption_num:#进行补全的操作
             captions_list += [" " for i in range(max_caption_num - truly_length)]
-            boxes_list += [[1,1,2,2] for i in range(max_caption_num - truly_length)]
-            # tensor_list  += [np.zeros((1,577),np.float64) for j in range(max_caption_num - truly_length)]
+            boxes_list += [[0.1,0.1,0.2,0.2] for i in range(max_caption_num - truly_length)]#数据集同一batch补齐大小
+            
         tokenize_result = self.tokenizer(captions_list,padding=True, return_tensors="pt")
-        # output_targets['boxes'] = 
+
         output_targets['boxes'] = torch.tensor(boxes_list)
         output_targets['caps'] = tokenize_result.input_ids
         caps_len = []
@@ -114,16 +116,12 @@ class dense_train(Dataset):
             caps_len.append(torch.count_nonzero(tokenize_result.attention_mask[i]).item())
 
         output_targets['caps_len'] = torch.tensor(caps_len)
-        #caption = self.prompt+pre_caption(ann['caption'], self.max_words) #此处待更改  pre_caption内部拼接与max_words
-        # caption[-1] = '[EOS]'
-        # caption = caption.strip('[PAD]')
         
-        # return image, captions_list, output_targets, truly_length #,self.img_ids[ann['image_id']] 
-        return image, image_org_size, output_targets, truly_length #,self.img_ids[ann['image_id']] 
-    
+        # return image_tensor, image_org_size, output_targets, truly_length, self.img_ids[ann['image_id']] 
+        return image_tensor, image_org_size, output_targets, self.tokenizer, ann['image_id']
     
 class dense_eval(Dataset):
-    def __init__(self, transform, image_root, ann_root):  
+    def __init__(self, transform, image_root, ann_root, device ):  
         '''
         image_root (string): Root directory of images (e.g. coco/images/)
         ann_root (string): directory to store the annotation file
@@ -150,6 +148,8 @@ class dense_eval(Dataset):
         image_path = os.path.join(self.image_root,str(ann['image_id'])+'.jpg')      
         # model = torch.hub.load('ultralytics/yolov5', 'yolov5s')  #modify
         image = Image.open(image_path) 
+        width,height = image.size[0],image.size[1]
+        image_org_size = [width,height]
         # results = model(image) 
         image = image.convert('RGB')  
         image = self.transform(image)    
@@ -161,12 +161,12 @@ class dense_eval(Dataset):
         img_id = ann['image_id']
         tensor_list  += [np.zeros((1,577),np.float64) for j in range(max_caption_num - truly_length)]
         
-        return image, tensor_list, int(img_id)   
+        return image, image_org_size, tensor_list, int(img_id)   
         
     
     
 class dense_test(Dataset):
-    def __init__(self, transform, image_root, ann_root, max_words=30):  
+    def __init__(self, transform, image_root, ann_root, device, max_words=30):  
         '''
         image_root (string): Root directory of images (e.g. coco/images/)
         ann_root (string): directory to store the annotation file
@@ -213,14 +213,16 @@ class dense_test(Dataset):
         return image, int(self.annotation[index]['image_id'])
 
 def blip_collate_fn(data):
-    image_list, image_org_size, output_targets, truly_length = [],[],[],[]
-    for image_item,size,targets_item, truly_length_item in data:
+    image_list, image_org_size, output_targets, image_id_list = [],[],[],[]
+    for image_item, size, targets_item, tokenizer, image_id in data:
         image_list.append(image_item)
         image_org_size.append(size)
         # captions_list.append(captions_item)
         output_targets.append(targets_item)
-        truly_length.append(truly_length_item)
+        image_id_list.append(image_id)
+        dataTokenizer = tokenizer
+        # truly_length.append(truly_length_item)
 
-    return image_list, image_org_size, output_targets, truly_length
+    return image_list, image_org_size, output_targets, dataTokenizer, image_id_list
 
 

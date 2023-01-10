@@ -112,7 +112,7 @@ class BLIP_Decoder(nn.Module):
     def forward(self, image, max_caption_num, caption_actual_num, res, mask_tensor_list):
         #逐一item拆解
         
-        batch_size = len(image)#首先获取batch size
+        batch_size = len(res['corr_region_cap'])#首先获取batch size
         # img_list = image.chunk(batch_size,dim=0)
         # loss_overall = torch.zeros_like(1)
         loss_list = []
@@ -204,14 +204,14 @@ class BLIP_Decoder(nn.Module):
                   
                 idx += 1
 
-                if idx == 1:
+                if idx == 1 and i == 0:
                     crossentropy_loss = decoder_output.loss
-                    prediction_res = torch.argmax(decoder_output.logits,dim=2)
+                    # prediction_res = torch.argmax(decoder_output.logits,dim=2)
                     #prediction_res_list.append(decoder_output.logits)#将预测结果加入到list
                 else:
                     crossentropy_loss += decoder_output.loss
                     lg = torch.argmax(decoder_output.logits,dim=2)
-                    prediction_res = torch.cat([prediction_res,lg],0)
+                    # prediction_res = torch.cat([prediction_res,lg],0)
 
                 # prediction_res_list.append(decoder_output.logits[:,-1,:])#将最后一个token（即cls加入到list）
             # loss_overall += decoder_output.loss
@@ -231,36 +231,36 @@ class BLIP_Decoder(nn.Module):
             #         sum_reg_loss += output#sum_reg_loss 1*caption length
             # loss_thisimg += sum_reg_loss.sum()/embeds.shape[1]
             # loss_list.append(loss_thisimg.to(image.device))
+            ##########################################################
+            #old loss calculate function
+            # ctploss_thisimg = crossentropy_loss / min(caption_actual_num,max_caption_num)
+            # ctploss_list.append(ctploss_thisimg)
+            # loss_thisimg = crossentropy_loss / min(caption_actual_num,max_caption_num)
+            # main_idx = 0
+            # # sum_reg_loss = torch.zeros_like(torch.ones([1,embeds.shape[1]])).to(image.device)
+            # sum_reg_loss = torch.tensor([0.00])
+            # for main_idx in range(0,prediction_res.shape[0]):
+            #     # print(main_idx)
+            #     mainTensor = prediction_res[main_idx]#caption length 
+            #     # for res_new in prediction_res_list[main_idx+1:]:
+            #     for submain_idx in range(main_idx+1 , prediction_res.shape[0]):
+            #         # print("inside")
+            #         # print(res_new)
+            #         output = F.cosine_similarity(mainTensor.unsqueeze(0).float(),prediction_res[submain_idx].unsqueeze(0).float())
+            #         sum_reg_loss += output#1
+            # # sum_reg_loss = sum_reg_loss // (sum_reg_loss // crossentropy_loss)
+            # if prediction_res.shape[0] >= 2:
+            #     loss_thisimg += sum_reg_loss.item() / (prediction_res.shape[0] * (prediction_res.shape[0] - 1) / 2 ) * 6
+            #     regloss_list.append(sum_reg_loss.item() / (prediction_res.shape[0] * (prediction_res.shape[0] - 1) / 2 ))
+            # loss_list.append(loss_thisimg)
+            ############################################################
+            #new calculate loss func
+            ctploss = crossentropy_loss / torch.cat(mask_tensor_list).shape[0]
 
-            ctploss_thisimg = crossentropy_loss / min(caption_actual_num,max_caption_num)
-            ctploss_list.append(ctploss_thisimg)
-            loss_thisimg = crossentropy_loss / min(caption_actual_num,max_caption_num)
-            main_idx = 0
-            # sum_reg_loss = torch.zeros_like(torch.ones([1,embeds.shape[1]])).to(image.device)
-            sum_reg_loss = torch.tensor([0.00])
-            for main_idx in range(0,prediction_res.shape[0]):
-                # print(main_idx)
-                mainTensor = prediction_res[main_idx]#caption length 
-                # for res_new in prediction_res_list[main_idx+1:]:
-                for submain_idx in range(main_idx+1 , prediction_res.shape[0]):
-                    # print("inside")
-                    # print(res_new)
-                    output = F.cosine_similarity(mainTensor.unsqueeze(0).float(),prediction_res[submain_idx].unsqueeze(0).float())
-                    sum_reg_loss += output#1
-            # sum_reg_loss = sum_reg_loss // (sum_reg_loss // crossentropy_loss)
-            if prediction_res.shape[0] >= 2:
-                loss_thisimg += sum_reg_loss.item() / (prediction_res.shape[0] * (prediction_res.shape[0] - 1) / 2 ) * 6
-                regloss_list.append(sum_reg_loss.item() / (prediction_res.shape[0] * (prediction_res.shape[0] - 1) / 2 ))
-            loss_list.append(loss_thisimg)
-            # if i == 0:
-            #     loss_overall = loss_thisimg
-            # else:
-            #     loss_overall = torch.cat([loss_overall])
-
+        # return loss_list,ctploss_list,regloss_list
+        return ctploss
         
-        return loss_list,ctploss_list,regloss_list
-        
-    def generate(self, image, tensor_list, decoder_num=15,sample=False, num_beams=3, max_length=30, min_length=10, top_p=0.9, repetition_penalty=1.0):
+    def generate(self, image, tensor_list, device ='cuda',decoder_num=15,sample=False, num_beams=3, max_length=30, min_length=10, top_p=0.9, repetition_penalty=1.0):
         image_embeds = self.visual_encoder(image)
 
         if not sample:
@@ -268,12 +268,14 @@ class BLIP_Decoder(nn.Module):
             
         image_atts = torch.ones(image_embeds.size()[:-1],dtype=torch.long)
         model_kwargs = {"encoder_hidden_states": image_embeds}
+        # model_kwargs = {"encoder_hidden_states": image_embeds, "encoder_attention_mask":tensor_list}
         
         prompt = ['an area of '] * image.size(0)
         input_ids = self.tokenizer(prompt, return_tensors="pt").input_ids
         input_ids[:,0] = self.tokenizer.bos_token_id
         input_ids = input_ids[:, :-1] 
-        captions = []    
+        captions = []   
+        
 
         if sample:
             #nucleus sampling // #can try
@@ -294,9 +296,9 @@ class BLIP_Decoder(nn.Module):
                     captions.append(caption[len(self.prompt):])
 
         else:
-            #beam search
-            for i in range(0,decoder_num):
-                outputs = self.text_decoder.generate(input_ids=input_ids,
+            # beam search
+            for idx in range(0,tensor_list.shape[0]):
+                outputs = self.text_decoder.generate(input_ids=input_ids.to(device),
                                                     max_length=max_length,
                                                     min_length=min_length,
                                                     num_beams=num_beams,
@@ -304,12 +306,33 @@ class BLIP_Decoder(nn.Module):
                                                     pad_token_id=self.tokenizer.pad_token_id,     
                                                     repetition_penalty=repetition_penalty,
                                                     output_scores = True,
-                                                    encoder_attention_mask=tensor_list[i].repeat_interleave(num_beams,dim=0),
-                                                    **model_kwargs)  
+                                                    encoder_attention_mask=tensor_list[idx].unsqueeze(0).repeat_interleave(num_beams,dim=0),
+                                                    **model_kwargs)
                 for output in outputs:
-                    caption = self.tokenizer.decode(output, skip_special_tokens=True)    
-                    captions.append(caption[len(self.prompt):])          
+                    caption = self.tokenizer.decode(output, skip_special_tokens=True)
+                    captions.append(caption[len(self.prompt):]) 
+                    # regions.append()   
+
+
+                # encoder_hidden_states = image_embeds[i].unsqueeze(0)) #逐图进行beam search 
+                # image_predict_caption = []
+                # for i in range(0,decoder_num):
+                #     outputs = self.text_decoder.generate(input_ids=input_ids,
+                #                                     max_length=max_length,
+                #                                     min_length=min_length,
+                #                                     num_beams=num_beams,
+                #                                     eos_token_id=self.tokenizer.sep_token_id,
+                #                                     pad_token_id=self.tokenizer.pad_token_id,     
+                #                                     repetition_penalty=repetition_penalty,
+                #                                     output_scores = True,
+                #                                     attention_mask=image_mask_tensor[i].repeat_interleave(num_beams,dim=0),)
+                #                                     # encoder_hidden_states = image_embeds[i].unsqueeze(0)) #逐图进行beam search 
+                #     for output in outputs:
+                #         caption = self.tokenizer.decode(output, skip_special_tokens=True)    
+                #         image_predict_caption.append(caption[len(self.prompt):])      
+                # overall_image_predict_caption.append(image_predict_caption)    
         return captions
+            
     
 
 def blip_decoder(pretrained='',**kwargs):
