@@ -5,7 +5,6 @@ tensorboard_temp/*
 output/*
 annotation/*
 __pycache__/*
-model
 model_final_f05665.pkl
 models/__pycache__/*
 runs/*
@@ -14,3 +13,4 @@ nlg-eval/*
 .vscode/launch.json
 .vscode/settings.json
 tensorboard_region/*
+region_model/model/__pycache__/*
