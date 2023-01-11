@@ -109,158 +109,72 @@ class BLIP_Decoder(nn.Module):
         self.prompt_length = len(self.tokenizer(self.prompt).input_ids)-1
 
         
-    def forward(self, image, max_caption_num, caption_actual_num, res, mask_tensor_list):
+    def forward(self, image, max_caption_num, ground_truth):
         #逐一item拆解
-        
-        batch_size = len(res['corr_region_cap'])#首先获取batch size
-        # img_list = image.chunk(batch_size,dim=0)
-        # loss_overall = torch.zeros_like(1)
-        loss_list = []
-        ctploss_list = []
-        regloss_list = []
-        
+    
+        batch_size = len(image)#首先获取batch size
+        loss_dict = {"ctploss":[], "regloss":[],"overallloss":[]} 
         for i in range(0,batch_size):
-            caption_actual_num = res['corr_region_cap'][i].shape[0]
-            
-            # prediction_res_list = []
             image_embeds = self.visual_encoder(image[i].unsqueeze(0)) #1*（576+1）*768  24*24+全局 768为patch的representation的dimension
-            #image_atts = torch.ones(image_embeds.size()[:-1],dtype=torch.long).to(image.device)#1*577 #image embed需要改，要切一部分
-            # all_decoder_targets = []
-            all_org_text = []
-            all_text = []
 
-            # idx = 0
-            # for content in caption:#先将当前item的 所有caption 转为decoder_targets 与 text
-            #     if idx >= min(caption_actual_num[i].item(),max_caption_num):
-            #         break#防止越界
-            #     all_org_text.append(content[i])
-            #     idx += 1
+            crossentropy_loss_list = []
 
-            # print(all_org_text)
-            # if all_org_text == []:
-            #     continue 
-            # all_encodings = self.tokenizer(all_org_text,padding=True, return_tensors="pt").to(image.device) 
-            all_encodings = res['corr_region_cap'][i]
+            all_encodings = ground_truth[i]['caps'].to(image[0].device)
             all_encodings[:,0] = self.tokenizer.bos_token_id
             decoder_targets = all_encodings.masked_fill(all_encodings == self.tokenizer.pad_token_id, -100)         
             decoder_targets[:,:self.prompt_length] = -100 # why -100
-                # # text = self.tokenizer(content[i], padding='longest', truncation=True, max_length=40, return_tensors="pt").to(image.device) 
-                # text = self.tokenizer(content[i], padding=True, return_tensors="pt").to(image.device) 
-                # #self.tokenizer.vocab_size为30522
-                # text.input_ids[:,0] = self.tokenizer.bos_token_id#最前面一位为[DEC]
-        
-                # decoder_targets = text.input_ids.masked_fill(text.input_ids == self.tokenizer.pad_token_id, -100)         
-                # decoder_targets[:,:self.prompt_length] = -100
-
-                # all_decoder_targets.append(decoder_targets)#最前面一位为-100 最后面一位为[CLS] 
-                # all_text.append(text) #最前面一位为[DEC] 最后面一位为[CLS] 
-                # idx += 1
-
-            # lr = nn.Linear(1024,self.tokenizer.vocab_size+2,device=image.device)
-
-            # model = OrgBertModel.from_pretrained('bert-large-cased')
-            # model.resize_token_embeddings(len(self.tokenizer)) 
-            # model = model.eval()
-            # model = model.to(image.device)
-
-            # with torch.no_grad():
-            #     # idx = 0
-            #     # while idx < caption_actual_num[i].item():
-            #     #     all_text[idx].embeds = model(**all_text[idx])[0]
-            #     #     idx += 1
-            #     embeds = modelnew(**all_encodings)
-            #     embeds = lr(embeds[0])
-                
-
-            # print(embeds.shape)
 
             idx = 0
-            while idx < min(caption_actual_num,max_caption_num):
-            # for content_new in caption:
-            #     if idx >= caption_actual_num[i].item():
-            #         break#防止越界
-            # text = self.tokenizer(content, padding='longest', truncation=True, max_length=40, return_tensors="pt").to(image.device) 
-        
-            # text.input_ids[:,0] = self.tokenizer.bos_token_id
-        
-            # decoder_targets = text.input_ids.masked_fill(text.input_ids == self.tokenizer.pad_token_id, -100)         
-            # decoder_targets[:,:self.prompt_length] = -100
-            # now_text_decoder = self.text_decoder_list[i]
-                # decoder_output = self.text_decoder(all_text[idx].input_ids, 
-                #                                attention_mask = all_text[idx].attention_mask, 
-                #                                encoder_hidden_states = image_embeds,
-                #                                encoder_attention_mask = image_atts,                  
-                #                                labels = embeds,#传入该pic对应的所有caption逐一做crossEntropyloss
-                #                                return_dict = True, ) 
-                cap_mask = all_encodings[idx].masked_fill(all_encodings[idx] > 0, 1)  
+            while idx < all_encodings.shape[0]:
+                cap_mask = all_encodings[idx].masked_fill(all_encodings[idx] > 0, 1).to(image[0].device)
                 decoder_output = self.text_decoder(all_encodings[idx].unsqueeze(0), 
                                                attention_mask = cap_mask.unsqueeze(0),
-                                            #    attention_mask = torch.cat(torch.ones([1,torch.count_nonzero(all_encodings[idx]).item()]),torch.ones([1,all_encodings[idx].shape[0] - ])),
                                                encoder_hidden_states = image_embeds,
-                                            #    encoder_attention_mask = tensor_list[idx][i].to(image.device),   
-                                               encoder_attention_mask =  mask_tensor_list[i][idx].unsqueeze(0),           
+                                               encoder_attention_mask = ground_truth[i]['image_mask'][idx].unsqueeze(0).to(image[0].device),           
                                                labels = decoder_targets[idx].unsqueeze(0),#传入该pic对应的所有caption逐一做crossEntropyloss 是否正确？
                                                return_dict = True, ) 
-                  
                 idx += 1
 
-                if idx == 1 and i == 0:
+
+                if idx == 1:
                     crossentropy_loss = decoder_output.loss
-                    # prediction_res = torch.argmax(decoder_output.logits,dim=2)
-                    #prediction_res_list.append(decoder_output.logits)#将预测结果加入到list
+                    prediction_res = torch.argmax(decoder_output.logits,dim=2)
+                    # prediction_res_list.append(decoder_output.logits)#将预测结果加入到list
                 else:
                     crossentropy_loss += decoder_output.loss
                     lg = torch.argmax(decoder_output.logits,dim=2)
-                    # prediction_res = torch.cat([prediction_res,lg],0)
+                    prediction_res = torch.cat([prediction_res,lg],0)
 
-                # prediction_res_list.append(decoder_output.logits[:,-1,:])#将最后一个token（即cls加入到list）
-            # loss_overall += decoder_output.loss
-            #prediction_res seq_num * seq_length
-            #原来：直接拿predict结果Logits算相似度
-            # loss_thisimg = crossentropy_loss / min(caption_actual_num[i].item(),max_caption_num)
-            # main_idx = 0
+                crossentropy_loss_list.append(decoder_output.loss)
+
+            ctploss = crossentropy_loss / all_encodings.shape[0]
+            loss_thisimg = crossentropy_loss / all_encodings.shape[0]
+            loss_dict['ctploss'].append(ctploss)
+            main_idx = 0
             # sum_reg_loss = torch.zeros_like(torch.ones([1,embeds.shape[1]])).to(image.device)
-            # for main_idx in range(0,prediction_res.shape[0]):
-            #     # print(main_idx)
-            #     mainTensor = prediction_res[main_idx].to(image.device)#caption length * vocab size
-            #     # for res_new in prediction_res_list[main_idx+1:]:
-            #     for submain_idx in range(main_idx+1 , prediction_res.shape[0]):
-            #         # print("inside")
-            #         # print(res_new)
-            #         output = F.cosine_similarity(mainTensor,prediction_res[submain_idx])
-            #         sum_reg_loss += output#sum_reg_loss 1*caption length
-            # loss_thisimg += sum_reg_loss.sum()/embeds.shape[1]
-            # loss_list.append(loss_thisimg.to(image.device))
-            ##########################################################
-            #old loss calculate function
-            # ctploss_thisimg = crossentropy_loss / min(caption_actual_num,max_caption_num)
-            # ctploss_list.append(ctploss_thisimg)
-            # loss_thisimg = crossentropy_loss / min(caption_actual_num,max_caption_num)
-            # main_idx = 0
-            # # sum_reg_loss = torch.zeros_like(torch.ones([1,embeds.shape[1]])).to(image.device)
-            # sum_reg_loss = torch.tensor([0.00])
-            # for main_idx in range(0,prediction_res.shape[0]):
-            #     # print(main_idx)
-            #     mainTensor = prediction_res[main_idx]#caption length 
-            #     # for res_new in prediction_res_list[main_idx+1:]:
-            #     for submain_idx in range(main_idx+1 , prediction_res.shape[0]):
-            #         # print("inside")
-            #         # print(res_new)
-            #         output = F.cosine_similarity(mainTensor.unsqueeze(0).float(),prediction_res[submain_idx].unsqueeze(0).float())
-            #         sum_reg_loss += output#1
-            # # sum_reg_loss = sum_reg_loss // (sum_reg_loss // crossentropy_loss)
-            # if prediction_res.shape[0] >= 2:
-            #     loss_thisimg += sum_reg_loss.item() / (prediction_res.shape[0] * (prediction_res.shape[0] - 1) / 2 ) * 6
-            #     regloss_list.append(sum_reg_loss.item() / (prediction_res.shape[0] * (prediction_res.shape[0] - 1) / 2 ))
-            # loss_list.append(loss_thisimg)
-            ############################################################
-            #new calculate loss func
-            ctploss = crossentropy_loss / torch.cat(mask_tensor_list).shape[0]
+            sum_reg_loss = torch.tensor([0.00]).to(image[0].device)
+            for main_idx in range(0,prediction_res.shape[0]):
+                # print(main_idx)
+                mainTensor = prediction_res[main_idx]#caption length 
+                # for res_new in prediction_res_list[main_idx+1:]:
+                for submain_idx in range(main_idx + 1 , prediction_res.shape[0]):
+                    # print("inside")
+                    # print(res_new)
+                    submainTensor = prediction_res[submain_idx]
+                    output = F.cosine_similarity(mainTensor.unsqueeze(0).float(),submainTensor.unsqueeze(0).float())
+                    sum_reg_loss += output
+            # sum_reg_loss = sum_reg_loss // (sum_reg_loss // crossentropy_loss)
+            if prediction_res.shape[0] >= 2:
+                loss_thisimg += sum_reg_loss.item() / (prediction_res.shape[0] * (prediction_res.shape[0] - 1) / 2 ) * 6
+                loss_dict['regloss'].append(sum_reg_loss.item() / (prediction_res.shape[0] * (prediction_res.shape[0] - 1) / 2 ))
+            else:
+                loss_thisimg += sum_reg_loss.item() 
+                loss_dict['regloss'].append(sum_reg_loss.item())
+            loss_dict['overallloss'].append(loss_thisimg)
 
-        # return loss_list,ctploss_list,regloss_list
-        return ctploss
+        return loss_dict
         
-    def generate(self, image, tensor_list, device ='cuda',decoder_num=15,sample=False, num_beams=3, max_length=30, min_length=10, top_p=0.9, repetition_penalty=1.0):
+    def generate(self, image, tensor_list, device ='cuda', decoder_num=15, sample=False, num_beams=3, max_length=30, min_length=10, top_p=0.9, repetition_penalty=1.0):
         image_embeds = self.visual_encoder(image)
 
         if not sample:
@@ -276,7 +190,6 @@ class BLIP_Decoder(nn.Module):
         input_ids = input_ids[:, :-1] 
         captions = []   
         
-
         if sample:
             #nucleus sampling // #can try
             for i in range(0,decoder_num):
@@ -311,8 +224,6 @@ class BLIP_Decoder(nn.Module):
                 for output in outputs:
                     caption = self.tokenizer.decode(output, skip_special_tokens=True)
                     captions.append(caption[len(self.prompt):]) 
-                    # regions.append()   
-
 
                 # encoder_hidden_states = image_embeds[i].unsqueeze(0)) #逐图进行beam search 
                 # image_predict_caption = []

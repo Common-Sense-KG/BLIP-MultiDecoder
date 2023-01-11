@@ -18,12 +18,12 @@ from torch.utils.data import DataLoader
 
 from models.blip import blip_decoder
 import utils
-from utils import cosine_lr_schedule, getImgEmbed, postprocess,packToJsonAndVisualize
+from utils import cosine_lr_schedule, getImgEmbed, postprocess, packToJsonAndVisualize
 from data import create_dataset, create_sampler, create_loader
 from data.utils import save_result, coco_caption_eval
 from torch.utils.tensorboard import SummaryWriter
 from transformers import BertModel as OrgBertModel
-from data.dense_dataset import blip_collate_fn
+from data.region_dataset import regiondata_collate_fn
 from densecap import densecap_resnet50_fpn
 from torchvision.models.detection.faster_rcnn import fasterrcnn_resnet50_fpn
 
@@ -57,7 +57,6 @@ def train(mask_model, data_loader, optimizer, epoch, device):#实际应为88
             if i % 1000 == 0: #and i != 0:
                 packToJsonAndVisualize(visualize_region_result,res['predict_region'],res['matched_gt_boxes'],res['corr_region_cap'],img_id,tokenizer)
 
-
             optimizer.zero_grad()
             overall_loss = mask_losses['loss_box_reg'] + mask_losses['loss_rpn_box_reg']
             overall_loss.backward()
@@ -70,9 +69,7 @@ def train(mask_model, data_loader, optimizer, epoch, device):#实际应为88
             
             metric_logger.update(loss=overall_loss.item())
             metric_logger.update(lr=optimizer.param_groups[0]["lr"])
-            # if i>=10000:
-            #     print("break from 10000")
-            #     break
+
     visualize_region_result_fileName = 'visualize_train_result-epoch' + str(epoch) +'.json'
     with open("/local/scratch3/xfang31/BLIP-MultiDecoder/output/Caption_dense/region_train/"+ visualize_region_result_fileName,"w") as f1:
         json.dump(visualize_region_result,f1)
@@ -87,7 +84,7 @@ def evaluate(mask_model, data_loader, device, config):
     
     metric_logger = utils.MetricLogger(delimiter="  ")
     header = 'Caption generation:'
-    print_freq = 1
+    print_freq = 10
     decoder_num = 15
 
     result = []
@@ -121,7 +118,7 @@ def main(args, config):
 
     #### Dataset #### 
     print("Creating captioning dataset")
-    train_dataset, val_dataset, test_dataset = create_dataset('dense', config, device)  
+    train_dataset, val_dataset, test_dataset = create_dataset('region', config, device)  
 
     if args.distributed:
         num_tasks = utils.get_world_size()
@@ -132,7 +129,7 @@ def main(args, config):
     
     train_loader, val_loader, test_loader = create_loader([train_dataset, val_dataset, test_dataset],samplers,
                                                           batch_size=[config['batch_size']]*3,num_workers=[1,2,2],
-                                                          is_trains=[True, False, False], collate_fns=[blip_collate_fn,None,None])         
+                                                          is_trains=[True, False, False], collate_fns=[regiondata_collate_fn,None,None])         
 
     ### Model #### 
     print("Creating model") 
@@ -161,8 +158,8 @@ def main(args, config):
                                               if para.requires_grad), 'lr':  1e-3}],
                                   lr=config['init_lr'], weight_decay=config['weight_decay'])
             
-    args.evaluate = False
-
+    args.evaluate = True
+    minloss = 100
     print("Start training")
     start_time = time.time()    
     for epoch in range(0, config['max_epoch']):
@@ -173,6 +170,11 @@ def main(args, config):
             cosine_lr_schedule(optimizer, epoch, config['max_epoch'], config['init_lr'], config['min_lr'])
                 
             train_stats = train(mask_model, train_loader, optimizer, epoch, device)
+            if minloss > train_stats['loss']:
+                print("update min loss in epoch "+str(epoch))
+                print("min loss is "+str(train_stats['loss']))
+                minloss = train_stats['loss']
+                torch.save(mask_model.state_dict(),'region_model/model_result/region_detection_model.pt')
             
              
         val_result = evaluate(mask_model, val_loader, device, config)  

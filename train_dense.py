@@ -49,50 +49,28 @@ def train(model, mask_model, data_loader, optimizer, epoch, device, max_caption_
     # header = 'Train Caption Epoch: [{}]'.format(epoch)
     # print_freq = 50
     i = 0
-
-    for image, image_org_size, targets, caption_actual_num in tqdm.tqdm(data_loader):#image:batch_size*3*384*384 caption
-            image = [img.to(device) for img in image]
-            for item in targets:
-                item['boxes'] = item['boxes'].to(device)
-                item['caps'] = item['caps'].to(device)
-                item['caps_len'] = item['caps_len'].to(device)
-            mask_losses, res, after_mask_model_size = mask_model(image, targets)
-            # image = image.to(device)
-            if res == None:
-                continue
-            res['predict_region'] = postprocess(res['predict_region'],image_org_size,after_mask_model_size,device)
-            res['matched_gt_boxes'] = postprocess(res['matched_gt_boxes'],image_org_size,after_mask_model_size,device)
-
-            # loss_box_reg, proposal, gt_boxes_list, corr_region_cap_list = mask_model(image, targets)
-            mask_tensor_list = getImgEmbed(res['predict_region'],image_org_size)
-            mask_tensor_list = [mask_tensor.to(device) for mask_tensor in mask_tensor_list]
+    for image, image_org_size, targets, img_id in tqdm.tqdm(data_loader):#image:batch_size*3*384*384 caption
 
             model = model.to(device)
-
-            ctploss = model(image, max_caption_num, caption_actual_num, res, mask_tensor_list)      
+            image = [img.to(device) for img in image]
+            loss_dict = model(image, max_caption_num, targets)      
         
             optimizer.zero_grad()
-            overall_loss = ctploss +  mask_losses['loss_box_reg'] + mask_losses['loss_rpn_box_reg']
-            overall_loss.backward()
-            # for losses, box_reg_loss in zip(loss_list,mask_losses['loss_box_reg']):
-            #     overall_loss = box_reg_loss + losses
-            #     overall_loss.backward()
+            for overall_loss in loss_dict['overallloss']:
+                overall_loss.backward()
             optimizer.step()    
         
             writer.add_scalar('train_overall_loss',overall_loss.item(),i)
-            writer.add_scalar('mask_loss',mask_losses['loss_box_reg'].item(),i)
-            writer.add_scalar('generate_ctp_loss',ctploss.item(),i)
+            writer.add_scalar('reg_loss',loss_dict['regloss'][-1],i)
+            writer.add_scalar('generate_ctp_loss',loss_dict['ctploss'][-1].item(),i)
 
-            # writer.add_scalar('train_ctp_loss',ctploss_list[-1].item(),i)
-            # if len(regloss_list) > 0:
-            #     writer.add_scalar('train_reg_loss',regloss_list[-1],i)
             i += 1
             
             metric_logger.update(loss=overall_loss.item())
             metric_logger.update(lr=optimizer.param_groups[0]["lr"])
-            if i >= 2000:
-                print("interrupt from 10!")
-                break
+            # if i >= 2000:
+            #     print("interrupt from 10!")
+            #     break
 
     # gather the stats from all processes
     # metric_logger.synchronize_between_processes()
@@ -108,18 +86,17 @@ def evaluate(model, mask_model, data_loader, device, config):
     
     metric_logger = utils.MetricLogger(delimiter="  ")
     header = 'Caption generation:'
-    print_freq = 1
-    decoder_num = 15
+    print_freq = 10
 
     result = []
     iter0 = 0
     print("Eval Start") 
-    for image, image_org_size, tensor_list, image_id in metric_logger.log_every(data_loader, print_freq, header): 
+    for image, image_org_size, image_id in metric_logger.log_every(data_loader, print_freq, header): 
         
         image = image.to(device)     
         # image = [img.to(device) for img in image]
-        mask_losses, res, after_mask_model_size = mask_model(image)  
-        res['predict_region'] = postprocess(res['predict_region'],image_org_size, after_mask_model_size, device)
+        _, res, after_mask_model_size = mask_model(image)  
+        res['predict_region'] = postprocess(res['predict_region'], image_org_size, after_mask_model_size, device)
         mask_tensor_list = getImgEmbed(res['predict_region'], image_org_size)
         mask_tensor_list = [mask_tensor.to(device) for mask_tensor in mask_tensor_list]
         
@@ -128,10 +105,10 @@ def evaluate(model, mask_model, data_loader, device, config):
                                     min_length=config['min_length'])
             for region_idx, (caption) in enumerate(captions):       
                 result.append({"image_id": image_id[idx].item(), "caption": caption, "corresponding_region":res['predict_region'][idx][region_idx].cpu().numpy().tolist()})                 
-        iter0 += 1
-        if iter0 >= 100:
-            break    
-    print("eval finish--")  
+        # iter0 += 1
+        # if iter0 >= 100:
+        #     break    
+    print("===Eval Finish===")  
   
     return result
 
@@ -174,8 +151,6 @@ def main(args, config):
                            prompt=config['prompt'])
 
     model = model.to(device)   
-    # mask_model = mask_model.to(device)  
-
 
     mask_model = densecap_resnet50_fpn(backbone_pretrained=config['backbone_pretrained'],#True
                                   feat_size=config['feat_size'],#4096
@@ -207,7 +182,7 @@ def main(args, config):
             
     best = 0
     best_epoch = 0
-    args.evaluate = False
+    args.evaluate = True
 
     print("Start training")
     start_time = time.time()    
@@ -221,7 +196,6 @@ def main(args, config):
             train_stats = train(model, mask_model, train_loader, optimizer, epoch, device)
             # train_stats = train(mask_model, train_loader, epoch, device) 
              
-        
         val_result = evaluate(model_without_ddp, mask_model, val_loader, device, config)  
         val_result_file = save_result(val_result, args.result_dir, 'val_epoch%d'%epoch, remove_duplicate='image_id')        
   
@@ -270,9 +244,7 @@ def main(args, config):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    # parser.add_argument('--config', default='./configs/caption_coco.yaml')
-    # parser.add_argument('--output_dir', default='output/Caption_coco')        
+    parser = argparse.ArgumentParser()  
     parser.add_argument('--config', default='./configs/caption_dense.yaml')
     parser.add_argument('--output_dir', default='output/Caption_dense')   
     parser.add_argument('--evaluate', action='store_true')    

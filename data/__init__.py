@@ -5,6 +5,7 @@ from torchvision.transforms.functional import InterpolationMode
 
 from data.coco_karpathy_dataset import coco_karpathy_train, coco_karpathy_caption_eval, coco_karpathy_retrieval_eval
 from data.dense_dataset import dense_train,dense_test,dense_eval
+from data.region_dataset import region_train,region_test,region_eval
 from transform.randaugment import RandomAugment
 
 def create_dataset(dataset, config, device, min_scale=0.5):
@@ -41,7 +42,14 @@ def create_dataset(dataset, config, device, min_scale=0.5):
         train_dataset = dense_train(transform_train, config['image_root'], config['ann_root'],device)
         val_dataset = dense_eval(transform_test, config['image_root'], config['ann_root'],device) 
         test_dataset = dense_test(transform_test, config['image_root'], config['ann_root'],device)          
-        return train_dataset, val_dataset, test_dataset 
+        return train_dataset, val_dataset, test_dataset
+    
+    elif dataset == 'region':
+        train_dataset = region_train(transform_train, config['image_root'], config['ann_root'],device)
+        val_dataset = region_eval(transform_test, config['image_root'], config['ann_root'],device) 
+        test_dataset = region_test(transform_test, config['image_root'], config['ann_root'],device)          
+        return train_dataset, val_dataset, test_dataset
+
 
     
 def create_sampler(datasets, shuffles, num_tasks, global_rank):

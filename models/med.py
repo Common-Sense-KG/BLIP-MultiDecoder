@@ -920,8 +920,6 @@ class BertLMHeadModel(BertPreTrainedModel):
         if return_logits:
             return prediction_scores[:, :-1, :].contiguous()  
 
-        
-
         lm_loss = None
         if labels is not None:
             # we are doing next-token prediction; shift prediction scores and input ids by one
