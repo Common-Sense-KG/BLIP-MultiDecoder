@@ -42,33 +42,33 @@ def train(mask_model, data_loader, optimizer, epoch, device):#实际应为88
     visualize_region_result = []
 
     for image, image_org_size, targets, tokenizer, img_id in tqdm.tqdm(data_loader):#image:batch_size*3*384*384 caption
-            image = [img.to(device) for img in image]
-            for item in targets:
-                item['boxes'] = item['boxes'].to(device)
-                item['caps'] = item['caps'].to(device)
-                item['caps_len'] = item['caps_len'].to(device)
-            mask_losses, res, after_mask_model_size = mask_model(image, targets)
-            # image = image.to(device)
-            if res == None:
-                continue
-            res['predict_region'] = postprocess(res['predict_region'],image_org_size,after_mask_model_size,device)
-            res['matched_gt_boxes'] = postprocess(res['matched_gt_boxes'],image_org_size,after_mask_model_size,device)
-            ##添加部分训练集的预测结果，供可视化查看效果
-            if i % 1000 == 0: #and i != 0:
-                packToJsonAndVisualize(visualize_region_result,res['predict_region'],res['matched_gt_boxes'],res['corr_region_cap'],img_id,tokenizer)
+        image = [img.to(device) for img in image]
+        for item in targets:
+            item['boxes'] = item['boxes'].to(device)
+            item['caps'] = item['caps'].to(device)
+            item['caps_len'] = item['caps_len'].to(device)
+        mask_losses, res, after_mask_model_size = mask_model(image, targets)
+        # image = image.to(device)
+        if res == None:
+            continue
+        res['predict_region'] = postprocess(res['predict_region'],image_org_size,after_mask_model_size,device)
+        res['matched_gt_boxes'] = postprocess(res['matched_gt_boxes'],image_org_size,after_mask_model_size,device)
+        ##添加部分训练集的预测结果，供可视化查看效果
+        if i % 1000 == 0: #and i != 0:
+            packToJsonAndVisualize(visualize_region_result,res['predict_region'],res['matched_gt_boxes'],res['corr_region_cap'],img_id,tokenizer)
 
-            optimizer.zero_grad()
-            overall_loss = mask_losses['loss_box_reg'] + mask_losses['loss_rpn_box_reg']
-            overall_loss.backward()
-            optimizer.step()    
+        optimizer.zero_grad()
+        overall_loss = mask_losses['loss_box_reg'] + mask_losses['loss_rpn_box_reg']
+        overall_loss.backward()
+        optimizer.step()    
+    
+        writer.add_scalar('train_overall_loss',overall_loss.item(),i)
+        writer.add_scalar('mask_loss',mask_losses['loss_box_reg'].item(),i)
+
+        i += 1
         
-            writer.add_scalar('train_overall_loss',overall_loss.item(),i)
-            writer.add_scalar('mask_loss',mask_losses['loss_box_reg'].item(),i)
-
-            i += 1
-            
-            metric_logger.update(loss=overall_loss.item())
-            metric_logger.update(lr=optimizer.param_groups[0]["lr"])
+        metric_logger.update(loss=overall_loss.item())
+        metric_logger.update(lr=optimizer.param_groups[0]["lr"])       
 
     visualize_region_result_fileName = 'visualize_train_result-epoch' + str(epoch) +'.json'
     with open("/local/scratch3/xfang31/BLIP-MultiDecoder/output/Caption_dense/region_train/"+ visualize_region_result_fileName,"w") as f1:
@@ -159,7 +159,7 @@ def main(args, config):
                                   lr=config['init_lr'], weight_decay=config['weight_decay'])
             
     args.evaluate = False
-    minloss = 100
+    minloss = 100.0
     print("Start training")
     start_time = time.time()    
     for epoch in range(0, config['max_epoch']):
@@ -170,10 +170,10 @@ def main(args, config):
             cosine_lr_schedule(optimizer, epoch, config['max_epoch'], config['init_lr'], config['min_lr'])
                 
             train_stats = train(mask_model, train_loader, optimizer, epoch, device)
-            if minloss > train_stats['loss']:
+            if minloss > float(train_stats['loss']):
                 print("update min loss in epoch "+str(epoch))
-                print("min loss is "+str(train_stats['loss']))
-                minloss = train_stats['loss']
+                print("min loss is "+train_stats['loss'])
+                minloss = float(train_stats['loss'])
                 torch.save(mask_model.state_dict(),'region_model/model_result/region_detection_model.pt')
             
              

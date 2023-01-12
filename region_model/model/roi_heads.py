@@ -6,6 +6,7 @@ import numpy as np
 
 from torchvision.ops import boxes as box_ops
 from torchvision.models.detection import _utils as det_utils
+from models.blip import blip_decoder
 
 
 
@@ -530,9 +531,15 @@ class DenseCapRoIHeads(nn.Module):
             caption_length = None
             regression_targets = None
 
+        # text_info = 
+        # textModel = blip_decoder(pretrained=config['pretrained'], image_size=config['image_size'], vit=config['vit'], 
+        #                    vit_grad_ckpt=config['vit_grad_ckpt'], vit_ckpt_layer=config['vit_ckpt_layer'], 
+        #                    prompt=config['prompt'])
 
-        box_features = self.box_roi_pool(features, proposals, image_shapes)
-        box_features = self.box_head(box_features)
+        # textModel = textModel.to(device)
+
+        box_features = self.box_roi_pool(features, proposals, image_shapes) # MultiScaleRoIAlign 通过pool池化使得不同size的proposal转换为相同维数的特征向量
+        box_features = self.box_head(box_features) #池化pool的过程
         logits, box_regression = self.box_predictor(box_features)
 
         result, losses = [], {}
@@ -557,9 +564,6 @@ class DenseCapRoIHeads(nn.Module):
             result = {
                 "predict_region":pred_boxes_list,
             }
-
-        
-
 
             # return loss_box_reg, proposals, matched_gt_boxes_list, corr_region_cap_list
 

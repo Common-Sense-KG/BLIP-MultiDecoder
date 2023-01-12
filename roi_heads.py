@@ -530,7 +530,7 @@ class DenseCapRoIHeads(nn.Module):
             caption_length = None
             regression_targets = None
 
-
+        
         box_features = self.box_roi_pool(features, proposals, image_shapes)
         box_features = self.box_head(box_features)
         logits, box_regression = self.box_predictor(box_features)

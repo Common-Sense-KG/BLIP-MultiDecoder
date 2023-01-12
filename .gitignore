@@ -14,3 +14,4 @@ nlg-eval/*
 .vscode/settings.json
 tensorboard_region/*
 region_model/model/__pycache__/*
+region_model/model_result/*
