@@ -158,7 +158,7 @@ def main(args, config):
                                               if para.requires_grad), 'lr':  1e-3}],
                                   lr=config['init_lr'], weight_decay=config['weight_decay'])
             
-    args.evaluate = True
+    args.evaluate = False
     minloss = 100
     print("Start training")
     start_time = time.time()    
