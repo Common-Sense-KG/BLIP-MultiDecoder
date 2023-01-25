@@ -121,16 +121,19 @@ class dense_eval(Dataset):
         return len(self.annotation)
     
     def __getitem__(self, index):    
+
+        transToTensor = trans.ToTensor()
         
         ann = self.annotation[index]
         image_path = os.path.join(self.image_root,str(ann['image_id'])+'.jpg')      
         # model = torch.hub.load('ultralytics/yolov5', 'yolov5s')  #modify
         image = Image.open(image_path) 
-        width,height = image.size[0],image.size[1]
+        width,height = image.size[1],image.size[0]
         image_org_size = [width,height]
         # results = model(image) 
         image = image.convert('RGB')  
-        image = self.transform(image)    
+        image_for_region = transToTensor(image)
+        image_for_extract = self.transform(image)    
         # for phrase in ann['phrase_list']:
         #     tensor_list.append(np.array(phrase['tensor']))    
               
@@ -139,7 +142,7 @@ class dense_eval(Dataset):
         img_id = ann['image_id']
         # tensor_list  += [np.zeros((1,577),np.float64) for j in range(max_caption_num - truly_length)]
         
-        return image, image_org_size, int(img_id)   
+        return image_for_region, image_for_extract, image_org_size, int(img_id)   
         
     
     
@@ -190,8 +193,18 @@ class dense_test(Dataset):
 
         return image, int(self.annotation[index]['image_id'])
 
+def blip_eval_collate_fn(data):
+    # image_for_region, image_for_extract, image_org_size, int(img_id)  
+    image_for_region_list, image_for_extract_list, image_org_size_list, image_id_list = [],[],[],[]
+    for image_for_region, image_for_extract, image_org_size, image_id in data:
+        image_for_region_list.append(image_for_region)
+        image_for_extract_list.append(image_for_extract)
+        image_org_size_list.append(image_org_size)
+        image_id_list.append(image_id)
+
+    return image_for_region_list, image_for_extract_list, image_org_size_list, image_id_list
+
 def blip_collate_fn(data):
-    #train output: image, image_org_size, output_targets, ann['image_id']
     image_list, image_org_size, output_targets, image_id_list = [],[],[],[]
     for image_item, size, targets_item, image_id in data:
         image_list.append(image_item)

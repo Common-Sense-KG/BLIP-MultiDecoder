@@ -58,9 +58,11 @@ def train(mask_model, data_loader, optimizer, epoch, device):#实际应为88
             packToJsonAndVisualize(visualize_region_result,res['predict_region'],res['matched_gt_boxes'],res['corr_region_cap'],img_id,tokenizer)
 
         optimizer.zero_grad()
-        overall_loss = mask_losses['loss_box_reg'] + mask_losses['loss_rpn_box_reg']
+        overall_loss = mask_losses['loss_box_reg'] + mask_losses['loss_rpn_box_reg'] + mask_losses['loss_text_generate']
+        torch.backends.cudnn.benchmark = False
         overall_loss.backward()
-        optimizer.step()    
+        optimizer.step()   
+        torch.cuda.synchronize() 
     
         writer.add_scalar('train_overall_loss',overall_loss.item(),i)
         writer.add_scalar('mask_loss',mask_losses['loss_box_reg'].item(),i)
@@ -99,6 +101,10 @@ def evaluate(mask_model, data_loader, device, config):
 
         for imgid, region in zip(image_id,res['predict_region']):
             result.append({'image_id':imgid.item(),'region_proposal':region.cpu().numpy().tolist()})
+
+        iter0 += 1
+        if iter0 >= 2000:
+            break  
         
     print("===eval finish===")  
   
@@ -159,7 +165,7 @@ def main(args, config):
                                   lr=config['init_lr'], weight_decay=config['weight_decay'])
             
     args.evaluate = False
-    minloss = 100.0
+    minloss = 100000.0
     print("Start training")
     start_time = time.time()    
     for epoch in range(0, config['max_epoch']):
@@ -176,7 +182,6 @@ def main(args, config):
                 minloss = float(train_stats['loss'])
                 torch.save(mask_model.state_dict(),'region_model/model_result/region_detection_model.pt')
             
-             
         val_result = evaluate(mask_model, val_loader, device, config)  
         val_result_file = save_result(val_result, args.result_dir, 'region_cap_val_epoch%d'%epoch, remove_duplicate='image_id')        
                     

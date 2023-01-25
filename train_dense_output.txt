@@ -1,0 +1,7 @@
+Creating captioning dataset
+Creating model
+load checkpoint from https://storage.googleapis.com/sfr-vision-language-research/BLIP/models/model_base_caption_capfilt_large.pth
+load checkpoint from https://storage.googleapis.com/sfr-vision-language-research/BLIP/models/model_base_caption_capfilt_large.pth
+Finish Creating model- pretrain
+Start training
+Train Caption Epoch: [0]

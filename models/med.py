@@ -147,12 +147,12 @@ class BertSelfAttention(nn.Module):
 
     def forward(
         self,
-        hidden_states,
-        attention_mask=None,
+        hidden_states,#96 4 768
+        attention_mask=None,#32 1 3 256
         head_mask=None,
-        encoder_hidden_states=None,
-        encoder_attention_mask=None,
-        past_key_value=None,
+        encoder_hidden_states=None,#3 256 768
+        encoder_attention_mask=None,#32 1 3 256
+        past_key_value=None,#[(3 12 256 64),(3 12 256 64)]  
         output_attentions=False,
     ):
         self.to(hidden_states.device)
@@ -895,13 +895,13 @@ class BertLMHeadModel(BertPreTrainedModel):
         self.to(input_ids.device)
 
         outputs = self.bert(
-            input_ids,#1*13
-            attention_mask=attention_mask,#1*13
+            input_ids,#1*13 eval:3*4
+            attention_mask=attention_mask,#1*13 eval:3*4
             position_ids=position_ids,
             head_mask=head_mask,
             inputs_embeds=inputs_embeds,
-            encoder_hidden_states=encoder_hidden_states,#1*577*768
-            encoder_attention_mask=encoder_attention_mask,#1*577
+            encoder_hidden_states=encoder_hidden_states,#1*577*768 #3*577*768
+            encoder_attention_mask=encoder_attention_mask,#1*577 #3*577
             past_key_values=past_key_values,
             use_cache=use_cache,#false
             output_attentions=output_attentions,

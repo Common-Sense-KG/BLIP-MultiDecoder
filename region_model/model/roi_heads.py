@@ -1,73 +1,50 @@
 import torch
 from torch import nn
 import torch.nn.functional as F
-from torch.nn.utils.rnn import pack_padded_sequence
+from torch.nn.utils.rnn import pack_padded_sequence,pad_sequence
 import numpy as np
 
 from torchvision.ops import boxes as box_ops
 from torchvision.models.detection import _utils as det_utils
 from models.blip import blip_decoder
+# from densecap import FastRCNNPredictor
 
-
-
-def detect_loss(box_regression, regression_targets):
-# def detect_loss(proposals, matched_gt_boxes_list, box_regression):
-    """
-    Computes the loss for detection part.
-    Arguments:
-        class_logits (Tensor)
-        box_regression (Tensor)
-        labels (list[BoxList])
-        regression_targets (Tensor)
-    Returns:
-        classification_loss (Tensor)
-        box_loss (Tensor)
-    """
-
-    # labels = torch.cat(labels, dim=0)
-    # regression_targets = torch.cat(regression_targets, dim=0)
-
-    # classification_loss = F.cross_entropy(class_logits, labels)
-
-    # # get indices that correspond to the regression targets for
-    # # the corresponding ground truth labels, to be used with
-    # # advanced indexing
-    # sampled_pos_inds_subset = torch.nonzero(labels > 0).squeeze(1)
-    # labels_pos = labels[sampled_pos_inds_subset]
-    # N, num_classes = class_logits.shape
-    # loss_convert = nn.Linear()
-    # reg_list = list(torch.chunk(box_regression, box_regression.shape[0], dim = 0))
-    # box_loss_list = []
-    # idx = 0 
-    # for target_item in regression_targets:
-    #     box_reg = torch.stack(reg_list[idx:idx+target_item.shape[0]],dim=0).squeeze(1)
-    # # regression_targets = torch.cat(regression_targets, dim=0)
-    #     box_loss = F.smooth_l1_loss(
-    #         box_reg,
-    #         target_item,
-    #         reduction="sum",)#不reduction
-    #     box_loss = box_loss / target_item.shape[0]
-    #     box_loss_list.append(box_loss)
-    #     idx += target_item.shape[0]
-        
+def detect_loss_old(box_regression, regression_targets):   
     # box_regression  #61*4 251+272+220+271
     proposal_num = box_regression.shape[0]
     reg_tar = torch.cat(regression_targets,0)
-    box_loss = 0
+    box_loss = 0.0
     box_loss += F.smooth_l1_loss(box_regression, reg_tar, reduction='sum')
     box_loss = box_loss / proposal_num
-    # proposal_num = 0
-    # for idx in range(len(proposals)):
-    #     box_loss += F.smooth_l1_loss(
-    #         proposals[idx],
-    #         matched_gt_boxes_list[idx],
-    #         reduction="sum",
-    #     )
-    #     proposal_num += proposals[idx].shape[0]
-    
-    # box_loss = box_loss / proposal_num
 
     return box_loss
+
+def detect_loss(box_regression, regression_targets,text_output_list,corr_region_cap_list):
+     
+    # box_regression  #61*4 251+272+220+271
+    proposal_num = box_regression.shape[0]
+    reg_tar = torch.cat(regression_targets,0)
+    box_loss = 0.0
+    box_loss += F.smooth_l1_loss(box_regression, reg_tar, reduction='sum')
+    box_loss = box_loss / proposal_num
+
+    text_loss = 0.0
+    start_idx = 0
+    for region_caption_relation in corr_region_cap_list:
+        cap_num = region_caption_relation.shape[0]
+        cap_align_length = region_caption_relation.shape[1]
+        generate_text = torch.t(pad_sequence([i.squeeze(0) for i in text_output_list[start_idx:start_idx+cap_num]]))
+        start_idx += cap_num
+        hinge_loss = nn.HingeEmbeddingLoss(margin=0.2)#image caption的loss
+        differ_length = cap_align_length - generate_text.shape[1]
+        if differ_length != 0:
+            padding_tensor = torch.zeros((cap_num,differ_length)).to(generate_text.device)
+            generate_text = torch.cat((generate_text, padding_tensor),dim=1)
+        text_loss += hinge_loss(generate_text.float(),region_caption_relation.float())
+    
+    text_loss = text_loss / (len(text_output_list) * 100)
+
+    return box_loss,text_loss
 
 
 def caption_loss(caption_predicts, caption_gt, caption_length):
@@ -140,11 +117,20 @@ class DenseCapRoIHeads(nn.Module):
         self.box_roi_pool = box_roi_pool
         self.box_head = box_head
         self.box_predictor = box_predictor
+        # self.box_predictor_new = FastRCNNPredictor(256*16,1)
         self.box_describer = box_describer
 
         self.score_thresh = score_thresh
         self.nms_thresh = nms_thresh
         self.detections_per_img = detections_per_img
+
+        self.feature_transform_1 = nn.Linear(16,256)
+        self.feature_transform_2 = nn.Linear(256,768)
+        self.feature_transform_3 = nn.Linear(768,16)
+
+        self.textModel = blip_decoder(pretrained='https://storage.googleapis.com/sfr-vision-language-research/BLIP/models/model_base_caption_capfilt_large.pth',vit = 'base',vit_grad_ckpt = False, vit_ckpt_layer = 0, prompt = '')#image_size = 32?
+        # self.textModel.eval()
+
 
     def assign_targets_to_proposals(self, proposals, gt_boxes, gt_labels):
         """
@@ -531,27 +517,41 @@ class DenseCapRoIHeads(nn.Module):
             caption_length = None
             regression_targets = None
 
-        # text_info = 
-        # textModel = blip_decoder(pretrained=config['pretrained'], image_size=config['image_size'], vit=config['vit'], 
-        #                    vit_grad_ckpt=config['vit_grad_ckpt'], vit_ckpt_layer=config['vit_ckpt_layer'], 
-        #                    prompt=config['prompt'])
-
-        # textModel = textModel.to(device)
-
+        #feature '0':2*256*168*104; '1':2*256*84*52; '2':2*256*42*26; '3':2*256*21*13 'pool':2*256*11*7
         box_features = self.box_roi_pool(features, proposals, image_shapes) # MultiScaleRoIAlign 通过pool池化使得不同size的proposal转换为相同维数的特征向量
-        box_features = self.box_head(box_features) #池化pool的过程
-        logits, box_regression = self.box_predictor(box_features)
+        box_features = self.box_head(box_features) #池化pool的过程 23(12+11)*256*7*7 ==> 1*577*768 (1*257*49?)
+        
+        
+        new_feature = box_features.view(box_features.size(0),1,256,-1)
+        new_feature = self.feature_transform_2(self.feature_transform_1(new_feature))
+        if self.training:
+            ce_loss, _ = self.textModel.textGenerate(new_feature, corr_region_cap_list)
+
+        new_feature = self.feature_transform_3(new_feature.squeeze(1))
+        
+        logits, box_regression = self.box_predictor(new_feature.view(new_feature.size(0),-1)) #最终输入：23*4096
+        
+        #######################################################
+        # using features from box_head to get box_regression
+        # if self.training:
+        #     new_feature = box_features.view(box_features.size(0),1,256,-1)
+        #     new_feature = self.feature_transform_2(self.feature_transform_1(new_feature))
+        #     ce_loss, _ = self.textModel.textGenerate(new_feature, corr_region_cap_list)
+        #     #newfeature caption_num*1*256*768   
+        # #text generation
+
+        # logits, box_regression = self.box_predictor(box_features)
 
         result, losses = [], {}
 
         pred_boxes_list = self.postprocess_train_outputs(box_regression, proposals, image_shapes, logits)
 
-        
         if self.training:
-            loss_box_reg_list = detect_loss(box_regression,regression_targets)
-            
+            # loss_box_reg_list,loss_text_generate_list = detect_loss(box_regression,regression_targets,text_output_list,corr_region_cap_list)
+            loss_box_reg_list = detect_loss_old(box_regression,regression_targets)
             losses = {
                 "loss_box_reg":loss_box_reg_list,
+                "loss_text_generate":ce_loss,
             }
             result = {
                 "predict_region":pred_boxes_list,
@@ -564,22 +564,5 @@ class DenseCapRoIHeads(nn.Module):
             result = {
                 "predict_region":pred_boxes_list,
             }
-
-            # return loss_box_reg, proposals, matched_gt_boxes_list, corr_region_cap_list
-
-            # boxes, scores, caption_predicts, feats = self.postprocess_detections_eval(logits, box_regression,
-            #                                                                      proposals, image_shapes, box_features,
-            #                                                                      self.return_features)
-            # num_images = len(boxes)
-            # for i in range(num_images):
-            #     result.append(
-            #         {
-            #             "boxes": boxes[i],
-            #             "caps": caption_predicts[i],
-            #             "scores": scores[i],
-            #         }
-            #     )
-            #     if self.return_features:
-            #         result[-1]['feats'] = feats[i]
 
         return result, losses

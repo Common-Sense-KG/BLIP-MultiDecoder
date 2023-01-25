@@ -29,17 +29,15 @@ from utils import cosine_lr_schedule, getImgEmbed, postprocess
 from data import create_dataset, create_sampler, create_loader
 from data.utils import save_result
 from torch.utils.tensorboard import SummaryWriter
-from data.dense_dataset import blip_collate_fn
+from data.dense_dataset import blip_collate_fn,blip_eval_collate_fn
 from densecap import densecap_resnet50_fpn
 from torchvision.models.detection.faster_rcnn import fasterrcnn_resnet50_fpn
 
 # device = torch.device('cpu')
-def train(model, mask_model, data_loader, optimizer, epoch, device, max_caption_num = 15):#实际应为88
-# def train(mask_model, data_loader, epoch, device, max_caption_num = 15):#实际应为88
+def train(model, data_loader, optimizer, epoch, device, max_caption_num = 15):#实际应为88
 
     # train
     model.train()  
-    mask_model.train()
 
     writer = SummaryWriter(log_dir='./tensorboard_dense/test/'+ time.strftime('%y-%m-%d_%H.%M', time.localtime())) # 确定路径
     metric_logger = utils.MetricLogger(delimiter="  ")
@@ -56,8 +54,10 @@ def train(model, mask_model, data_loader, optimizer, epoch, device, max_caption_
             loss_dict = model(image, max_caption_num, targets)      
         
             optimizer.zero_grad()
-            for overall_loss in loss_dict['overallloss']:
-                overall_loss.backward()
+            overall_loss = 0.0
+            for overall_loss_item in loss_dict['overallloss']:
+                overall_loss += overall_loss_item
+            overall_loss.backward()
             optimizer.step()    
         
             writer.add_scalar('train_overall_loss',overall_loss.item(),i)
@@ -68,9 +68,9 @@ def train(model, mask_model, data_loader, optimizer, epoch, device, max_caption_
             
             metric_logger.update(loss=overall_loss.item())
             metric_logger.update(lr=optimizer.param_groups[0]["lr"])
-            # if i >= 2000:
-            #     print("interrupt from 10!")
-            #     break
+            if i >= 9500:
+                print("interrupt from 9500!")
+                break
 
     # gather the stats from all processes
     # metric_logger.synchronize_between_processes()
@@ -86,28 +86,31 @@ def evaluate(model, mask_model, data_loader, device, config):
     
     metric_logger = utils.MetricLogger(delimiter="  ")
     header = 'Caption generation:'
-    print_freq = 10
+    print_freq = 2
 
     result = []
     iter0 = 0
     print("Eval Start") 
-    for image, image_org_size, image_id in metric_logger.log_every(data_loader, print_freq, header): 
-        
-        image = image.to(device)     
-        # image = [img.to(device) for img in image]
-        _, res, after_mask_model_size = mask_model(image)  
-        res['predict_region'] = postprocess(res['predict_region'], image_org_size, after_mask_model_size, device)
-        mask_tensor_list = getImgEmbed(res['predict_region'], image_org_size)
-        mask_tensor_list = [mask_tensor.to(device) for mask_tensor in mask_tensor_list]
-        
-        for idx in range(0,image.shape[0]):#逐张
-            captions = model.generate(image[idx].unsqueeze(0), mask_tensor_list[idx], device, sample=False, num_beams=config['num_beams'], max_length=config['max_length'], 
-                                    min_length=config['min_length'])
-            for region_idx, (caption) in enumerate(captions):       
-                result.append({"image_id": image_id[idx].item(), "caption": caption, "corresponding_region":res['predict_region'][idx][region_idx].cpu().numpy().tolist()})                 
-        # iter0 += 1
-        # if iter0 >= 100:
-        #     break    
+    for image_for_region, image_for_extract, image_org_size, image_id in metric_logger.log_every(data_loader, print_freq, header): 
+        try:
+            image_for_region = [img.to(device) for img in image_for_region]     
+            image_for_extract = torch.stack(image_for_extract).to(device)
+            # image = [img.to(device) for img in image]
+            _, res, after_mask_model_size = mask_model(image_for_region)  
+            res['predict_region'] = postprocess(res['predict_region'], image_org_size, after_mask_model_size, device)
+            mask_tensor_list = getImgEmbed(res['predict_region'], image_org_size)
+            mask_tensor_list = [mask_tensor.to(device) for mask_tensor in mask_tensor_list]
+            
+            for idx in range(0,image_for_extract.shape[0]):#逐张
+                captions = model.generate(image_for_extract[idx].unsqueeze(0), mask_tensor_list[idx], device, sample=False, num_beams=config['num_beams'], max_length=config['max_length'], 
+                                        min_length=config['min_length'])
+                for region_idx, (caption) in enumerate(captions):       
+                    result.append({"image_id": image_id[idx], "caption": caption, "corresponding_region":res['predict_region'][idx][region_idx].cpu().numpy().tolist()})                 
+        except Exception as e:
+            print(str(e))
+        iter0 += 1
+        if iter0 >= 500:
+            break    
     print("===Eval Finish===")  
   
     return result
@@ -142,7 +145,7 @@ def main(args, config):
     
     train_loader, val_loader, test_loader = create_loader([train_dataset, val_dataset, test_dataset],samplers,
                                                           batch_size=[config['batch_size']]*3,num_workers=[1,2,2],
-                                                          is_trains=[True, False, False], collate_fns=[blip_collate_fn,None,None])         
+                                                          is_trains=[True, False, False], collate_fns=[blip_collate_fn,blip_eval_collate_fn,None])         
 
     ### Model #### 
     print("Creating model")
@@ -162,8 +165,9 @@ def main(args, config):
                                   fusion_type=config['fusion_type'],#init_inject
                                   box_detections_per_img=config['box_detections_per_img'])#50
     # if config['use_pretrain_fasterrcnn']:#true
-    mask_model.backbone.load_state_dict(fasterrcnn_resnet50_fpn(pretrained=True).backbone.state_dict(), strict=False)
-    mask_model.rpn.load_state_dict(fasterrcnn_resnet50_fpn(pretrained=True).rpn.state_dict(), strict=False)
+    mask_model.load_state_dict(torch.load('region_model/model_result/region_detection_model_without3.pt'))
+    # mask_model.backbone.load_state_dict(fasterrcnn_resnet50_fpn(pretrained=True).backbone.state_dict(), strict=False)
+    # mask_model.rpn.load_state_dict(fasterrcnn_resnet50_fpn(pretrained=True).rpn.state_dict(), strict=False)
 
     mask_model = mask_model.to(device)
     print("Finish Creating model- pretrain")
@@ -180,9 +184,9 @@ def main(args, config):
                                               if para.requires_grad), 'lr':  1e-3}],
                                   lr=config['init_lr'], weight_decay=config['weight_decay'])
             
-    best = 0
+    best = 100000.0
     best_epoch = 0
-    args.evaluate = True
+    args.evaluate = False
 
     print("Start training")
     start_time = time.time()    
@@ -193,7 +197,17 @@ def main(args, config):
                 
             cosine_lr_schedule(optimizer, epoch, config['max_epoch'], config['init_lr'], config['min_lr'])
                 
-            train_stats = train(model, mask_model, train_loader, optimizer, epoch, device)
+            train_stats = train(model, train_loader, optimizer, epoch, device)
+            try:
+                if best > float(train_stats['loss']):
+                    print("update min loss in epoch "+str(epoch))
+                    print("min loss is "+train_stats['loss'])
+                    best = float(train_stats['loss'])
+                    torch.save(model.state_dict(),'output/region_detection_model.pt')
+            except Exception as e:
+                print(str(e))
+                
+            
             # train_stats = train(mask_model, train_loader, epoch, device) 
              
         val_result = evaluate(model_without_ddp, mask_model, val_loader, device, config)  

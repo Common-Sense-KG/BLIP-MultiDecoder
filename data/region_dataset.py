@@ -134,7 +134,8 @@ class region_eval(Dataset):
         # download_url(urls[split],ann_root)
         
         self.annotation = json.load(open(os.path.join(ann_root,filename),'r'))
-        self.transform = transform
+        # self.transform = transform
+        self.transform = trans.ToTensor()
         self.image_root = image_root
         
     def __len__(self):
