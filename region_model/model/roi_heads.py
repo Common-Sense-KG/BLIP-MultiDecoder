@@ -20,7 +20,6 @@ def detect_loss_old(box_regression, regression_targets):
     return box_loss
 
 def detect_loss(box_regression, regression_targets,text_output_list,corr_region_cap_list):
-     
     # box_regression  #61*4 251+272+220+271
     proposal_num = box_regression.shape[0]
     reg_tar = torch.cat(regression_targets,0)
@@ -155,30 +154,28 @@ class DenseCapRoIHeads(nn.Module):
                     (proposals_in_image.shape[0],), dtype=torch.int64, device=device
                 )
             else:
-                #  set to self.box_similarity when https://github.com/pytorch/pytorch/issues/27495 lands
+                #calculate iou 
+                #iou (Tensor[N, M]): the NxM matrix containing the IoU values for every element in boxes1 and boxes2
                 match_quality_matrix = box_ops.box_iou(gt_boxes_in_image, proposals_in_image)
+                #get truly proposals num
                 actual_size = proposals_in_image.shape[0] - gt_boxes_in_image.shape[0]
                 for i in range(match_quality_matrix.shape[0]):
-                    # if match_quality_matrix[i][torch.argmax(match_quality_matrix[i][:actual_size])] < 0.7: #将gtbox对应所有anchors中iou最大的保留 且避免重复添加
+                    #Gets the best match for each groundtruth region box
                     bbx_score.append({'corresponding_region_index':i,'gt_box':gt_boxes_in_image[i],'score':match_quality_matrix[i][torch.argmax(match_quality_matrix[i][:actual_size])],'region':proposals_in_image[torch.argmax(match_quality_matrix[i][:actual_size])]})
                 
                 
                 # temp = match_quality_matrix.t()[:actual_size]#取每个proposal框的max
                 # for i in range(temp.shape[0]):
                 #     if temp[i][torch.argmax(temp[i])] >= 0.7: # rpn网络中只有 > 0.7会被设为正样本
-                #         bbx_score.append({'corresponding_region_index':torch.argmax(temp[i]).item(),'gt_box':gt_boxes_in_image[torch.argmax(temp[i])],'score':temp[i][torch.argmax(temp[i])],'region':proposals_in_image[i]})
-
-
-                #模仿rpn网络加入 将gtbox对应所有anchors中iou最大的保留 
-                #         
-                # iou (Tensor[N, M]): the NxM matrix containing the IoU values for every element in boxes1 and boxes2
-
-                matched_idxs_in_image = self.proposal_matcher(match_quality_matrix)#取matrix的最匹配idx
+                #         bbx_score.append({'corresponding_region_index':torch.argmax(temp[i]).item(),'gt_box':gt_boxes_in_image[torch.argmax(temp[i])],'score':temp[i][torch.argmax(temp[i])],'region':proposals_in_image[i]})   
+                
+                #取proposal的最匹配idx,根据iou值判定为前景/中景/后景，在后续进行filter，此处code用不到
+                """""
+                matched_idxs_in_image = self.proposal_matcher(match_quality_matrix)
 
                 clamped_matched_idxs_in_image = matched_idxs_in_image.clamp(min=0)
                 
                 # matched = matched_idxs_in_image >= 0 
-
                 labels_in_image = gt_labels_in_image[clamped_matched_idxs_in_image]
 
                 # Label background (below the low threshold)
@@ -188,12 +185,11 @@ class DenseCapRoIHeads(nn.Module):
                 # Label ignore proposals (between low and high thresholds)
                 ignore_inds = matched_idxs_in_image == self.proposal_matcher.BETWEEN_THRESHOLDS
                 labels_in_image[ignore_inds] = torch.tensor(-1)  # -1 is ignored by sampler
+                """""
 
             bbx_score_all[img_idx] = bbx_score
 
-            matched_idxs.append(clamped_matched_idxs_in_image)
-            labels.append(labels_in_image)
-        return matched_idxs, labels, bbx_score_all
+        return bbx_score_all
 
     def subsample(self, labels):
 
@@ -216,10 +212,12 @@ class DenseCapRoIHeads(nn.Module):
         device = proposals[0].device
 
         for t in targets:
+            #首先筛除用来填补的无意义框和caption
             mask = torch.nonzero(torch.gt(t["caps_len"],2))
-            t['boxes'] = torch.index_select(t['boxes'],dim=0,index=mask.squeeze(1)).to(device)#首先筛除用来填补的无意义框和caption
+            t['boxes'] = torch.index_select(t['boxes'],dim=0,index=mask.squeeze(1)).to(device)
+            #筛除掉重复的框
             unique_index = torch.tensor(np.unique(t['boxes'].cpu().numpy(),axis=0,return_index=True)[-1]).to(device)
-            t['boxes'] = torch.index_select(t['boxes'],dim=0,index=unique_index).to(device)#筛除掉重复的框
+            t['boxes'] = torch.index_select(t['boxes'],dim=0,index=unique_index).to(device)
             t['caps'] = torch.index_select(t['caps'],dim=0,index=unique_index).to(device)
             t['caps_len'] = torch.index_select(t['caps_len'],dim=0,index=unique_index).to(device)
 
@@ -228,52 +226,55 @@ class DenseCapRoIHeads(nn.Module):
         gt_labels = [torch.ones((t["boxes"].shape[0],), dtype=torch.int64, device=device) for t in
                      targets]  # generate labels LongTensor(1)
 
-        # append ground-truth bboxes to propos
+        # append ground-truth bboxes to proposals
         # List[2*N,4],一个list是一张图片
         proposals = [
             torch.cat((proposal, gt_box))
             for proposal, gt_box in zip(proposals, gt_boxes)
         ]
 
-        # get matching gt indices for each proposal
-        matched_idxs, labels, bbx_score = self.assign_targets_to_proposals(proposals, gt_boxes, gt_labels)
+
+        # assign_result 为 每一个region获取最为对应的proposal, 为list
+        assign_result = self.assign_targets_to_proposals(proposals, gt_boxes, gt_labels)
 
         num_images = len(proposals)
         matched_gt_boxes_list = []
         proposals_item_list = [] 
         corr_region_cap_list = []
-        region_index_list = [[]] * num_images
-        roi_score_list = [[]] * num_images
-        for img_id in range(num_images):
-            sample_items = bbx_score[img_id]
+        for index in range(num_images):
+            
+            sample_items = assign_result[index]
             if len(sample_items) == 0:
                 continue
-            # for sample_item in sample_items:
-            #     sample_item['corresponding_region_index']
+
             matched_gt_boxes = []
             proposals_item = []
             region_index = []
             roi_score = []
             corr_region_cap = []
+
             for item in sample_items:
                 matched_gt_boxes.append(item['gt_box'])
                 proposals_item.append(item['region'])
                 region_index.append(item['corresponding_region_index'])
-                corr_region_cap.append(targets[img_id]['caps'][item['corresponding_region_index']])
+                corr_region_cap.append(targets[index]['caps'][item['corresponding_region_index']])
                 roi_score.append(item['score'])
+
             all_matched_gt_boxes = torch.stack(matched_gt_boxes,dim=0)
             all_proposals_item  = torch.stack(proposals_item,dim=0)
             all_corr_region_cap = torch.stack(corr_region_cap,dim=0)
+
             matched_gt_boxes_list.append(all_matched_gt_boxes)
             proposals_item_list.append(all_proposals_item)
             corr_region_cap_list.append(all_corr_region_cap)
+
         if len(matched_gt_boxes_list)!=0 and len(proposals_item_list)!=0:
-            regression_targets = self.box_coder.encode(matched_gt_boxes_list, proposals_item_list)#list为空，易出现错误
+            regression_targets = self.box_coder.encode(matched_gt_boxes_list, proposals_item_list)
         else:
             regression_targets = None
         return proposals_item_list, regression_targets, matched_gt_boxes_list, corr_region_cap_list
 
-    def postprocess_train_outputs(self, box_regression, proposals, image_shapes, logits):
+    def postprocess_outputs(self, box_regression, proposals, image_shapes, logits):
         device = logits.device
         num_classes = logits.shape[-1]
         pred_scores = F.softmax(logits, -1)
@@ -284,14 +285,13 @@ class DenseCapRoIHeads(nn.Module):
         pred_boxes_list = pred_boxes.split(boxes_per_image, 0)
         pred_scores_list = pred_scores.split(boxes_per_image, 0)
 
-
         all_boxes = []
-        all_scores = []
-        all_labels = []
-        all_captions = []
-        all_box_features = []
-        remove_inds_list = []
-        keep_list = []
+        # all_scores = []
+        # all_labels = []
+        # all_captions = []
+        # all_box_features = []
+        # remove_inds_list = []
+        # keep_list = []
         for boxes, scores, image_shape in zip(pred_boxes_list,pred_scores_list, image_shapes):
             boxes = box_ops.clip_boxes_to_image(boxes, image_shape)
 
@@ -511,10 +511,6 @@ class DenseCapRoIHeads(nn.Module):
             if regression_targets == None:
                 return None, {}
         else:
-            labels = None
-            matched_idxs = None
-            caption_gt = None
-            caption_length = None
             regression_targets = None
 
         #feature '0':2*256*168*104; '1':2*256*84*52; '2':2*256*42*26; '3':2*256*21*13 'pool':2*256*11*7
@@ -538,16 +534,13 @@ class DenseCapRoIHeads(nn.Module):
         #     new_feature = self.feature_transform_2(self.feature_transform_1(new_feature))
         #     ce_loss, _ = self.textModel.textGenerate(new_feature, corr_region_cap_list)
         #     #newfeature caption_num*1*256*768   
-        # #text generation
-
         # logits, box_regression = self.box_predictor(box_features)
 
         result, losses = [], {}
 
-        pred_boxes_list = self.postprocess_train_outputs(box_regression, proposals, image_shapes, logits)
+        pred_boxes_list = self.postprocess_outputs(box_regression, proposals, image_shapes, logits)
 
         if self.training:
-            # loss_box_reg_list,loss_text_generate_list = detect_loss(box_regression,regression_targets,text_output_list,corr_region_cap_list)
             loss_box_reg_list = detect_loss_old(box_regression,regression_targets)
             losses = {
                 "loss_box_reg":loss_box_reg_list,
@@ -560,6 +553,7 @@ class DenseCapRoIHeads(nn.Module):
             }
 
         else:
+            #TODO: 结合logits对proposal框进行筛选？NMS？
             losses = {}
             result = {
                 "predict_region":pred_boxes_list,

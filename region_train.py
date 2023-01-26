@@ -23,21 +23,19 @@ from data import create_dataset, create_sampler, create_loader
 from data.utils import save_result, coco_caption_eval
 from torch.utils.tensorboard import SummaryWriter
 from transformers import BertModel as OrgBertModel
-from data.region_dataset import regiondata_collate_fn
+from data.region_dataset import region_eval_data_collate_fn,region_train_data_collate_fn
 from densecap import densecap_resnet50_fpn
 from torchvision.models.detection.faster_rcnn import fasterrcnn_resnet50_fpn
 
 def train(mask_model, data_loader, optimizer, epoch, device):#实际应为88
 
     mask_model.train()
-
     writer = SummaryWriter(log_dir='./tensorboard_region/test/'+ time.strftime('%y-%m-%d_%H.%M', time.localtime())) # 确定路径
     metric_logger = utils.MetricLogger(delimiter="  ")
     metric_logger.add_meter('lr', utils.SmoothedValue(window_size=1, fmt='{value:.6f}'))
     metric_logger.add_meter('loss', utils.SmoothedValue(window_size=1, fmt='{value:.4f}'))
     print('Train Caption Epoch: [{}]'.format(epoch))
-    # header = 'Train Caption Epoch: [{}]'.format(epoch)
-    # print_freq = 50
+
     i = 0
     visualize_region_result = []
 
@@ -48,18 +46,17 @@ def train(mask_model, data_loader, optimizer, epoch, device):#实际应为88
             item['caps'] = item['caps'].to(device)
             item['caps_len'] = item['caps_len'].to(device)
         mask_losses, res, after_mask_model_size = mask_model(image, targets)
-        # image = image.to(device)
+
         if res == None:
             continue
         res['predict_region'] = postprocess(res['predict_region'],image_org_size,after_mask_model_size,device)
         res['matched_gt_boxes'] = postprocess(res['matched_gt_boxes'],image_org_size,after_mask_model_size,device)
         ##添加部分训练集的预测结果，供可视化查看效果
-        if i % 1000 == 0: #and i != 0:
+        if i % 1000 == 0: 
             packToJsonAndVisualize(visualize_region_result,res['predict_region'],res['matched_gt_boxes'],res['corr_region_cap'],img_id,tokenizer)
 
         optimizer.zero_grad()
         overall_loss = mask_losses['loss_box_reg'] + mask_losses['loss_rpn_box_reg'] + mask_losses['loss_text_generate']
-        torch.backends.cudnn.benchmark = False
         overall_loss.backward()
         optimizer.step()   
         torch.cuda.synchronize() 
@@ -87,21 +84,21 @@ def evaluate(mask_model, data_loader, device, config):
     metric_logger = utils.MetricLogger(delimiter="  ")
     header = 'Caption generation:'
     print_freq = 10
-    decoder_num = 15
 
     result = []
     iter0 = 0
     print("Eval Start") 
-    for image, image_org_size, tensor_list, image_id in metric_logger.log_every(data_loader, print_freq, header): 
+    for image, image_org_size, image_id in metric_logger.log_every(data_loader, print_freq, header): 
         
-        image = image.to(device)     
+        image = [img.to(device) for img in image]   
 
         _, res, after_mask_model_size = mask_model(image)  
         res['predict_region'] = postprocess(res['predict_region'], image_org_size, after_mask_model_size, device)
 
         for imgid, region in zip(image_id,res['predict_region']):
-            result.append({'image_id':imgid.item(),'region_proposal':region.cpu().numpy().tolist()})
-
+            result.append({'image_id':imgid,'region_proposal':region.cpu().numpy().tolist()})
+        
+        #for quick to get result
         iter0 += 1
         if iter0 >= 2000:
             break  
@@ -112,7 +109,6 @@ def evaluate(mask_model, data_loader, device, config):
 
 def main(args, config):   
     device = torch.device(args.device)
-    # device = 'cuda:3'
     config['prompt'] = 'an area of '#caption prompt
 
     # fix the seed for reproducibility
@@ -120,7 +116,6 @@ def main(args, config):
     torch.manual_seed(seed)
     np.random.seed(seed)
     random.seed(seed)
-    cudnn.benchmark = True
 
     #### Dataset #### 
     print("Creating captioning dataset")
@@ -135,7 +130,7 @@ def main(args, config):
     
     train_loader, val_loader, test_loader = create_loader([train_dataset, val_dataset, test_dataset],samplers,
                                                           batch_size=[config['batch_size']]*3,num_workers=[1,2,2],
-                                                          is_trains=[True, False, False], collate_fns=[regiondata_collate_fn,None,None])         
+                                                          is_trains=[True, False, False], collate_fns=[region_train_data_collate_fn,region_eval_data_collate_fn,None])         
 
     ### Model #### 
     print("Creating model") 
@@ -157,7 +152,6 @@ def main(args, config):
     print("Finish Creating model- pretrain")
  
     
-    # optimizer = torch.optim.AdamW(params=model.parameters(), lr=config['init_lr'], weight_decay=config['weight_decay'])
     optimizer = torch.optim.Adam([{'params': (para for name, para in mask_model.named_parameters()
                                         if para.requires_grad and 'box_describer' not in name)},
                                   {'params': (para for para in mask_model.roi_heads.box_describer.parameters()
@@ -165,6 +159,7 @@ def main(args, config):
                                   lr=config['init_lr'], weight_decay=config['weight_decay'])
             
     args.evaluate = False
+    cudnn.benchmark = False
     minloss = 100000.0
     print("Start training")
     start_time = time.time()    

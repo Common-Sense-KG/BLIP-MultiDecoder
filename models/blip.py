@@ -107,8 +107,6 @@ class BLIP_Decoder(nn.Module):
         
         self.prompt = prompt
         self.prompt_length = len(self.tokenizer(self.prompt).input_ids)-1
-        # self.linear = nn.Linear(16,256)
-        # self.linear = nn.Linear(256,768)
 
         
     def forward(self, image, max_caption_num, ground_truth):
@@ -228,57 +226,9 @@ class BLIP_Decoder(nn.Module):
                     caption = self.tokenizer.decode(output, skip_special_tokens=True)
                     captions.append(caption[len(self.prompt):]) 
 
-                # encoder_hidden_states = image_embeds[i].unsqueeze(0)) #逐图进行beam search 
-                # image_predict_caption = []
-                # for i in range(0,decoder_num):
-                #     outputs = self.text_decoder.generate(input_ids=input_ids,
-                #                                     max_length=max_length,
-                #                                     min_length=min_length,
-                #                                     num_beams=num_beams,
-                #                                     eos_token_id=self.tokenizer.sep_token_id,
-                #                                     pad_token_id=self.tokenizer.pad_token_id,     
-                #                                     repetition_penalty=repetition_penalty,
-                #                                     output_scores = True,
-                #                                     attention_mask=image_mask_tensor[i].repeat_interleave(num_beams,dim=0),)
-                #                                     # encoder_hidden_states = image_embeds[i].unsqueeze(0)) #逐图进行beam search 
-                #     for output in outputs:
-                #         caption = self.tokenizer.decode(output, skip_special_tokens=True)    
-                #         image_predict_caption.append(caption[len(self.prompt):])      
-                # overall_image_predict_caption.append(image_predict_caption)    
         return captions
 
-    def textGenerate(self, image_embeds, text_list, device ='cuda', decoder_num=15, sample=False, num_beams=3, max_length=30, min_length=10, top_p=0.9, repetition_penalty=1.0):
-        # old text generate in region_detection model based on generate
-        # overall_list = []
-        # for semilist in text_list:
-        #     overall_list += semilist
-        # image_embeds = image_embeds.view(image_embeds.size(0),1,256,-1)
-        # if not sample:
-        #     image_embeds = image_embeds.repeat_interleave(num_beams,dim=1)
-            
-        # image_atts = torch.ones(image_embeds.size()[:-1],dtype=torch.long).to(device)
-        
-        # prompt = ['an area of '] * image_embeds.size(0)
-        # input_ids = self.tokenizer(prompt, return_tensors="pt").input_ids
-        # input_ids[:,0] = self.tokenizer.bos_token_id
-        # input_ids = input_ids[:, :-1] 
-        # captions = []   
-        
-        # for idx in range(0,image_embeds.size(0)):
-        #     outputs = self.text_decoder.generate(input_ids=input_ids[idx].unsqueeze(0).to(device),#input id没有梯度
-        #                                         max_length=torch.count_nonzero(overall_list[idx]).item(), 
-        #                                         min_length=torch.count_nonzero(overall_list[idx]).item(),
-        #                                         num_beams=num_beams,
-        #                                         eos_token_id=self.tokenizer.sep_token_id,
-        #                                         pad_token_id=self.tokenizer.pad_token_id,     
-        #                                         repetition_penalty= repetition_penalty,
-        #                                         output_scores = True,
-        #                                         encoder_attention_mask= image_atts[idx],
-        #                                         encoder_hidden_states= image_embeds[idx],)
-                                                
-        #     captions.append(outputs) 
-        # return captions
-
+    def textGenerate(self, image_embeds, text_list, device ='cuda'):
         #new text generate in region_detection model based on forward
         image_embeds = image_embeds.view(image_embeds.size(0),1,256,-1)
         batch_size = len(text_list)#首先获取batch size
@@ -288,12 +238,10 @@ class BLIP_Decoder(nn.Module):
         ce_loss = 0.0
         all_caption = []
         for i in range(0,batch_size):
-            # image_embeds = self.visual_encoder(image[i].unsqueeze(0)) #1*（576+1）*768  24*24+全局 768为patch的representation的dimension
 
             crossentropy_loss_list = []
             caption_list = []
 
-            # all_encodings = ground_truth[i]['caps'].to(image[0].device)
             all_encodings = text_list[i]
             all_encodings[:,0] = self.tokenizer.bos_token_id
             decoder_targets = all_encodings.masked_fill(all_encodings == self.tokenizer.pad_token_id, -100)         
@@ -332,8 +280,7 @@ class BLIP_Decoder(nn.Module):
 
         return ce_loss,all_caption
     
-            
-    
+        
 
 def blip_decoder(pretrained='',**kwargs):
     model = BLIP_Decoder(**kwargs)

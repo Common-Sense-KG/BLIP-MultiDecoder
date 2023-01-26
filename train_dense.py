@@ -68,9 +68,9 @@ def train(model, data_loader, optimizer, epoch, device, max_caption_num = 15):#å
             
             metric_logger.update(loss=overall_loss.item())
             metric_logger.update(lr=optimizer.param_groups[0]["lr"])
-            if i >= 9500:
-                print("interrupt from 9500!")
-                break
+            # if i >= 9500:
+            #     print("interrupt from 9500!")
+            #     break
 
     # gather the stats from all processes
     # metric_logger.synchronize_between_processes()
@@ -91,11 +91,12 @@ def evaluate(model, mask_model, data_loader, device, config):
     result = []
     iter0 = 0
     print("Eval Start") 
+    
     for image_for_region, image_for_extract, image_org_size, image_id in metric_logger.log_every(data_loader, print_freq, header): 
+        # torch.cuda.empty_cache()
         try:
             image_for_region = [img.to(device) for img in image_for_region]     
             image_for_extract = torch.stack(image_for_extract).to(device)
-            # image = [img.to(device) for img in image]
             _, res, after_mask_model_size = mask_model(image_for_region)  
             res['predict_region'] = postprocess(res['predict_region'], image_org_size, after_mask_model_size, device)
             mask_tensor_list = getImgEmbed(res['predict_region'], image_org_size)
@@ -129,7 +130,7 @@ def main(args, config):
     torch.manual_seed(seed)
     np.random.seed(seed)
     random.seed(seed)
-    cudnn.benchmark = True
+    cudnn.benchmark = False
 
     #### Dataset #### 
     print("Creating captioning dataset")
@@ -184,7 +185,7 @@ def main(args, config):
                                               if para.requires_grad), 'lr':  1e-3}],
                                   lr=config['init_lr'], weight_decay=config['weight_decay'])
             
-    best = 100000.0
+    best = 100000.0 
     best_epoch = 0
     args.evaluate = False
 
@@ -203,7 +204,7 @@ def main(args, config):
                     print("update min loss in epoch "+str(epoch))
                     print("min loss is "+train_stats['loss'])
                     best = float(train_stats['loss'])
-                    torch.save(model.state_dict(),'output/region_detection_model.pt')
+                    torch.save(model.state_dict(),'output/blip_extract_model.pt')
             except Exception as e:
                 print(str(e))
                 

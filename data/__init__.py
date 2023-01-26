@@ -25,20 +25,8 @@ def create_dataset(dataset, config, device, min_scale=0.5):
         transforms.ToTensor(),
         normalize,
         ])  
-    
-    if dataset=='caption_coco':   
-        train_dataset = coco_karpathy_train(transform_train, config['image_root'], config['ann_root'], prompt=config['prompt'])
-        val_dataset = coco_karpathy_caption_eval(transform_test, config['image_root'], config['ann_root'], 'val')
-        test_dataset = coco_karpathy_caption_eval(transform_test, config['image_root'], config['ann_root'], 'test')   
-        return train_dataset, val_dataset, test_dataset
-    
-    elif dataset=='retrieval_coco':          
-        train_dataset = coco_karpathy_train(transform_train, config['image_root'], config['ann_root'])
-        val_dataset = coco_karpathy_retrieval_eval(transform_test, config['image_root'], config['ann_root'], 'val') 
-        test_dataset = coco_karpathy_retrieval_eval(transform_test, config['image_root'], config['ann_root'], 'test')          
-        return train_dataset, val_dataset, test_dataset    
-
-    elif dataset=='dense':          
+      
+    if dataset=='dense':          
         train_dataset = dense_train(transform_train, config['image_root'], config['ann_root'],device)
         val_dataset = dense_eval(transform_test, config['image_root'], config['ann_root'],device) 
         test_dataset = dense_test(transform_test, config['image_root'], config['ann_root'],device)          
@@ -46,8 +34,8 @@ def create_dataset(dataset, config, device, min_scale=0.5):
     
     elif dataset == 'region':
         train_dataset = region_train(transform_train, config['image_root'], config['ann_root'],device)
-        val_dataset = region_eval(transform_test, config['image_root'], config['ann_root'],device) 
-        test_dataset = region_test(transform_test, config['image_root'], config['ann_root'],device)          
+        val_dataset = region_eval(config['image_root'], config['ann_root']) 
+        test_dataset = region_test(transform_test, config['image_root'], config['ann_root'])          
         return train_dataset, val_dataset, test_dataset
 
 

@@ -163,7 +163,7 @@ class DenseCapModel(GeneralizedRCNN):
             )
             original_image_sizes.append((val[0], val[1]))
 
-        images, targets = self.transform(images, targets) #origin code
+        images, targets = self.transform(images, targets) 
 
         # Check for degenerate boxes
         if targets is not None:
