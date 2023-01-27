@@ -48,7 +48,7 @@ def train(model, data_loader, optimizer, epoch, device, max_caption_num = 15):#å
     # print_freq = 50
     i = 0
     for image, image_org_size, targets, img_id in tqdm.tqdm(data_loader):#image:batch_size*3*384*384 caption
-
+            # continue
             model = model.to(device)
             image = [img.to(device) for img in image]
             loss_dict = model(image, max_caption_num, targets)      
@@ -64,13 +64,11 @@ def train(model, data_loader, optimizer, epoch, device, max_caption_num = 15):#å
             writer.add_scalar('reg_loss',loss_dict['regloss'][-1],i)
             writer.add_scalar('generate_ctp_loss',loss_dict['ctploss'][-1].item(),i)
 
-            i += 1
+            # i += 1
             
             metric_logger.update(loss=overall_loss.item())
             metric_logger.update(lr=optimizer.param_groups[0]["lr"])
-            # if i >= 9500:
-            #     print("interrupt from 9500!")
-            #     break
+
 
     # gather the stats from all processes
     # metric_logger.synchronize_between_processes()
@@ -94,6 +92,9 @@ def evaluate(model, mask_model, data_loader, device, config):
     
     for image_for_region, image_for_extract, image_org_size, image_id in metric_logger.log_every(data_loader, print_freq, header): 
         # torch.cuda.empty_cache()
+        iter0 += 1
+        # if iter0 < 340:
+        #     continue
         try:
             image_for_region = [img.to(device) for img in image_for_region]     
             image_for_extract = torch.stack(image_for_extract).to(device)
@@ -109,7 +110,7 @@ def evaluate(model, mask_model, data_loader, device, config):
                     result.append({"image_id": image_id[idx], "caption": caption, "corresponding_region":res['predict_region'][idx][region_idx].cpu().numpy().tolist()})                 
         except Exception as e:
             print(str(e))
-        iter0 += 1
+        
         if iter0 >= 500:
             break    
     print("===Eval Finish===")  
@@ -154,7 +155,8 @@ def main(args, config):
                            vit_grad_ckpt=config['vit_grad_ckpt'], vit_ckpt_layer=config['vit_ckpt_layer'], 
                            prompt=config['prompt'])
 
-    model = model.to(device)   
+    model = model.to(device)  
+    # model.load_state_dict(torch.load('output/blip_extract_model.pt')) 
 
     mask_model = densecap_resnet50_fpn(backbone_pretrained=config['backbone_pretrained'],#True
                                   feat_size=config['feat_size'],#4096
@@ -166,7 +168,7 @@ def main(args, config):
                                   fusion_type=config['fusion_type'],#init_inject
                                   box_detections_per_img=config['box_detections_per_img'])#50
     # if config['use_pretrain_fasterrcnn']:#true
-    mask_model.load_state_dict(torch.load('region_model/model_result/region_detection_model_without3.pt'))
+    mask_model.load_state_dict(torch.load('region_model/model_result/region_detection_model.pt'))
     # mask_model.backbone.load_state_dict(fasterrcnn_resnet50_fpn(pretrained=True).backbone.state_dict(), strict=False)
     # mask_model.rpn.load_state_dict(fasterrcnn_resnet50_fpn(pretrained=True).rpn.state_dict(), strict=False)
 

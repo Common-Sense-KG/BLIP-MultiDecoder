@@ -71,10 +71,11 @@ class dense_train(Dataset):
         captions_list = []
         boxes_list = []
         mask_list = []
-        signal = True
+        times = 0
         ##引入tf idf对数据做筛选
-        while signal:
-            if len(captions_list) >= len(ann['phrase_list']) * 0.6 :
+        while len(captions_list) < len(ann['phrase_list']) * 0.6 :
+            times += 1
+            if times > 500 and len(captions_list) > 0:
                 break
             for i,(phrase) in enumerate(ann['phrase_list']):
                 tf_idf_score = match_tf_idf['predicate_tf_idf_score'][i]

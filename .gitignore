@@ -15,3 +15,5 @@ nlg-eval/*
 tensorboard_region/*
 region_model/model/__pycache__/*
 region_model/model_result/*
+./train_dense_output.txt
+./train_dense_region.txt

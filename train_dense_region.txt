@@ -1,0 +1,1028 @@
+Creating captioning dataset
+Creating model
+load checkpoint from https://storage.googleapis.com/sfr-vision-language-research/BLIP/models/model_base_caption_capfilt_large.pth
+Finish Creating model- pretrain
+Start training
+Train Caption Epoch: [0]
+Averaged stats: lr: 0.0000  loss: 8.8677
+update min loss in epoch 0
+min loss is 8.868
+Eval Start
+Caption generation:  [   0/5243]  eta: 0:45:38    time: 0.5223  data: 0.4826  max mem: 8167
+Caption generation:  [  10/5243]  eta: 0:06:51    time: 0.0787  data: 0.0440  max mem: 8167
+Caption generation:  [  20/5243]  eta: 0:05:01    time: 0.0345  data: 0.0001  max mem: 8167
+Caption generation:  [  30/5243]  eta: 0:04:20    time: 0.0343  data: 0.0001  max mem: 8167
+Caption generation:  [  40/5243]  eta: 0:03:58    time: 0.0334  data: 0.0001  max mem: 8167
+Caption generation:  [  50/5243]  eta: 0:03:47    time: 0.0343  data: 0.0001  max mem: 8167
+Caption generation:  [  60/5243]  eta: 0:03:36    time: 0.0336  data: 0.0001  max mem: 8167
+Caption generation:  [  70/5243]  eta: 0:03:29    time: 0.0316  data: 0.0001  max mem: 8167
+Caption generation:  [  80/5243]  eta: 0:03:23    time: 0.0317  data: 0.0001  max mem: 8167
+Caption generation:  [  90/5243]  eta: 0:03:18    time: 0.0321  data: 0.0001  max mem: 8167
+Caption generation:  [ 100/5243]  eta: 0:03:15    time: 0.0322  data: 0.0001  max mem: 8167
+Caption generation:  [ 110/5243]  eta: 0:03:11    time: 0.0319  data: 0.0001  max mem: 8167
+Caption generation:  [ 120/5243]  eta: 0:03:08    time: 0.0314  data: 0.0001  max mem: 8167
+Caption generation:  [ 130/5243]  eta: 0:03:06    time: 0.0311  data: 0.0001  max mem: 8167
+Caption generation:  [ 140/5243]  eta: 0:03:04    time: 0.0316  data: 0.0001  max mem: 8167
+Caption generation:  [ 150/5243]  eta: 0:03:02    time: 0.0319  data: 0.0001  max mem: 8167
+Caption generation:  [ 160/5243]  eta: 0:03:00    time: 0.0316  data: 0.0001  max mem: 8167
+Caption generation:  [ 170/5243]  eta: 0:02:59    time: 0.0323  data: 0.0001  max mem: 8167
+Caption generation:  [ 180/5243]  eta: 0:02:58    time: 0.0327  data: 0.0001  max mem: 8167
+Caption generation:  [ 190/5243]  eta: 0:02:57    time: 0.0322  data: 0.0001  max mem: 8167
+Caption generation:  [ 200/5243]  eta: 0:02:55    time: 0.0317  data: 0.0001  max mem: 8167
+Caption generation:  [ 210/5243]  eta: 0:02:55    time: 0.0320  data: 0.0001  max mem: 8167
+Caption generation:  [ 220/5243]  eta: 0:02:54    time: 0.0324  data: 0.0001  max mem: 8167
+Caption generation:  [ 230/5243]  eta: 0:02:53    time: 0.0320  data: 0.0001  max mem: 8167
+Caption generation:  [ 240/5243]  eta: 0:02:52    time: 0.0318  data: 0.0001  max mem: 8167
+Caption generation:  [ 250/5243]  eta: 0:02:51    time: 0.0323  data: 0.0001  max mem: 8167
+Caption generation:  [ 260/5243]  eta: 0:02:50    time: 0.0323  data: 0.0001  max mem: 8167
+Caption generation:  [ 270/5243]  eta: 0:02:49    time: 0.0316  data: 0.0001  max mem: 8167
+Caption generation:  [ 280/5243]  eta: 0:02:48    time: 0.0308  data: 0.0001  max mem: 8167
+Caption generation:  [ 290/5243]  eta: 0:02:48    time: 0.0309  data: 0.0001  max mem: 8167
+Caption generation:  [ 300/5243]  eta: 0:02:47    time: 0.0318  data: 0.0001  max mem: 8167
+Caption generation:  [ 310/5243]  eta: 0:02:46    time: 0.0317  data: 0.0001  max mem: 8167
+Caption generation:  [ 320/5243]  eta: 0:02:46    time: 0.0324  data: 0.0001  max mem: 8167
+Caption generation:  [ 330/5243]  eta: 0:02:45    time: 0.0319  data: 0.0001  max mem: 8167
+Caption generation:  [ 340/5243]  eta: 0:02:44    time: 0.0311  data: 0.0001  max mem: 8167
+Caption generation:  [ 350/5243]  eta: 0:02:44    time: 0.0315  data: 0.0001  max mem: 8167
+Caption generation:  [ 360/5243]  eta: 0:02:43    time: 0.0312  data: 0.0001  max mem: 8167
+Caption generation:  [ 370/5243]  eta: 0:02:42    time: 0.0313  data: 0.0001  max mem: 8167
+Caption generation:  [ 380/5243]  eta: 0:02:42    time: 0.0319  data: 0.0001  max mem: 8167
+Caption generation:  [ 390/5243]  eta: 0:02:42    time: 0.0337  data: 0.0001  max mem: 8167
+Caption generation:  [ 400/5243]  eta: 0:02:42    time: 0.0354  data: 0.0001  max mem: 8167
+Caption generation:  [ 410/5243]  eta: 0:02:41    time: 0.0342  data: 0.0001  max mem: 8167
+Caption generation:  [ 420/5243]  eta: 0:02:41    time: 0.0322  data: 0.0001  max mem: 8167
+Caption generation:  [ 430/5243]  eta: 0:02:40    time: 0.0321  data: 0.0001  max mem: 8167
+Caption generation:  [ 440/5243]  eta: 0:02:40    time: 0.0316  data: 0.0001  max mem: 8167
+Caption generation:  [ 450/5243]  eta: 0:02:39    time: 0.0318  data: 0.0001  max mem: 8167
+Caption generation:  [ 460/5243]  eta: 0:02:39    time: 0.0333  data: 0.0001  max mem: 8167
+Caption generation:  [ 470/5243]  eta: 0:02:39    time: 0.0331  data: 0.0001  max mem: 8167
+Caption generation:  [ 480/5243]  eta: 0:02:38    time: 0.0338  data: 0.0001  max mem: 8167
+Caption generation:  [ 490/5243]  eta: 0:02:38    time: 0.0329  data: 0.0001  max mem: 8167
+Caption generation:  [ 500/5243]  eta: 0:02:37    time: 0.0311  data: 0.0001  max mem: 8167
+Caption generation:  [ 510/5243]  eta: 0:02:37    time: 0.0321  data: 0.0001  max mem: 8167
+Caption generation:  [ 520/5243]  eta: 0:02:37    time: 0.0334  data: 0.0001  max mem: 8167
+Caption generation:  [ 530/5243]  eta: 0:02:36    time: 0.0335  data: 0.0001  max mem: 8167
+Caption generation:  [ 540/5243]  eta: 0:02:36    time: 0.0318  data: 0.0001  max mem: 8167
+Caption generation:  [ 550/5243]  eta: 0:02:35    time: 0.0308  data: 0.0001  max mem: 8167
+Caption generation:  [ 560/5243]  eta: 0:02:35    time: 0.0310  data: 0.0001  max mem: 8167
+Caption generation:  [ 570/5243]  eta: 0:02:34    time: 0.0315  data: 0.0001  max mem: 8167
+Caption generation:  [ 580/5243]  eta: 0:02:34    time: 0.0319  data: 0.0001  max mem: 8167
+Caption generation:  [ 590/5243]  eta: 0:02:34    time: 0.0322  data: 0.0001  max mem: 8167
+Caption generation:  [ 600/5243]  eta: 0:02:33    time: 0.0325  data: 0.0001  max mem: 8167
+Caption generation:  [ 610/5243]  eta: 0:02:33    time: 0.0317  data: 0.0001  max mem: 8167
+Caption generation:  [ 620/5243]  eta: 0:02:32    time: 0.0315  data: 0.0001  max mem: 8167
+Caption generation:  [ 630/5243]  eta: 0:02:32    time: 0.0323  data: 0.0001  max mem: 8167
+Caption generation:  [ 640/5243]  eta: 0:02:31    time: 0.0323  data: 0.0001  max mem: 8167
+Caption generation:  [ 650/5243]  eta: 0:02:31    time: 0.0321  data: 0.0001  max mem: 8167
+Caption generation:  [ 660/5243]  eta: 0:02:31    time: 0.0319  data: 0.0001  max mem: 8167
+Caption generation:  [ 670/5243]  eta: 0:02:30    time: 0.0316  data: 0.0001  max mem: 8167
+Caption generation:  [ 680/5243]  eta: 0:02:30    time: 0.0322  data: 0.0001  max mem: 8167
+Caption generation:  [ 690/5243]  eta: 0:02:29    time: 0.0324  data: 0.0001  max mem: 8167
+Caption generation:  [ 700/5243]  eta: 0:02:29    time: 0.0327  data: 0.0001  max mem: 8167
+Caption generation:  [ 710/5243]  eta: 0:02:29    time: 0.0334  data: 0.0001  max mem: 8167
+Caption generation:  [ 720/5243]  eta: 0:02:29    time: 0.0335  data: 0.0001  max mem: 8167
+Caption generation:  [ 730/5243]  eta: 0:02:28    time: 0.0332  data: 0.0001  max mem: 8167
+Caption generation:  [ 740/5243]  eta: 0:02:28    time: 0.0326  data: 0.0001  max mem: 8167
+Caption generation:  [ 750/5243]  eta: 0:02:28    time: 0.0324  data: 0.0001  max mem: 8167
+Caption generation:  [ 760/5243]  eta: 0:02:27    time: 0.0317  data: 0.0001  max mem: 8167
+Caption generation:  [ 770/5243]  eta: 0:02:27    time: 0.0324  data: 0.0001  max mem: 8167
+Caption generation:  [ 780/5243]  eta: 0:02:26    time: 0.0330  data: 0.0001  max mem: 8167
+Caption generation:  [ 790/5243]  eta: 0:02:26    time: 0.0323  data: 0.0001  max mem: 8167
+Caption generation:  [ 800/5243]  eta: 0:02:26    time: 0.0323  data: 0.0001  max mem: 8167
+Caption generation:  [ 810/5243]  eta: 0:02:25    time: 0.0317  data: 0.0001  max mem: 8167
+Caption generation:  [ 820/5243]  eta: 0:02:25    time: 0.0322  data: 0.0001  max mem: 8167
+Caption generation:  [ 830/5243]  eta: 0:02:25    time: 0.0322  data: 0.0001  max mem: 8167
+Caption generation:  [ 840/5243]  eta: 0:02:24    time: 0.0321  data: 0.0001  max mem: 8167
+Caption generation:  [ 850/5243]  eta: 0:02:24    time: 0.0317  data: 0.0001  max mem: 8167
+Caption generation:  [ 860/5243]  eta: 0:02:23    time: 0.0315  data: 0.0001  max mem: 8167
+Caption generation:  [ 870/5243]  eta: 0:02:23    time: 0.0317  data: 0.0001  max mem: 8167
+Caption generation:  [ 880/5243]  eta: 0:02:23    time: 0.0318  data: 0.0001  max mem: 8167
+Caption generation:  [ 890/5243]  eta: 0:02:22    time: 0.0328  data: 0.0001  max mem: 8167
+Caption generation:  [ 900/5243]  eta: 0:02:22    time: 0.0321  data: 0.0001  max mem: 8167
+Caption generation:  [ 910/5243]  eta: 0:02:22    time: 0.0327  data: 0.0001  max mem: 8167
+Caption generation:  [ 920/5243]  eta: 0:02:21    time: 0.0329  data: 0.0001  max mem: 8167
+Caption generation:  [ 930/5243]  eta: 0:02:21    time: 0.0316  data: 0.0001  max mem: 8167
+Caption generation:  [ 940/5243]  eta: 0:02:21    time: 0.0329  data: 0.0001  max mem: 8167
+Caption generation:  [ 950/5243]  eta: 0:02:20    time: 0.0333  data: 0.0001  max mem: 8167
+Caption generation:  [ 960/5243]  eta: 0:02:20    time: 0.0323  data: 0.0001  max mem: 8167
+Caption generation:  [ 970/5243]  eta: 0:02:20    time: 0.0317  data: 0.0001  max mem: 8167
+Caption generation:  [ 980/5243]  eta: 0:02:19    time: 0.0311  data: 0.0001  max mem: 8167
+Caption generation:  [ 990/5243]  eta: 0:02:19    time: 0.0315  data: 0.0001  max mem: 8167
+Caption generation:  [1000/5243]  eta: 0:02:18    time: 0.0319  data: 0.0001  max mem: 8167
+Caption generation:  [1010/5243]  eta: 0:02:18    time: 0.0320  data: 0.0001  max mem: 8167
+Caption generation:  [1020/5243]  eta: 0:02:18    time: 0.0323  data: 0.0001  max mem: 8167
+Caption generation:  [1030/5243]  eta: 0:02:17    time: 0.0318  data: 0.0001  max mem: 8167
+Caption generation:  [1040/5243]  eta: 0:02:17    time: 0.0327  data: 0.0001  max mem: 8167
+Caption generation:  [1050/5243]  eta: 0:02:17    time: 0.0326  data: 0.0001  max mem: 8167
+Caption generation:  [1060/5243]  eta: 0:02:16    time: 0.0317  data: 0.0001  max mem: 8167
+Caption generation:  [1070/5243]  eta: 0:02:16    time: 0.0318  data: 0.0001  max mem: 8167
+Caption generation:  [1080/5243]  eta: 0:02:16    time: 0.0324  data: 0.0001  max mem: 8167
+Caption generation:  [1090/5243]  eta: 0:02:15    time: 0.0324  data: 0.0001  max mem: 8167
+Caption generation:  [1100/5243]  eta: 0:02:15    time: 0.0321  data: 0.0001  max mem: 8167
+Caption generation:  [1110/5243]  eta: 0:02:15    time: 0.0322  data: 0.0001  max mem: 8167
+Caption generation:  [1120/5243]  eta: 0:02:14    time: 0.0320  data: 0.0001  max mem: 8167
+Caption generation:  [1130/5243]  eta: 0:02:14    time: 0.0319  data: 0.0001  max mem: 8167
+Caption generation:  [1140/5243]  eta: 0:02:14    time: 0.0323  data: 0.0001  max mem: 8167
+Caption generation:  [1150/5243]  eta: 0:02:13    time: 0.0324  data: 0.0001  max mem: 8167
+Caption generation:  [1160/5243]  eta: 0:02:13    time: 0.0315  data: 0.0001  max mem: 8167
+Caption generation:  [1170/5243]  eta: 0:02:13    time: 0.0322  data: 0.0001  max mem: 8167
+Caption generation:  [1180/5243]  eta: 0:02:12    time: 0.0335  data: 0.0001  max mem: 8167
+Caption generation:  [1190/5243]  eta: 0:02:12    time: 0.0340  data: 0.0001  max mem: 8167
+Caption generation:  [1200/5243]  eta: 0:02:12    time: 0.0333  data: 0.0001  max mem: 8167
+Caption generation:  [1210/5243]  eta: 0:02:11    time: 0.0320  data: 0.0001  max mem: 8167
+Caption generation:  [1220/5243]  eta: 0:02:11    time: 0.0315  data: 0.0001  max mem: 8167
+Caption generation:  [1230/5243]  eta: 0:02:11    time: 0.0320  data: 0.0001  max mem: 8167
+Caption generation:  [1240/5243]  eta: 0:02:10    time: 0.0328  data: 0.0001  max mem: 8167
+Caption generation:  [1250/5243]  eta: 0:02:10    time: 0.0326  data: 0.0001  max mem: 8167
+Caption generation:  [1260/5243]  eta: 0:02:10    time: 0.0317  data: 0.0001  max mem: 8167
+Caption generation:  [1270/5243]  eta: 0:02:09    time: 0.0322  data: 0.0001  max mem: 8167
+Caption generation:  [1280/5243]  eta: 0:02:09    time: 0.0322  data: 0.0001  max mem: 8167
+Caption generation:  [1290/5243]  eta: 0:02:09    time: 0.0321  data: 0.0001  max mem: 8167
+Caption generation:  [1300/5243]  eta: 0:02:08    time: 0.0331  data: 0.0001  max mem: 8167
+Caption generation:  [1310/5243]  eta: 0:02:08    time: 0.0333  data: 0.0001  max mem: 8167
+Caption generation:  [1320/5243]  eta: 0:02:08    time: 0.0324  data: 0.0001  max mem: 8167
+Caption generation:  [1330/5243]  eta: 0:02:07    time: 0.0323  data: 0.0001  max mem: 8167
+Caption generation:  [1340/5243]  eta: 0:02:07    time: 0.0331  data: 0.0001  max mem: 8167
+Caption generation:  [1350/5243]  eta: 0:02:07    time: 0.0321  data: 0.0001  max mem: 8167
+Caption generation:  [1360/5243]  eta: 0:02:06    time: 0.0317  data: 0.0001  max mem: 8167
+Caption generation:  [1370/5243]  eta: 0:02:06    time: 0.0321  data: 0.0001  max mem: 8167
+Caption generation:  [1380/5243]  eta: 0:02:06    time: 0.0323  data: 0.0001  max mem: 8167
+Caption generation:  [1390/5243]  eta: 0:02:05    time: 0.0320  data: 0.0001  max mem: 8167
+Caption generation:  [1400/5243]  eta: 0:02:05    time: 0.0322  data: 0.0001  max mem: 8167
+Caption generation:  [1410/5243]  eta: 0:02:05    time: 0.0325  data: 0.0001  max mem: 8167
+Caption generation:  [1420/5243]  eta: 0:02:04    time: 0.0315  data: 0.0001  max mem: 8167
+Caption generation:  [1430/5243]  eta: 0:02:04    time: 0.0314  data: 0.0001  max mem: 8167
+Caption generation:  [1440/5243]  eta: 0:02:03    time: 0.0321  data: 0.0001  max mem: 8167
+Caption generation:  [1450/5243]  eta: 0:02:03    time: 0.0318  data: 0.0001  max mem: 8167
+Caption generation:  [1460/5243]  eta: 0:02:03    time: 0.0317  data: 0.0001  max mem: 8167
+Caption generation:  [1470/5243]  eta: 0:02:02    time: 0.0323  data: 0.0001  max mem: 8167
+Caption generation:  [1480/5243]  eta: 0:02:02    time: 0.0318  data: 0.0001  max mem: 8167
+Caption generation:  [1490/5243]  eta: 0:02:02    time: 0.0315  data: 0.0001  max mem: 8167
+Caption generation:  [1500/5243]  eta: 0:02:01    time: 0.0333  data: 0.0001  max mem: 8167
+Caption generation:  [1510/5243]  eta: 0:02:01    time: 0.0325  data: 0.0001  max mem: 8167
+Caption generation:  [1520/5243]  eta: 0:02:01    time: 0.0315  data: 0.0001  max mem: 8167
+Caption generation:  [1530/5243]  eta: 0:02:00    time: 0.0333  data: 0.0001  max mem: 8167
+Caption generation:  [1540/5243]  eta: 0:02:00    time: 0.0344  data: 0.0001  max mem: 8167
+Caption generation:  [1550/5243]  eta: 0:02:00    time: 0.0329  data: 0.0001  max mem: 8167
+Caption generation:  [1560/5243]  eta: 0:02:00    time: 0.0321  data: 0.0001  max mem: 8167
+Caption generation:  [1570/5243]  eta: 0:01:59    time: 0.0322  data: 0.0001  max mem: 8167
+Caption generation:  [1580/5243]  eta: 0:01:59    time: 0.0317  data: 0.0001  max mem: 8167
+Caption generation:  [1590/5243]  eta: 0:01:58    time: 0.0318  data: 0.0001  max mem: 8167
+Caption generation:  [1600/5243]  eta: 0:01:58    time: 0.0320  data: 0.0001  max mem: 8167
+Caption generation:  [1610/5243]  eta: 0:01:58    time: 0.0323  data: 0.0001  max mem: 8167
+Caption generation:  [1620/5243]  eta: 0:01:58    time: 0.0332  data: 0.0001  max mem: 8167
+Caption generation:  [1630/5243]  eta: 0:01:57    time: 0.0340  data: 0.0001  max mem: 8167
+Caption generation:  [1640/5243]  eta: 0:01:57    time: 0.0328  data: 0.0001  max mem: 8167
+Caption generation:  [1650/5243]  eta: 0:01:57    time: 0.0322  data: 0.0001  max mem: 8167
+Caption generation:  [1660/5243]  eta: 0:01:56    time: 0.0323  data: 0.0001  max mem: 8167
+Caption generation:  [1670/5243]  eta: 0:01:56    time: 0.0319  data: 0.0001  max mem: 8167
+Caption generation:  [1680/5243]  eta: 0:01:56    time: 0.0324  data: 0.0001  max mem: 8167
+Caption generation:  [1690/5243]  eta: 0:01:55    time: 0.0329  data: 0.0001  max mem: 8167
+Caption generation:  [1700/5243]  eta: 0:01:55    time: 0.0330  data: 0.0001  max mem: 8167
+Caption generation:  [1710/5243]  eta: 0:01:55    time: 0.0327  data: 0.0001  max mem: 8167
+Caption generation:  [1720/5243]  eta: 0:01:54    time: 0.0338  data: 0.0001  max mem: 8167
+Caption generation:  [1730/5243]  eta: 0:01:54    time: 0.0351  data: 0.0002  max mem: 8167
+Caption generation:  [1740/5243]  eta: 0:01:54    time: 0.0336  data: 0.0001  max mem: 8167
+Caption generation:  [1750/5243]  eta: 0:01:53    time: 0.0323  data: 0.0001  max mem: 8167
+Caption generation:  [1760/5243]  eta: 0:01:53    time: 0.0335  data: 0.0001  max mem: 8167
+Caption generation:  [1770/5243]  eta: 0:01:53    time: 0.0335  data: 0.0001  max mem: 8167
+Caption generation:  [1780/5243]  eta: 0:01:52    time: 0.0314  data: 0.0001  max mem: 8167
+Caption generation:  [1790/5243]  eta: 0:01:52    time: 0.0327  data: 0.0001  max mem: 8167
+Caption generation:  [1800/5243]  eta: 0:01:52    time: 0.0329  data: 0.0001  max mem: 8167
+Caption generation:  [1810/5243]  eta: 0:01:51    time: 0.0321  data: 0.0001  max mem: 8167
+Caption generation:  [1820/5243]  eta: 0:01:51    time: 0.0334  data: 0.0001  max mem: 8167
+Caption generation:  [1830/5243]  eta: 0:01:51    time: 0.0333  data: 0.0001  max mem: 8167
+Caption generation:  [1840/5243]  eta: 0:01:50    time: 0.0328  data: 0.0001  max mem: 8167
+Caption generation:  [1850/5243]  eta: 0:01:50    time: 0.0323  data: 0.0001  max mem: 8167
+Caption generation:  [1860/5243]  eta: 0:01:50    time: 0.0309  data: 0.0001  max mem: 8167
+Caption generation:  [1870/5243]  eta: 0:01:49    time: 0.0322  data: 0.0001  max mem: 8167
+Caption generation:  [1880/5243]  eta: 0:01:49    time: 0.0339  data: 0.0001  max mem: 8167
+Caption generation:  [1890/5243]  eta: 0:01:49    time: 0.0330  data: 0.0001  max mem: 8167
+Caption generation:  [1900/5243]  eta: 0:01:48    time: 0.0316  data: 0.0001  max mem: 8167
+Caption generation:  [1910/5243]  eta: 0:01:48    time: 0.0315  data: 0.0001  max mem: 8167
+Caption generation:  [1920/5243]  eta: 0:01:48    time: 0.0317  data: 0.0001  max mem: 8167
+Caption generation:  [1930/5243]  eta: 0:01:47    time: 0.0316  data: 0.0001  max mem: 8167
+Caption generation:  [1940/5243]  eta: 0:01:47    time: 0.0321  data: 0.0001  max mem: 8167
+Caption generation:  [1950/5243]  eta: 0:01:47    time: 0.0322  data: 0.0001  max mem: 8167
+Caption generation:  [1960/5243]  eta: 0:01:46    time: 0.0330  data: 0.0001  max mem: 8167
+Caption generation:  [1970/5243]  eta: 0:01:46    time: 0.0350  data: 0.0001  max mem: 8167
+Caption generation:  [1980/5243]  eta: 0:01:46    time: 0.0349  data: 0.0001  max mem: 8167
+Caption generation:  [1990/5243]  eta: 0:01:46    time: 0.0327  data: 0.0001  max mem: 8167
+===eval finish===
+Train Caption Epoch: [1]
+Averaged stats: lr: 0.0000  loss: 9.8661
+Eval Start
+Caption generation:  [   0/5243]  eta: 0:46:14    time: 0.5292  data: 0.4762  max mem: 8411
+Caption generation:  [  10/5243]  eta: 0:06:45    time: 0.0775  data: 0.0434  max mem: 8411
+Caption generation:  [  20/5243]  eta: 0:04:56    time: 0.0331  data: 0.0001  max mem: 8411
+Caption generation:  [  30/5243]  eta: 0:04:15    time: 0.0333  data: 0.0001  max mem: 8411
+Caption generation:  [  40/5243]  eta: 0:03:52    time: 0.0321  data: 0.0001  max mem: 8411
+Caption generation:  [  50/5243]  eta: 0:03:42    time: 0.0334  data: 0.0004  max mem: 8411
+Caption generation:  [  60/5243]  eta: 0:03:31    time: 0.0328  data: 0.0004  max mem: 8411
+Caption generation:  [  70/5243]  eta: 0:03:24    time: 0.0308  data: 0.0001  max mem: 8411
+Caption generation:  [  80/5243]  eta: 0:03:18    time: 0.0311  data: 0.0001  max mem: 8411
+Caption generation:  [  90/5243]  eta: 0:03:14    time: 0.0313  data: 0.0001  max mem: 8411
+Caption generation:  [ 100/5243]  eta: 0:03:10    time: 0.0312  data: 0.0001  max mem: 8411
+Caption generation:  [ 110/5243]  eta: 0:03:07    time: 0.0311  data: 0.0001  max mem: 8411
+Caption generation:  [ 120/5243]  eta: 0:03:03    time: 0.0301  data: 0.0001  max mem: 8411
+Caption generation:  [ 130/5243]  eta: 0:03:00    time: 0.0294  data: 0.0001  max mem: 8411
+Caption generation:  [ 140/5243]  eta: 0:02:59    time: 0.0306  data: 0.0001  max mem: 8411
+Caption generation:  [ 150/5243]  eta: 0:02:57    time: 0.0315  data: 0.0001  max mem: 8411
+Caption generation:  [ 160/5243]  eta: 0:02:56    time: 0.0314  data: 0.0001  max mem: 8411
+Caption generation:  [ 170/5243]  eta: 0:02:55    time: 0.0322  data: 0.0001  max mem: 8411
+Caption generation:  [ 180/5243]  eta: 0:02:54    time: 0.0327  data: 0.0001  max mem: 8411
+Caption generation:  [ 190/5243]  eta: 0:02:53    time: 0.0323  data: 0.0001  max mem: 8411
+Caption generation:  [ 200/5243]  eta: 0:02:52    time: 0.0314  data: 0.0001  max mem: 8411
+Caption generation:  [ 210/5243]  eta: 0:02:51    time: 0.0312  data: 0.0001  max mem: 8411
+Caption generation:  [ 220/5243]  eta: 0:02:50    time: 0.0315  data: 0.0001  max mem: 8411
+Caption generation:  [ 230/5243]  eta: 0:02:49    time: 0.0310  data: 0.0001  max mem: 8411
+Caption generation:  [ 240/5243]  eta: 0:02:48    time: 0.0309  data: 0.0001  max mem: 8411
+Caption generation:  [ 250/5243]  eta: 0:02:47    time: 0.0316  data: 0.0001  max mem: 8411
+Caption generation:  [ 260/5243]  eta: 0:02:46    time: 0.0318  data: 0.0001  max mem: 8411
+Caption generation:  [ 270/5243]  eta: 0:02:46    time: 0.0308  data: 0.0001  max mem: 8411
+Caption generation:  [ 280/5243]  eta: 0:02:45    time: 0.0301  data: 0.0001  max mem: 8411
+Caption generation:  [ 290/5243]  eta: 0:02:44    time: 0.0300  data: 0.0001  max mem: 8411
+Caption generation:  [ 300/5243]  eta: 0:02:43    time: 0.0309  data: 0.0001  max mem: 8411
+Caption generation:  [ 310/5243]  eta: 0:02:42    time: 0.0308  data: 0.0001  max mem: 8411
+Caption generation:  [ 320/5243]  eta: 0:02:42    time: 0.0316  data: 0.0001  max mem: 8411
+Caption generation:  [ 330/5243]  eta: 0:02:41    time: 0.0314  data: 0.0001  max mem: 8411
+Caption generation:  [ 340/5243]  eta: 0:02:41    time: 0.0303  data: 0.0001  max mem: 8411
+Caption generation:  [ 350/5243]  eta: 0:02:40    time: 0.0309  data: 0.0001  max mem: 8411
+Caption generation:  [ 360/5243]  eta: 0:02:39    time: 0.0302  data: 0.0001  max mem: 8411
+Caption generation:  [ 370/5243]  eta: 0:02:39    time: 0.0302  data: 0.0001  max mem: 8411
+Caption generation:  [ 380/5243]  eta: 0:02:38    time: 0.0310  data: 0.0001  max mem: 8411
+Caption generation:  [ 390/5243]  eta: 0:02:38    time: 0.0327  data: 0.0001  max mem: 8411
+Caption generation:  [ 400/5243]  eta: 0:02:38    time: 0.0345  data: 0.0004  max mem: 8411
+Caption generation:  [ 410/5243]  eta: 0:02:37    time: 0.0332  data: 0.0004  max mem: 8411
+Caption generation:  [ 420/5243]  eta: 0:02:37    time: 0.0315  data: 0.0001  max mem: 8411
+Caption generation:  [ 430/5243]  eta: 0:02:36    time: 0.0312  data: 0.0001  max mem: 8411
+Caption generation:  [ 440/5243]  eta: 0:02:36    time: 0.0307  data: 0.0001  max mem: 8411
+Caption generation:  [ 450/5243]  eta: 0:02:35    time: 0.0309  data: 0.0001  max mem: 8411
+Caption generation:  [ 460/5243]  eta: 0:02:35    time: 0.0320  data: 0.0001  max mem: 8411
+Caption generation:  [ 470/5243]  eta: 0:02:35    time: 0.0317  data: 0.0001  max mem: 8411
+Caption generation:  [ 480/5243]  eta: 0:02:34    time: 0.0326  data: 0.0001  max mem: 8411
+Caption generation:  [ 490/5243]  eta: 0:02:34    time: 0.0319  data: 0.0001  max mem: 8411
+Caption generation:  [ 500/5243]  eta: 0:02:33    time: 0.0303  data: 0.0001  max mem: 8411
+Caption generation:  [ 510/5243]  eta: 0:02:33    time: 0.0315  data: 0.0001  max mem: 8411
+Caption generation:  [ 520/5243]  eta: 0:02:33    time: 0.0326  data: 0.0001  max mem: 8411
+Caption generation:  [ 530/5243]  eta: 0:02:32    time: 0.0321  data: 0.0001  max mem: 8411
+Caption generation:  [ 540/5243]  eta: 0:02:32    time: 0.0308  data: 0.0001  max mem: 8411
+Caption generation:  [ 550/5243]  eta: 0:02:31    time: 0.0301  data: 0.0001  max mem: 8411
+Caption generation:  [ 560/5243]  eta: 0:02:31    time: 0.0302  data: 0.0001  max mem: 8411
+Caption generation:  [ 570/5243]  eta: 0:02:30    time: 0.0311  data: 0.0001  max mem: 8411
+Caption generation:  [ 580/5243]  eta: 0:02:30    time: 0.0313  data: 0.0001  max mem: 8411
+Caption generation:  [ 590/5243]  eta: 0:02:30    time: 0.0315  data: 0.0008  max mem: 8411
+Caption generation:  [ 600/5243]  eta: 0:02:29    time: 0.0318  data: 0.0008  max mem: 8411
+Caption generation:  [ 610/5243]  eta: 0:02:29    time: 0.0308  data: 0.0001  max mem: 8411
+Caption generation:  [ 620/5243]  eta: 0:02:28    time: 0.0305  data: 0.0001  max mem: 8411
+Caption generation:  [ 630/5243]  eta: 0:02:28    time: 0.0313  data: 0.0001  max mem: 8411
+Caption generation:  [ 640/5243]  eta: 0:02:28    time: 0.0315  data: 0.0001  max mem: 8411
+Caption generation:  [ 650/5243]  eta: 0:02:27    time: 0.0317  data: 0.0001  max mem: 8411
+Caption generation:  [ 660/5243]  eta: 0:02:27    time: 0.0318  data: 0.0001  max mem: 8411
+Caption generation:  [ 670/5243]  eta: 0:02:27    time: 0.0315  data: 0.0001  max mem: 8411
+Caption generation:  [ 680/5243]  eta: 0:02:26    time: 0.0307  data: 0.0001  max mem: 8411
+Caption generation:  [ 690/5243]  eta: 0:02:26    time: 0.0310  data: 0.0001  max mem: 8411
+Caption generation:  [ 700/5243]  eta: 0:02:25    time: 0.0324  data: 0.0001  max mem: 8411
+Caption generation:  [ 710/5243]  eta: 0:02:25    time: 0.0321  data: 0.0001  max mem: 8411
+Caption generation:  [ 720/5243]  eta: 0:02:25    time: 0.0325  data: 0.0005  max mem: 8411
+Caption generation:  [ 730/5243]  eta: 0:02:25    time: 0.0335  data: 0.0005  max mem: 8411
+Caption generation:  [ 740/5243]  eta: 0:02:24    time: 0.0325  data: 0.0001  max mem: 8411
+Caption generation:  [ 750/5243]  eta: 0:02:24    time: 0.0321  data: 0.0001  max mem: 8411
+Caption generation:  [ 760/5243]  eta: 0:02:24    time: 0.0318  data: 0.0001  max mem: 8411
+Caption generation:  [ 770/5243]  eta: 0:02:23    time: 0.0318  data: 0.0001  max mem: 8411
+Caption generation:  [ 780/5243]  eta: 0:02:23    time: 0.0318  data: 0.0001  max mem: 8411
+Caption generation:  [ 790/5243]  eta: 0:02:23    time: 0.0313  data: 0.0001  max mem: 8411
+Caption generation:  [ 800/5243]  eta: 0:02:22    time: 0.0314  data: 0.0001  max mem: 8411
+Caption generation:  [ 810/5243]  eta: 0:02:22    time: 0.0307  data: 0.0001  max mem: 8411
+Caption generation:  [ 820/5243]  eta: 0:02:21    time: 0.0311  data: 0.0001  max mem: 8411
+Caption generation:  [ 830/5243]  eta: 0:02:21    time: 0.0322  data: 0.0001  max mem: 8411
+Caption generation:  [ 840/5243]  eta: 0:02:21    time: 0.0323  data: 0.0001  max mem: 8411
+Caption generation:  [ 850/5243]  eta: 0:02:20    time: 0.0317  data: 0.0001  max mem: 8411
+Caption generation:  [ 860/5243]  eta: 0:02:20    time: 0.0315  data: 0.0001  max mem: 8411
+Caption generation:  [ 870/5243]  eta: 0:02:20    time: 0.0312  data: 0.0001  max mem: 8411
+Caption generation:  [ 880/5243]  eta: 0:02:19    time: 0.0314  data: 0.0001  max mem: 8411
+Caption generation:  [ 890/5243]  eta: 0:02:19    time: 0.0324  data: 0.0001  max mem: 8411
+Caption generation:  [ 900/5243]  eta: 0:02:19    time: 0.0315  data: 0.0001  max mem: 8411
+Caption generation:  [ 910/5243]  eta: 0:02:18    time: 0.0319  data: 0.0001  max mem: 8411
+Caption generation:  [ 920/5243]  eta: 0:02:18    time: 0.0322  data: 0.0001  max mem: 8411
+Caption generation:  [ 930/5243]  eta: 0:02:18    time: 0.0308  data: 0.0001  max mem: 8411
+Caption generation:  [ 940/5243]  eta: 0:02:17    time: 0.0318  data: 0.0001  max mem: 8411
+Caption generation:  [ 950/5243]  eta: 0:02:17    time: 0.0327  data: 0.0001  max mem: 8411
+Caption generation:  [ 960/5243]  eta: 0:02:17    time: 0.0321  data: 0.0001  max mem: 8411
+Caption generation:  [ 970/5243]  eta: 0:02:16    time: 0.0316  data: 0.0001  max mem: 8411
+Caption generation:  [ 980/5243]  eta: 0:02:16    time: 0.0310  data: 0.0001  max mem: 8411
+Caption generation:  [ 990/5243]  eta: 0:02:16    time: 0.0313  data: 0.0001  max mem: 8411
+Caption generation:  [1000/5243]  eta: 0:02:15    time: 0.0316  data: 0.0001  max mem: 8411
+Caption generation:  [1010/5243]  eta: 0:02:15    time: 0.0317  data: 0.0001  max mem: 8411
+Caption generation:  [1020/5243]  eta: 0:02:15    time: 0.0319  data: 0.0001  max mem: 8411
+Caption generation:  [1030/5243]  eta: 0:02:14    time: 0.0312  data: 0.0001  max mem: 8411
+Caption generation:  [1040/5243]  eta: 0:02:14    time: 0.0326  data: 0.0001  max mem: 8411
+Caption generation:  [1050/5243]  eta: 0:02:14    time: 0.0323  data: 0.0001  max mem: 8411
+Caption generation:  [1060/5243]  eta: 0:02:13    time: 0.0308  data: 0.0001  max mem: 8411
+Caption generation:  [1070/5243]  eta: 0:02:13    time: 0.0312  data: 0.0001  max mem: 8411
+Caption generation:  [1080/5243]  eta: 0:02:13    time: 0.0317  data: 0.0001  max mem: 8411
+Caption generation:  [1090/5243]  eta: 0:02:12    time: 0.0316  data: 0.0001  max mem: 8411
+Caption generation:  [1100/5243]  eta: 0:02:12    time: 0.0311  data: 0.0001  max mem: 8411
+Caption generation:  [1110/5243]  eta: 0:02:12    time: 0.0312  data: 0.0001  max mem: 8411
+Caption generation:  [1120/5243]  eta: 0:02:11    time: 0.0311  data: 0.0001  max mem: 8411
+Caption generation:  [1130/5243]  eta: 0:02:11    time: 0.0312  data: 0.0001  max mem: 8411
+Caption generation:  [1140/5243]  eta: 0:02:11    time: 0.0319  data: 0.0001  max mem: 8411
+Caption generation:  [1150/5243]  eta: 0:02:10    time: 0.0323  data: 0.0001  max mem: 8411
+Caption generation:  [1160/5243]  eta: 0:02:10    time: 0.0315  data: 0.0001  max mem: 8411
+Caption generation:  [1170/5243]  eta: 0:02:10    time: 0.0317  data: 0.0001  max mem: 8411
+Caption generation:  [1180/5243]  eta: 0:02:09    time: 0.0326  data: 0.0001  max mem: 8411
+Caption generation:  [1190/5243]  eta: 0:02:09    time: 0.0339  data: 0.0009  max mem: 8411
+Caption generation:  [1200/5243]  eta: 0:02:09    time: 0.0333  data: 0.0008  max mem: 8411
+Caption generation:  [1210/5243]  eta: 0:02:08    time: 0.0312  data: 0.0001  max mem: 8411
+Caption generation:  [1220/5243]  eta: 0:02:08    time: 0.0308  data: 0.0001  max mem: 8411
+Caption generation:  [1230/5243]  eta: 0:02:08    time: 0.0310  data: 0.0001  max mem: 8411
+Caption generation:  [1240/5243]  eta: 0:02:08    time: 0.0320  data: 0.0001  max mem: 8411
+Caption generation:  [1250/5243]  eta: 0:02:07    time: 0.0321  data: 0.0001  max mem: 8411
+Caption generation:  [1260/5243]  eta: 0:02:07    time: 0.0308  data: 0.0001  max mem: 8411
+Caption generation:  [1270/5243]  eta: 0:02:06    time: 0.0312  data: 0.0001  max mem: 8411
+Caption generation:  [1280/5243]  eta: 0:02:06    time: 0.0317  data: 0.0001  max mem: 8411
+Caption generation:  [1290/5243]  eta: 0:02:06    time: 0.0307  data: 0.0001  max mem: 8411
+Caption generation:  [1300/5243]  eta: 0:02:05    time: 0.0313  data: 0.0001  max mem: 8411
+Caption generation:  [1310/5243]  eta: 0:02:05    time: 0.0316  data: 0.0001  max mem: 8411
+Caption generation:  [1320/5243]  eta: 0:02:05    time: 0.0310  data: 0.0001  max mem: 8411
+Caption generation:  [1330/5243]  eta: 0:02:04    time: 0.0324  data: 0.0001  max mem: 8411
+Caption generation:  [1340/5243]  eta: 0:02:04    time: 0.0329  data: 0.0001  max mem: 8411
+Caption generation:  [1350/5243]  eta: 0:02:04    time: 0.0315  data: 0.0001  max mem: 8411
+Caption generation:  [1360/5243]  eta: 0:02:04    time: 0.0315  data: 0.0001  max mem: 8411
+Caption generation:  [1370/5243]  eta: 0:02:03    time: 0.0329  data: 0.0001  max mem: 8411
+Caption generation:  [1380/5243]  eta: 0:02:03    time: 0.0328  data: 0.0001  max mem: 8411
+Caption generation:  [1390/5243]  eta: 0:02:03    time: 0.0317  data: 0.0001  max mem: 8411
+Caption generation:  [1400/5243]  eta: 0:02:02    time: 0.0323  data: 0.0001  max mem: 8411
+Caption generation:  [1410/5243]  eta: 0:02:02    time: 0.0329  data: 0.0001  max mem: 8411
+Caption generation:  [1420/5243]  eta: 0:02:02    time: 0.0321  data: 0.0001  max mem: 8411
+Caption generation:  [1430/5243]  eta: 0:02:01    time: 0.0311  data: 0.0001  max mem: 8411
+Caption generation:  [1440/5243]  eta: 0:02:01    time: 0.0306  data: 0.0001  max mem: 8411
+Caption generation:  [1450/5243]  eta: 0:02:01    time: 0.0310  data: 0.0001  max mem: 8411
+Caption generation:  [1460/5243]  eta: 0:02:00    time: 0.0314  data: 0.0001  max mem: 8411
+Caption generation:  [1470/5243]  eta: 0:02:00    time: 0.0319  data: 0.0001  max mem: 8411
+Caption generation:  [1480/5243]  eta: 0:02:00    time: 0.0313  data: 0.0001  max mem: 8411
+Caption generation:  [1490/5243]  eta: 0:01:59    time: 0.0308  data: 0.0001  max mem: 8411
+Caption generation:  [1500/5243]  eta: 0:01:59    time: 0.0323  data: 0.0001  max mem: 8411
+Caption generation:  [1510/5243]  eta: 0:01:59    time: 0.0314  data: 0.0001  max mem: 8411
+Caption generation:  [1520/5243]  eta: 0:01:58    time: 0.0301  data: 0.0001  max mem: 8411
+Caption generation:  [1530/5243]  eta: 0:01:58    time: 0.0320  data: 0.0001  max mem: 8411
+Caption generation:  [1540/5243]  eta: 0:01:58    time: 0.0339  data: 0.0001  max mem: 8411
+Caption generation:  [1550/5243]  eta: 0:01:57    time: 0.0323  data: 0.0001  max mem: 8411
+Caption generation:  [1560/5243]  eta: 0:01:57    time: 0.0313  data: 0.0001  max mem: 8411
+Caption generation:  [1570/5243]  eta: 0:01:57    time: 0.0316  data: 0.0001  max mem: 8411
+Caption generation:  [1580/5243]  eta: 0:01:56    time: 0.0306  data: 0.0001  max mem: 8411
+Caption generation:  [1590/5243]  eta: 0:01:56    time: 0.0313  data: 0.0001  max mem: 8411
+Caption generation:  [1600/5243]  eta: 0:01:56    time: 0.0318  data: 0.0001  max mem: 8411
+Caption generation:  [1610/5243]  eta: 0:01:55    time: 0.0314  data: 0.0001  max mem: 8411
+Caption generation:  [1620/5243]  eta: 0:01:55    time: 0.0316  data: 0.0001  max mem: 8411
+Caption generation:  [1630/5243]  eta: 0:01:55    time: 0.0328  data: 0.0001  max mem: 8411
+Caption generation:  [1640/5243]  eta: 0:01:54    time: 0.0327  data: 0.0001  max mem: 8411
+Caption generation:  [1650/5243]  eta: 0:01:54    time: 0.0319  data: 0.0001  max mem: 8411
+Caption generation:  [1660/5243]  eta: 0:01:54    time: 0.0316  data: 0.0001  max mem: 8411
+Caption generation:  [1670/5243]  eta: 0:01:53    time: 0.0315  data: 0.0001  max mem: 8411
+Caption generation:  [1680/5243]  eta: 0:01:53    time: 0.0318  data: 0.0001  max mem: 8411
+Caption generation:  [1690/5243]  eta: 0:01:53    time: 0.0316  data: 0.0001  max mem: 8411
+Caption generation:  [1700/5243]  eta: 0:01:53    time: 0.0316  data: 0.0001  max mem: 8411
+Caption generation:  [1710/5243]  eta: 0:01:52    time: 0.0318  data: 0.0001  max mem: 8411
+Caption generation:  [1720/5243]  eta: 0:01:52    time: 0.0327  data: 0.0001  max mem: 8411
+Caption generation:  [1730/5243]  eta: 0:01:52    time: 0.0333  data: 0.0001  max mem: 8411
+Caption generation:  [1740/5243]  eta: 0:01:51    time: 0.0327  data: 0.0001  max mem: 8411
+Caption generation:  [1750/5243]  eta: 0:01:51    time: 0.0320  data: 0.0001  max mem: 8411
+Caption generation:  [1760/5243]  eta: 0:01:51    time: 0.0327  data: 0.0001  max mem: 8411
+Caption generation:  [1770/5243]  eta: 0:01:50    time: 0.0325  data: 0.0001  max mem: 8411
+Caption generation:  [1780/5243]  eta: 0:01:50    time: 0.0306  data: 0.0001  max mem: 8411
+Caption generation:  [1790/5243]  eta: 0:01:50    time: 0.0314  data: 0.0001  max mem: 8411
+Caption generation:  [1800/5243]  eta: 0:01:49    time: 0.0316  data: 0.0001  max mem: 8411
+Caption generation:  [1810/5243]  eta: 0:01:49    time: 0.0315  data: 0.0001  max mem: 8411
+Caption generation:  [1820/5243]  eta: 0:01:49    time: 0.0320  data: 0.0001  max mem: 8411
+Caption generation:  [1830/5243]  eta: 0:01:48    time: 0.0322  data: 0.0001  max mem: 8411
+Caption generation:  [1840/5243]  eta: 0:01:48    time: 0.0321  data: 0.0001  max mem: 8411
+Caption generation:  [1850/5243]  eta: 0:01:48    time: 0.0320  data: 0.0001  max mem: 8411
+Caption generation:  [1860/5243]  eta: 0:01:47    time: 0.0306  data: 0.0001  max mem: 8411
+Caption generation:  [1870/5243]  eta: 0:01:47    time: 0.0308  data: 0.0001  max mem: 8411
+Caption generation:  [1880/5243]  eta: 0:01:47    time: 0.0321  data: 0.0001  max mem: 8411
+Caption generation:  [1890/5243]  eta: 0:01:46    time: 0.0314  data: 0.0001  max mem: 8411
+Caption generation:  [1900/5243]  eta: 0:01:46    time: 0.0311  data: 0.0001  max mem: 8411
+Caption generation:  [1910/5243]  eta: 0:01:46    time: 0.0305  data: 0.0001  max mem: 8411
+Caption generation:  [1920/5243]  eta: 0:01:45    time: 0.0302  data: 0.0001  max mem: 8411
+Caption generation:  [1930/5243]  eta: 0:01:45    time: 0.0306  data: 0.0001  max mem: 8411
+Caption generation:  [1940/5243]  eta: 0:01:45    time: 0.0303  data: 0.0001  max mem: 8411
+Caption generation:  [1950/5243]  eta: 0:01:44    time: 0.0301  data: 0.0001  max mem: 8411
+Caption generation:  [1960/5243]  eta: 0:01:44    time: 0.0315  data: 0.0001  max mem: 8411
+Caption generation:  [1970/5243]  eta: 0:01:44    time: 0.0338  data: 0.0001  max mem: 8411
+Caption generation:  [1980/5243]  eta: 0:01:44    time: 0.0337  data: 0.0001  max mem: 8411
+Caption generation:  [1990/5243]  eta: 0:01:43    time: 0.0317  data: 0.0001  max mem: 8411
+===eval finish===
+Train Caption Epoch: [2]
+Averaged stats: lr: 0.0000  loss: 9.5436
+Eval Start
+Caption generation:  [   0/5243]  eta: 0:46:38    time: 0.5338  data: 0.4705  max mem: 8411
+Caption generation:  [  10/5243]  eta: 0:06:45    time: 0.0775  data: 0.0437  max mem: 8411
+Caption generation:  [  20/5243]  eta: 0:04:53    time: 0.0323  data: 0.0005  max mem: 8411
+Caption generation:  [  30/5243]  eta: 0:04:10    time: 0.0317  data: 0.0001  max mem: 8411
+Caption generation:  [  40/5243]  eta: 0:03:47    time: 0.0307  data: 0.0001  max mem: 8411
+Caption generation:  [  50/5243]  eta: 0:03:34    time: 0.0308  data: 0.0001  max mem: 8411
+Caption generation:  [  60/5243]  eta: 0:03:23    time: 0.0302  data: 0.0001  max mem: 8411
+Caption generation:  [  70/5243]  eta: 0:03:16    time: 0.0294  data: 0.0001  max mem: 8411
+Caption generation:  [  80/5243]  eta: 0:03:10    time: 0.0293  data: 0.0001  max mem: 8411
+Caption generation:  [  90/5243]  eta: 0:03:06    time: 0.0298  data: 0.0001  max mem: 8411
+Caption generation:  [ 100/5243]  eta: 0:03:02    time: 0.0302  data: 0.0001  max mem: 8411
+Caption generation:  [ 110/5243]  eta: 0:02:59    time: 0.0298  data: 0.0001  max mem: 8411
+Caption generation:  [ 120/5243]  eta: 0:02:56    time: 0.0292  data: 0.0001  max mem: 8411
+Caption generation:  [ 130/5243]  eta: 0:02:53    time: 0.0287  data: 0.0001  max mem: 8411
+Caption generation:  [ 140/5243]  eta: 0:02:52    time: 0.0292  data: 0.0001  max mem: 8411
+Caption generation:  [ 150/5243]  eta: 0:02:50    time: 0.0302  data: 0.0001  max mem: 8411
+Caption generation:  [ 160/5243]  eta: 0:02:49    time: 0.0299  data: 0.0001  max mem: 8411
+Caption generation:  [ 170/5243]  eta: 0:02:48    time: 0.0304  data: 0.0001  max mem: 8411
+Caption generation:  [ 180/5243]  eta: 0:02:47    time: 0.0318  data: 0.0012  max mem: 8411
+Caption generation:  [ 190/5243]  eta: 0:02:46    time: 0.0314  data: 0.0012  max mem: 8411
+Caption generation:  [ 200/5243]  eta: 0:02:45    time: 0.0301  data: 0.0001  max mem: 8411
+Caption generation:  [ 210/5243]  eta: 0:02:44    time: 0.0303  data: 0.0001  max mem: 8411
+Caption generation:  [ 220/5243]  eta: 0:02:43    time: 0.0304  data: 0.0001  max mem: 8411
+Caption generation:  [ 230/5243]  eta: 0:02:42    time: 0.0292  data: 0.0001  max mem: 8411
+Caption generation:  [ 240/5243]  eta: 0:02:41    time: 0.0290  data: 0.0001  max mem: 8411
+Caption generation:  [ 250/5243]  eta: 0:02:40    time: 0.0301  data: 0.0001  max mem: 8411
+Caption generation:  [ 260/5243]  eta: 0:02:40    time: 0.0301  data: 0.0001  max mem: 8411
+Caption generation:  [ 270/5243]  eta: 0:02:39    time: 0.0292  data: 0.0001  max mem: 8411
+Caption generation:  [ 280/5243]  eta: 0:02:38    time: 0.0284  data: 0.0001  max mem: 8411
+Caption generation:  [ 290/5243]  eta: 0:02:37    time: 0.0279  data: 0.0001  max mem: 8411
+Caption generation:  [ 300/5243]  eta: 0:02:36    time: 0.0292  data: 0.0001  max mem: 8411
+Caption generation:  [ 310/5243]  eta: 0:02:35    time: 0.0295  data: 0.0001  max mem: 8411
+Caption generation:  [ 320/5243]  eta: 0:02:35    time: 0.0296  data: 0.0001  max mem: 8411
+Caption generation:  [ 330/5243]  eta: 0:02:34    time: 0.0293  data: 0.0001  max mem: 8411
+Caption generation:  [ 340/5243]  eta: 0:02:33    time: 0.0292  data: 0.0001  max mem: 8411
+Caption generation:  [ 350/5243]  eta: 0:02:33    time: 0.0290  data: 0.0001  max mem: 8411
+Caption generation:  [ 360/5243]  eta: 0:02:32    time: 0.0284  data: 0.0001  max mem: 8411
+Caption generation:  [ 370/5243]  eta: 0:02:32    time: 0.0293  data: 0.0001  max mem: 8411
+Caption generation:  [ 380/5243]  eta: 0:02:31    time: 0.0296  data: 0.0002  max mem: 8411
+Caption generation:  [ 390/5243]  eta: 0:02:31    time: 0.0309  data: 0.0002  max mem: 8411
+Caption generation:  [ 400/5243]  eta: 0:02:31    time: 0.0324  data: 0.0001  max mem: 8411
+Caption generation:  [ 410/5243]  eta: 0:02:30    time: 0.0310  data: 0.0001  max mem: 8411
+Caption generation:  [ 420/5243]  eta: 0:02:30    time: 0.0295  data: 0.0001  max mem: 8411
+Caption generation:  [ 430/5243]  eta: 0:02:29    time: 0.0296  data: 0.0001  max mem: 8411
+Caption generation:  [ 440/5243]  eta: 0:02:29    time: 0.0291  data: 0.0001  max mem: 8411
+Caption generation:  [ 450/5243]  eta: 0:02:28    time: 0.0298  data: 0.0001  max mem: 8411
+Caption generation:  [ 460/5243]  eta: 0:02:28    time: 0.0313  data: 0.0001  max mem: 8411
+Caption generation:  [ 470/5243]  eta: 0:02:28    time: 0.0305  data: 0.0001  max mem: 8411
+Caption generation:  [ 480/5243]  eta: 0:02:27    time: 0.0310  data: 0.0001  max mem: 8411
+Caption generation:  [ 490/5243]  eta: 0:02:27    time: 0.0302  data: 0.0001  max mem: 8411
+Caption generation:  [ 500/5243]  eta: 0:02:26    time: 0.0283  data: 0.0001  max mem: 8411
+Caption generation:  [ 510/5243]  eta: 0:02:26    time: 0.0294  data: 0.0001  max mem: 8411
+Caption generation:  [ 520/5243]  eta: 0:02:26    time: 0.0303  data: 0.0001  max mem: 8411
+Caption generation:  [ 530/5243]  eta: 0:02:25    time: 0.0299  data: 0.0001  max mem: 8411
+Caption generation:  [ 540/5243]  eta: 0:02:25    time: 0.0287  data: 0.0001  max mem: 8411
+Caption generation:  [ 550/5243]  eta: 0:02:24    time: 0.0278  data: 0.0001  max mem: 8411
+Caption generation:  [ 560/5243]  eta: 0:02:23    time: 0.0275  data: 0.0001  max mem: 8411
+Caption generation:  [ 570/5243]  eta: 0:02:23    time: 0.0289  data: 0.0001  max mem: 8411
+Caption generation:  [ 580/5243]  eta: 0:02:23    time: 0.0296  data: 0.0001  max mem: 8411
+Caption generation:  [ 590/5243]  eta: 0:02:22    time: 0.0292  data: 0.0001  max mem: 8411
+Caption generation:  [ 600/5243]  eta: 0:02:22    time: 0.0296  data: 0.0001  max mem: 8411
+Caption generation:  [ 610/5243]  eta: 0:02:21    time: 0.0290  data: 0.0001  max mem: 8411
+Caption generation:  [ 620/5243]  eta: 0:02:21    time: 0.0288  data: 0.0001  max mem: 8411
+Caption generation:  [ 630/5243]  eta: 0:02:20    time: 0.0291  data: 0.0001  max mem: 8411
+Caption generation:  [ 640/5243]  eta: 0:02:20    time: 0.0294  data: 0.0002  max mem: 8411
+Caption generation:  [ 650/5243]  eta: 0:02:20    time: 0.0301  data: 0.0002  max mem: 8411
+Caption generation:  [ 660/5243]  eta: 0:02:19    time: 0.0297  data: 0.0001  max mem: 8411
+Caption generation:  [ 670/5243]  eta: 0:02:19    time: 0.0287  data: 0.0001  max mem: 8411
+Caption generation:  [ 680/5243]  eta: 0:02:18    time: 0.0286  data: 0.0001  max mem: 8411
+Caption generation:  [ 690/5243]  eta: 0:02:18    time: 0.0288  data: 0.0001  max mem: 8411
+Caption generation:  [ 700/5243]  eta: 0:02:18    time: 0.0300  data: 0.0001  max mem: 8411
+Caption generation:  [ 710/5243]  eta: 0:02:17    time: 0.0304  data: 0.0001  max mem: 8411
+Caption generation:  [ 720/5243]  eta: 0:02:17    time: 0.0304  data: 0.0002  max mem: 8411
+Caption generation:  [ 730/5243]  eta: 0:02:17    time: 0.0306  data: 0.0002  max mem: 8411
+Caption generation:  [ 740/5243]  eta: 0:02:17    time: 0.0301  data: 0.0001  max mem: 8411
+Caption generation:  [ 750/5243]  eta: 0:02:16    time: 0.0300  data: 0.0001  max mem: 8411
+Caption generation:  [ 760/5243]  eta: 0:02:16    time: 0.0292  data: 0.0001  max mem: 8411
+Caption generation:  [ 770/5243]  eta: 0:02:16    time: 0.0300  data: 0.0001  max mem: 8411
+Caption generation:  [ 780/5243]  eta: 0:02:15    time: 0.0304  data: 0.0001  max mem: 8411
+Caption generation:  [ 790/5243]  eta: 0:02:15    time: 0.0296  data: 0.0001  max mem: 8411
+Caption generation:  [ 800/5243]  eta: 0:02:15    time: 0.0301  data: 0.0001  max mem: 8411
+Caption generation:  [ 810/5243]  eta: 0:02:14    time: 0.0292  data: 0.0001  max mem: 8411
+Caption generation:  [ 820/5243]  eta: 0:02:14    time: 0.0291  data: 0.0001  max mem: 8411
+Caption generation:  [ 830/5243]  eta: 0:02:13    time: 0.0300  data: 0.0001  max mem: 8411
+Caption generation:  [ 840/5243]  eta: 0:02:13    time: 0.0301  data: 0.0001  max mem: 8411
+Caption generation:  [ 850/5243]  eta: 0:02:13    time: 0.0308  data: 0.0001  max mem: 8411
+Caption generation:  [ 860/5243]  eta: 0:02:13    time: 0.0309  data: 0.0001  max mem: 8411
+Caption generation:  [ 870/5243]  eta: 0:02:12    time: 0.0301  data: 0.0002  max mem: 8411
+Caption generation:  [ 880/5243]  eta: 0:02:12    time: 0.0313  data: 0.0002  max mem: 8411
+Caption generation:  [ 890/5243]  eta: 0:02:12    time: 0.0323  data: 0.0001  max mem: 8411
+Caption generation:  [ 900/5243]  eta: 0:02:11    time: 0.0301  data: 0.0001  max mem: 8411
+Caption generation:  [ 910/5243]  eta: 0:02:11    time: 0.0304  data: 0.0001  max mem: 8411
+Caption generation:  [ 920/5243]  eta: 0:02:11    time: 0.0301  data: 0.0001  max mem: 8411
+Caption generation:  [ 930/5243]  eta: 0:02:11    time: 0.0289  data: 0.0001  max mem: 8411
+Caption generation:  [ 940/5243]  eta: 0:02:10    time: 0.0314  data: 0.0009  max mem: 8411
+Caption generation:  [ 950/5243]  eta: 0:02:10    time: 0.0312  data: 0.0009  max mem: 8411
+Caption generation:  [ 960/5243]  eta: 0:02:10    time: 0.0295  data: 0.0001  max mem: 8411
+Caption generation:  [ 970/5243]  eta: 0:02:09    time: 0.0298  data: 0.0001  max mem: 8411
+Caption generation:  [ 980/5243]  eta: 0:02:09    time: 0.0294  data: 0.0001  max mem: 8411
+Caption generation:  [ 990/5243]  eta: 0:02:09    time: 0.0298  data: 0.0001  max mem: 8411
+Caption generation:  [1000/5243]  eta: 0:02:08    time: 0.0303  data: 0.0001  max mem: 8411
+Caption generation:  [1010/5243]  eta: 0:02:08    time: 0.0303  data: 0.0001  max mem: 8411
+Caption generation:  [1020/5243]  eta: 0:02:08    time: 0.0304  data: 0.0001  max mem: 8411
+Caption generation:  [1030/5243]  eta: 0:02:07    time: 0.0297  data: 0.0002  max mem: 8411
+Caption generation:  [1040/5243]  eta: 0:02:07    time: 0.0305  data: 0.0002  max mem: 8411
+Caption generation:  [1050/5243]  eta: 0:02:07    time: 0.0300  data: 0.0001  max mem: 8411
+Caption generation:  [1060/5243]  eta: 0:02:06    time: 0.0287  data: 0.0001  max mem: 8411
+Caption generation:  [1070/5243]  eta: 0:02:06    time: 0.0294  data: 0.0001  max mem: 8411
+Caption generation:  [1080/5243]  eta: 0:02:06    time: 0.0301  data: 0.0001  max mem: 8411
+Caption generation:  [1090/5243]  eta: 0:02:05    time: 0.0298  data: 0.0001  max mem: 8411
+Caption generation:  [1100/5243]  eta: 0:02:05    time: 0.0295  data: 0.0001  max mem: 8411
+Caption generation:  [1110/5243]  eta: 0:02:05    time: 0.0297  data: 0.0001  max mem: 8411
+Caption generation:  [1120/5243]  eta: 0:02:04    time: 0.0293  data: 0.0001  max mem: 8411
+Caption generation:  [1130/5243]  eta: 0:02:04    time: 0.0291  data: 0.0001  max mem: 8411
+Caption generation:  [1140/5243]  eta: 0:02:04    time: 0.0297  data: 0.0001  max mem: 8411
+Caption generation:  [1150/5243]  eta: 0:02:03    time: 0.0297  data: 0.0001  max mem: 8411
+Caption generation:  [1160/5243]  eta: 0:02:03    time: 0.0292  data: 0.0001  max mem: 8411
+Caption generation:  [1170/5243]  eta: 0:02:03    time: 0.0305  data: 0.0001  max mem: 8411
+Caption generation:  [1180/5243]  eta: 0:02:03    time: 0.0309  data: 0.0001  max mem: 8411
+Caption generation:  [1190/5243]  eta: 0:02:02    time: 0.0314  data: 0.0008  max mem: 8411
+Caption generation:  [1200/5243]  eta: 0:02:02    time: 0.0314  data: 0.0008  max mem: 8411
+Caption generation:  [1210/5243]  eta: 0:02:02    time: 0.0295  data: 0.0001  max mem: 8411
+Caption generation:  [1220/5243]  eta: 0:02:01    time: 0.0290  data: 0.0001  max mem: 8411
+Caption generation:  [1230/5243]  eta: 0:02:01    time: 0.0289  data: 0.0001  max mem: 8411
+Caption generation:  [1240/5243]  eta: 0:02:01    time: 0.0296  data: 0.0001  max mem: 8411
+Caption generation:  [1250/5243]  eta: 0:02:00    time: 0.0301  data: 0.0001  max mem: 8411
+Caption generation:  [1260/5243]  eta: 0:02:00    time: 0.0291  data: 0.0001  max mem: 8411
+Caption generation:  [1270/5243]  eta: 0:02:00    time: 0.0296  data: 0.0001  max mem: 8411
+Caption generation:  [1280/5243]  eta: 0:01:59    time: 0.0298  data: 0.0001  max mem: 8411
+Caption generation:  [1290/5243]  eta: 0:01:59    time: 0.0290  data: 0.0001  max mem: 8411
+Caption generation:  [1300/5243]  eta: 0:01:59    time: 0.0300  data: 0.0001  max mem: 8411
+Caption generation:  [1310/5243]  eta: 0:01:58    time: 0.0301  data: 0.0001  max mem: 8411
+Caption generation:  [1320/5243]  eta: 0:01:58    time: 0.0292  data: 0.0001  max mem: 8411
+Caption generation:  [1330/5243]  eta: 0:01:58    time: 0.0301  data: 0.0001  max mem: 8411
+Caption generation:  [1340/5243]  eta: 0:01:57    time: 0.0301  data: 0.0001  max mem: 8411
+Caption generation:  [1350/5243]  eta: 0:01:57    time: 0.0289  data: 0.0001  max mem: 8411
+Caption generation:  [1360/5243]  eta: 0:01:57    time: 0.0289  data: 0.0001  max mem: 8411
+Caption generation:  [1370/5243]  eta: 0:01:56    time: 0.0299  data: 0.0001  max mem: 8411
+Caption generation:  [1380/5243]  eta: 0:01:56    time: 0.0301  data: 0.0001  max mem: 8411
+Caption generation:  [1390/5243]  eta: 0:01:56    time: 0.0293  data: 0.0001  max mem: 8411
+Caption generation:  [1400/5243]  eta: 0:01:56    time: 0.0297  data: 0.0001  max mem: 8411
+Caption generation:  [1410/5243]  eta: 0:01:55    time: 0.0299  data: 0.0001  max mem: 8411
+Caption generation:  [1420/5243]  eta: 0:01:55    time: 0.0290  data: 0.0001  max mem: 8411
+Caption generation:  [1430/5243]  eta: 0:01:55    time: 0.0285  data: 0.0001  max mem: 8411
+Caption generation:  [1440/5243]  eta: 0:01:54    time: 0.0286  data: 0.0001  max mem: 8411
+Caption generation:  [1450/5243]  eta: 0:01:54    time: 0.0286  data: 0.0001  max mem: 8411
+Caption generation:  [1460/5243]  eta: 0:01:53    time: 0.0286  data: 0.0001  max mem: 8411
+Caption generation:  [1470/5243]  eta: 0:01:53    time: 0.0293  data: 0.0001  max mem: 8411
+Caption generation:  [1480/5243]  eta: 0:01:53    time: 0.0291  data: 0.0001  max mem: 8411
+Caption generation:  [1490/5243]  eta: 0:01:53    time: 0.0292  data: 0.0001  max mem: 8411
+Caption generation:  [1500/5243]  eta: 0:01:52    time: 0.0305  data: 0.0008  max mem: 8411
+Caption generation:  [1510/5243]  eta: 0:01:52    time: 0.0297  data: 0.0008  max mem: 8411
+Caption generation:  [1520/5243]  eta: 0:01:52    time: 0.0288  data: 0.0001  max mem: 8411
+Caption generation:  [1530/5243]  eta: 0:01:51    time: 0.0303  data: 0.0001  max mem: 8411
+Caption generation:  [1540/5243]  eta: 0:01:51    time: 0.0316  data: 0.0001  max mem: 8411
+Caption generation:  [1550/5243]  eta: 0:01:51    time: 0.0299  data: 0.0001  max mem: 8411
+Caption generation:  [1560/5243]  eta: 0:01:50    time: 0.0296  data: 0.0001  max mem: 8411
+Caption generation:  [1570/5243]  eta: 0:01:50    time: 0.0298  data: 0.0001  max mem: 8411
+Caption generation:  [1580/5243]  eta: 0:01:50    time: 0.0284  data: 0.0001  max mem: 8411
+Caption generation:  [1590/5243]  eta: 0:01:49    time: 0.0286  data: 0.0001  max mem: 8411
+Caption generation:  [1600/5243]  eta: 0:01:49    time: 0.0288  data: 0.0001  max mem: 8411
+Caption generation:  [1610/5243]  eta: 0:01:49    time: 0.0292  data: 0.0001  max mem: 8411
+Caption generation:  [1620/5243]  eta: 0:01:48    time: 0.0299  data: 0.0001  max mem: 8411
+Caption generation:  [1630/5243]  eta: 0:01:48    time: 0.0305  data: 0.0001  max mem: 8411
+Caption generation:  [1640/5243]  eta: 0:01:48    time: 0.0298  data: 0.0001  max mem: 8411
+Caption generation:  [1650/5243]  eta: 0:01:48    time: 0.0294  data: 0.0001  max mem: 8411
+Caption generation:  [1660/5243]  eta: 0:01:47    time: 0.0294  data: 0.0001  max mem: 8411
+Caption generation:  [1670/5243]  eta: 0:01:47    time: 0.0292  data: 0.0001  max mem: 8411
+Caption generation:  [1680/5243]  eta: 0:01:47    time: 0.0296  data: 0.0001  max mem: 8411
+Caption generation:  [1690/5243]  eta: 0:01:46    time: 0.0293  data: 0.0001  max mem: 8411
+Caption generation:  [1700/5243]  eta: 0:01:46    time: 0.0297  data: 0.0001  max mem: 8411
+Caption generation:  [1710/5243]  eta: 0:01:46    time: 0.0299  data: 0.0001  max mem: 8411
+Caption generation:  [1720/5243]  eta: 0:01:45    time: 0.0310  data: 0.0001  max mem: 8411
+Caption generation:  [1730/5243]  eta: 0:01:45    time: 0.0314  data: 0.0002  max mem: 8411
+Caption generation:  [1740/5243]  eta: 0:01:45    time: 0.0300  data: 0.0002  max mem: 8411
+Caption generation:  [1750/5243]  eta: 0:01:45    time: 0.0296  data: 0.0001  max mem: 8411
+Caption generation:  [1760/5243]  eta: 0:01:44    time: 0.0307  data: 0.0001  max mem: 8411
+Caption generation:  [1770/5243]  eta: 0:01:44    time: 0.0302  data: 0.0001  max mem: 8411
+Caption generation:  [1780/5243]  eta: 0:01:44    time: 0.0289  data: 0.0001  max mem: 8411
+Caption generation:  [1790/5243]  eta: 0:01:43    time: 0.0296  data: 0.0001  max mem: 8411
+Caption generation:  [1800/5243]  eta: 0:01:43    time: 0.0292  data: 0.0001  max mem: 8411
+Caption generation:  [1810/5243]  eta: 0:01:43    time: 0.0294  data: 0.0001  max mem: 8411
+Caption generation:  [1820/5243]  eta: 0:01:42    time: 0.0304  data: 0.0001  max mem: 8411
+Caption generation:  [1830/5243]  eta: 0:01:42    time: 0.0304  data: 0.0001  max mem: 8411
+Caption generation:  [1840/5243]  eta: 0:01:42    time: 0.0299  data: 0.0001  max mem: 8411
+Caption generation:  [1850/5243]  eta: 0:01:41    time: 0.0292  data: 0.0001  max mem: 8411
+Caption generation:  [1860/5243]  eta: 0:01:41    time: 0.0287  data: 0.0001  max mem: 8411
+Caption generation:  [1870/5243]  eta: 0:01:41    time: 0.0297  data: 0.0001  max mem: 8411
+Caption generation:  [1880/5243]  eta: 0:01:41    time: 0.0302  data: 0.0001  max mem: 8411
+Caption generation:  [1890/5243]  eta: 0:01:40    time: 0.0294  data: 0.0001  max mem: 8411
+Caption generation:  [1900/5243]  eta: 0:01:40    time: 0.0289  data: 0.0001  max mem: 8411
+Caption generation:  [1910/5243]  eta: 0:01:40    time: 0.0285  data: 0.0001  max mem: 8411
+Caption generation:  [1920/5243]  eta: 0:01:39    time: 0.0282  data: 0.0001  max mem: 8411
+Caption generation:  [1930/5243]  eta: 0:01:39    time: 0.0282  data: 0.0001  max mem: 8411
+Caption generation:  [1940/5243]  eta: 0:01:39    time: 0.0288  data: 0.0001  max mem: 8411
+Caption generation:  [1950/5243]  eta: 0:01:38    time: 0.0291  data: 0.0001  max mem: 8411
+Caption generation:  [1960/5243]  eta: 0:01:38    time: 0.0297  data: 0.0001  max mem: 8411
+Caption generation:  [1970/5243]  eta: 0:01:38    time: 0.0308  data: 0.0001  max mem: 8411
+Caption generation:  [1980/5243]  eta: 0:01:37    time: 0.0306  data: 0.0001  max mem: 8411
+Caption generation:  [1990/5243]  eta: 0:01:37    time: 0.0294  data: 0.0001  max mem: 8411
+===eval finish===
+Train Caption Epoch: [3]
+Averaged stats: lr: 0.0000  loss: 9.4135
+Eval Start
+Caption generation:  [   0/5243]  eta: 0:46:41    time: 0.5344  data: 0.4688  max mem: 8411
+Caption generation:  [  10/5243]  eta: 0:06:47    time: 0.0778  data: 0.0430  max mem: 8411
+Caption generation:  [  20/5243]  eta: 0:04:55    time: 0.0327  data: 0.0003  max mem: 8411
+Caption generation:  [  30/5243]  eta: 0:04:14    time: 0.0329  data: 0.0001  max mem: 8411
+Caption generation:  [  40/5243]  eta: 0:03:51    time: 0.0317  data: 0.0001  max mem: 8411
+Caption generation:  [  50/5243]  eta: 0:03:39    time: 0.0321  data: 0.0003  max mem: 8411
+Caption generation:  [  60/5243]  eta: 0:03:29    time: 0.0320  data: 0.0003  max mem: 8411
+Caption generation:  [  70/5243]  eta: 0:03:21    time: 0.0304  data: 0.0001  max mem: 8411
+Caption generation:  [  80/5243]  eta: 0:03:15    time: 0.0305  data: 0.0001  max mem: 8411
+Caption generation:  [  90/5243]  eta: 0:03:11    time: 0.0312  data: 0.0001  max mem: 8411
+Caption generation:  [ 100/5243]  eta: 0:03:07    time: 0.0307  data: 0.0001  max mem: 8411
+Caption generation:  [ 110/5243]  eta: 0:03:04    time: 0.0302  data: 0.0001  max mem: 8411
+Caption generation:  [ 120/5243]  eta: 0:03:01    time: 0.0301  data: 0.0001  max mem: 8411
+Caption generation:  [ 130/5243]  eta: 0:02:58    time: 0.0295  data: 0.0001  max mem: 8411
+Caption generation:  [ 140/5243]  eta: 0:02:57    time: 0.0301  data: 0.0001  max mem: 8411
+Caption generation:  [ 150/5243]  eta: 0:02:55    time: 0.0311  data: 0.0001  max mem: 8411
+Caption generation:  [ 160/5243]  eta: 0:02:53    time: 0.0307  data: 0.0001  max mem: 8411
+Caption generation:  [ 170/5243]  eta: 0:02:53    time: 0.0314  data: 0.0001  max mem: 8411
+Caption generation:  [ 180/5243]  eta: 0:02:52    time: 0.0324  data: 0.0001  max mem: 8411
+Caption generation:  [ 190/5243]  eta: 0:02:51    time: 0.0323  data: 0.0001  max mem: 8411
+Caption generation:  [ 200/5243]  eta: 0:02:50    time: 0.0311  data: 0.0001  max mem: 8411
+Caption generation:  [ 210/5243]  eta: 0:02:49    time: 0.0305  data: 0.0001  max mem: 8411
+Caption generation:  [ 220/5243]  eta: 0:02:48    time: 0.0311  data: 0.0001  max mem: 8411
+Caption generation:  [ 230/5243]  eta: 0:02:47    time: 0.0304  data: 0.0001  max mem: 8411
+Caption generation:  [ 240/5243]  eta: 0:02:46    time: 0.0300  data: 0.0001  max mem: 8411
+Caption generation:  [ 250/5243]  eta: 0:02:45    time: 0.0310  data: 0.0001  max mem: 8411
+Caption generation:  [ 260/5243]  eta: 0:02:44    time: 0.0310  data: 0.0001  max mem: 8411
+Caption generation:  [ 270/5243]  eta: 0:02:43    time: 0.0305  data: 0.0001  max mem: 8411
+Caption generation:  [ 280/5243]  eta: 0:02:42    time: 0.0303  data: 0.0001  max mem: 8411
+Caption generation:  [ 290/5243]  eta: 0:02:42    time: 0.0302  data: 0.0001  max mem: 8411
+Caption generation:  [ 300/5243]  eta: 0:02:41    time: 0.0305  data: 0.0001  max mem: 8411
+Caption generation:  [ 310/5243]  eta: 0:02:40    time: 0.0298  data: 0.0001  max mem: 8411
+Caption generation:  [ 320/5243]  eta: 0:02:40    time: 0.0304  data: 0.0001  max mem: 8411
+Caption generation:  [ 330/5243]  eta: 0:02:39    time: 0.0304  data: 0.0001  max mem: 8411
+Caption generation:  [ 340/5243]  eta: 0:02:38    time: 0.0297  data: 0.0001  max mem: 8411
+Caption generation:  [ 350/5243]  eta: 0:02:38    time: 0.0299  data: 0.0001  max mem: 8411
+Caption generation:  [ 360/5243]  eta: 0:02:37    time: 0.0294  data: 0.0001  max mem: 8411
+Caption generation:  [ 370/5243]  eta: 0:02:36    time: 0.0299  data: 0.0001  max mem: 8411
+Caption generation:  [ 380/5243]  eta: 0:02:36    time: 0.0306  data: 0.0001  max mem: 8411
+Caption generation:  [ 390/5243]  eta: 0:02:36    time: 0.0323  data: 0.0001  max mem: 8411
+Caption generation:  [ 400/5243]  eta: 0:02:36    time: 0.0342  data: 0.0009  max mem: 8411
+Caption generation:  [ 410/5243]  eta: 0:02:35    time: 0.0324  data: 0.0009  max mem: 8411
+Caption generation:  [ 420/5243]  eta: 0:02:34    time: 0.0303  data: 0.0001  max mem: 8411
+Caption generation:  [ 430/5243]  eta: 0:02:34    time: 0.0308  data: 0.0001  max mem: 8411
+Caption generation:  [ 440/5243]  eta: 0:02:34    time: 0.0307  data: 0.0001  max mem: 8411
+Caption generation:  [ 450/5243]  eta: 0:02:33    time: 0.0308  data: 0.0001  max mem: 8411
+Caption generation:  [ 460/5243]  eta: 0:02:33    time: 0.0317  data: 0.0001  max mem: 8411
+Caption generation:  [ 470/5243]  eta: 0:02:32    time: 0.0316  data: 0.0001  max mem: 8411
+Caption generation:  [ 480/5243]  eta: 0:02:32    time: 0.0327  data: 0.0001  max mem: 8411
+Caption generation:  [ 490/5243]  eta: 0:02:32    time: 0.0315  data: 0.0001  max mem: 8411
+Caption generation:  [ 500/5243]  eta: 0:02:31    time: 0.0296  data: 0.0001  max mem: 8411
+Caption generation:  [ 510/5243]  eta: 0:02:31    time: 0.0300  data: 0.0001  max mem: 8411
+Caption generation:  [ 520/5243]  eta: 0:02:30    time: 0.0310  data: 0.0001  max mem: 8411
+Caption generation:  [ 530/5243]  eta: 0:02:30    time: 0.0315  data: 0.0001  max mem: 8411
+Caption generation:  [ 540/5243]  eta: 0:02:29    time: 0.0303  data: 0.0001  max mem: 8411
+Caption generation:  [ 550/5243]  eta: 0:02:29    time: 0.0293  data: 0.0001  max mem: 8411
+Caption generation:  [ 560/5243]  eta: 0:02:28    time: 0.0290  data: 0.0001  max mem: 8411
+Caption generation:  [ 570/5243]  eta: 0:02:28    time: 0.0297  data: 0.0001  max mem: 8411
+Caption generation:  [ 580/5243]  eta: 0:02:28    time: 0.0308  data: 0.0001  max mem: 8411
+Caption generation:  [ 590/5243]  eta: 0:02:27    time: 0.0312  data: 0.0001  max mem: 8411
+Caption generation:  [ 600/5243]  eta: 0:02:27    time: 0.0314  data: 0.0001  max mem: 8411
+Caption generation:  [ 610/5243]  eta: 0:02:26    time: 0.0310  data: 0.0001  max mem: 8411
+Caption generation:  [ 620/5243]  eta: 0:02:26    time: 0.0305  data: 0.0001  max mem: 8411
+Caption generation:  [ 630/5243]  eta: 0:02:26    time: 0.0301  data: 0.0001  max mem: 8411
+Caption generation:  [ 640/5243]  eta: 0:02:25    time: 0.0306  data: 0.0001  max mem: 8411
+Caption generation:  [ 650/5243]  eta: 0:02:25    time: 0.0313  data: 0.0001  max mem: 8411
+Caption generation:  [ 660/5243]  eta: 0:02:24    time: 0.0303  data: 0.0001  max mem: 8411
+Caption generation:  [ 670/5243]  eta: 0:02:24    time: 0.0299  data: 0.0001  max mem: 8411
+Caption generation:  [ 680/5243]  eta: 0:02:23    time: 0.0296  data: 0.0001  max mem: 8411
+Caption generation:  [ 690/5243]  eta: 0:02:23    time: 0.0298  data: 0.0001  max mem: 8411
+Caption generation:  [ 700/5243]  eta: 0:02:23    time: 0.0315  data: 0.0001  max mem: 8411
+Caption generation:  [ 710/5243]  eta: 0:02:22    time: 0.0313  data: 0.0001  max mem: 8411
+Caption generation:  [ 720/5243]  eta: 0:02:22    time: 0.0313  data: 0.0002  max mem: 8411
+Caption generation:  [ 730/5243]  eta: 0:02:22    time: 0.0319  data: 0.0002  max mem: 8411
+Caption generation:  [ 740/5243]  eta: 0:02:22    time: 0.0313  data: 0.0001  max mem: 8411
+Caption generation:  [ 750/5243]  eta: 0:02:21    time: 0.0314  data: 0.0001  max mem: 8411
+Caption generation:  [ 760/5243]  eta: 0:02:21    time: 0.0310  data: 0.0001  max mem: 8411
+Caption generation:  [ 770/5243]  eta: 0:02:21    time: 0.0311  data: 0.0001  max mem: 8411
+Caption generation:  [ 780/5243]  eta: 0:02:20    time: 0.0311  data: 0.0001  max mem: 8411
+Caption generation:  [ 790/5243]  eta: 0:02:20    time: 0.0310  data: 0.0001  max mem: 8411
+Caption generation:  [ 800/5243]  eta: 0:02:19    time: 0.0312  data: 0.0001  max mem: 8411
+Caption generation:  [ 810/5243]  eta: 0:02:19    time: 0.0300  data: 0.0001  max mem: 8411
+Caption generation:  [ 820/5243]  eta: 0:02:19    time: 0.0303  data: 0.0001  max mem: 8411
+Caption generation:  [ 830/5243]  eta: 0:02:18    time: 0.0312  data: 0.0001  max mem: 8411
+Caption generation:  [ 840/5243]  eta: 0:02:18    time: 0.0311  data: 0.0001  max mem: 8411
+Caption generation:  [ 850/5243]  eta: 0:02:18    time: 0.0301  data: 0.0001  max mem: 8411
+Caption generation:  [ 860/5243]  eta: 0:02:17    time: 0.0298  data: 0.0001  max mem: 8411
+Caption generation:  [ 870/5243]  eta: 0:02:17    time: 0.0299  data: 0.0001  max mem: 8411
+Caption generation:  [ 880/5243]  eta: 0:02:17    time: 0.0308  data: 0.0001  max mem: 8411
+Caption generation:  [ 890/5243]  eta: 0:02:16    time: 0.0319  data: 0.0001  max mem: 8411
+Caption generation:  [ 900/5243]  eta: 0:02:16    time: 0.0311  data: 0.0001  max mem: 8411
+Caption generation:  [ 910/5243]  eta: 0:02:16    time: 0.0317  data: 0.0001  max mem: 8411
+Caption generation:  [ 920/5243]  eta: 0:02:15    time: 0.0316  data: 0.0001  max mem: 8411
+Caption generation:  [ 930/5243]  eta: 0:02:15    time: 0.0305  data: 0.0001  max mem: 8411
+Caption generation:  [ 940/5243]  eta: 0:02:15    time: 0.0316  data: 0.0001  max mem: 8411
+Caption generation:  [ 950/5243]  eta: 0:02:14    time: 0.0318  data: 0.0001  max mem: 8411
+Caption generation:  [ 960/5243]  eta: 0:02:14    time: 0.0311  data: 0.0001  max mem: 8411
+Caption generation:  [ 970/5243]  eta: 0:02:14    time: 0.0310  data: 0.0001  max mem: 8411
+Caption generation:  [ 980/5243]  eta: 0:02:13    time: 0.0302  data: 0.0001  max mem: 8411
+Caption generation:  [ 990/5243]  eta: 0:02:13    time: 0.0303  data: 0.0001  max mem: 8411
+Caption generation:  [1000/5243]  eta: 0:02:13    time: 0.0306  data: 0.0001  max mem: 8411
+Caption generation:  [1010/5243]  eta: 0:02:12    time: 0.0309  data: 0.0003  max mem: 8411
+Caption generation:  [1020/5243]  eta: 0:02:12    time: 0.0310  data: 0.0003  max mem: 8411
+Caption generation:  [1030/5243]  eta: 0:02:12    time: 0.0303  data: 0.0001  max mem: 8411
+Caption generation:  [1040/5243]  eta: 0:02:11    time: 0.0314  data: 0.0001  max mem: 8411
+Caption generation:  [1050/5243]  eta: 0:02:11    time: 0.0313  data: 0.0001  max mem: 8411
+Caption generation:  [1060/5243]  eta: 0:02:11    time: 0.0303  data: 0.0001  max mem: 8411
+Caption generation:  [1070/5243]  eta: 0:02:10    time: 0.0306  data: 0.0001  max mem: 8411
+Caption generation:  [1080/5243]  eta: 0:02:10    time: 0.0311  data: 0.0001  max mem: 8411
+Caption generation:  [1090/5243]  eta: 0:02:10    time: 0.0308  data: 0.0001  max mem: 8411
+Caption generation:  [1100/5243]  eta: 0:02:09    time: 0.0295  data: 0.0001  max mem: 8411
+Caption generation:  [1110/5243]  eta: 0:02:09    time: 0.0307  data: 0.0001  max mem: 8411
+Caption generation:  [1120/5243]  eta: 0:02:09    time: 0.0314  data: 0.0001  max mem: 8411
+Caption generation:  [1130/5243]  eta: 0:02:08    time: 0.0304  data: 0.0001  max mem: 8411
+Caption generation:  [1140/5243]  eta: 0:02:08    time: 0.0307  data: 0.0005  max mem: 8411
+Caption generation:  [1150/5243]  eta: 0:02:08    time: 0.0316  data: 0.0005  max mem: 8411
+Caption generation:  [1160/5243]  eta: 0:02:07    time: 0.0310  data: 0.0001  max mem: 8411
+Caption generation:  [1170/5243]  eta: 0:02:07    time: 0.0320  data: 0.0005  max mem: 8411
+Caption generation:  [1180/5243]  eta: 0:02:07    time: 0.0324  data: 0.0005  max mem: 8411
+Caption generation:  [1190/5243]  eta: 0:02:06    time: 0.0325  data: 0.0009  max mem: 8411
+Caption generation:  [1200/5243]  eta: 0:02:06    time: 0.0326  data: 0.0009  max mem: 8411
+Caption generation:  [1210/5243]  eta: 0:02:06    time: 0.0303  data: 0.0001  max mem: 8411
+Caption generation:  [1220/5243]  eta: 0:02:05    time: 0.0299  data: 0.0001  max mem: 8411
+Caption generation:  [1230/5243]  eta: 0:02:05    time: 0.0302  data: 0.0001  max mem: 8411
+Caption generation:  [1240/5243]  eta: 0:02:05    time: 0.0305  data: 0.0001  max mem: 8411
+Caption generation:  [1250/5243]  eta: 0:02:04    time: 0.0307  data: 0.0001  max mem: 8411
+Caption generation:  [1260/5243]  eta: 0:02:04    time: 0.0303  data: 0.0001  max mem: 8411
+Caption generation:  [1270/5243]  eta: 0:02:04    time: 0.0305  data: 0.0001  max mem: 8411
+Caption generation:  [1280/5243]  eta: 0:02:03    time: 0.0307  data: 0.0001  max mem: 8411
+Caption generation:  [1290/5243]  eta: 0:02:03    time: 0.0300  data: 0.0001  max mem: 8411
+Caption generation:  [1300/5243]  eta: 0:02:03    time: 0.0309  data: 0.0001  max mem: 8411
+Caption generation:  [1310/5243]  eta: 0:02:02    time: 0.0317  data: 0.0001  max mem: 8411
+Caption generation:  [1320/5243]  eta: 0:02:02    time: 0.0307  data: 0.0001  max mem: 8411
+Caption generation:  [1330/5243]  eta: 0:02:02    time: 0.0317  data: 0.0001  max mem: 8411
+Caption generation:  [1340/5243]  eta: 0:02:02    time: 0.0325  data: 0.0001  max mem: 8411
+Caption generation:  [1350/5243]  eta: 0:02:01    time: 0.0303  data: 0.0001  max mem: 8411
+Caption generation:  [1360/5243]  eta: 0:02:01    time: 0.0296  data: 0.0001  max mem: 8411
+Caption generation:  [1370/5243]  eta: 0:02:01    time: 0.0308  data: 0.0001  max mem: 8411
+Caption generation:  [1380/5243]  eta: 0:02:00    time: 0.0308  data: 0.0001  max mem: 8411
+Caption generation:  [1390/5243]  eta: 0:02:00    time: 0.0304  data: 0.0001  max mem: 8411
+Caption generation:  [1400/5243]  eta: 0:02:00    time: 0.0309  data: 0.0001  max mem: 8411
+Caption generation:  [1410/5243]  eta: 0:01:59    time: 0.0310  data: 0.0001  max mem: 8411
+Caption generation:  [1420/5243]  eta: 0:01:59    time: 0.0304  data: 0.0001  max mem: 8411
+Caption generation:  [1430/5243]  eta: 0:01:59    time: 0.0306  data: 0.0001  max mem: 8411
+Caption generation:  [1440/5243]  eta: 0:01:58    time: 0.0305  data: 0.0001  max mem: 8411
+Caption generation:  [1450/5243]  eta: 0:01:58    time: 0.0300  data: 0.0001  max mem: 8411
+Caption generation:  [1460/5243]  eta: 0:01:58    time: 0.0299  data: 0.0001  max mem: 8411
+Caption generation:  [1470/5243]  eta: 0:01:57    time: 0.0312  data: 0.0009  max mem: 8411
+Caption generation:  [1480/5243]  eta: 0:01:57    time: 0.0311  data: 0.0009  max mem: 8411
+Caption generation:  [1490/5243]  eta: 0:01:57    time: 0.0301  data: 0.0001  max mem: 8411
+Caption generation:  [1500/5243]  eta: 0:01:56    time: 0.0313  data: 0.0001  max mem: 8411
+Caption generation:  [1510/5243]  eta: 0:01:56    time: 0.0304  data: 0.0001  max mem: 8411
+Caption generation:  [1520/5243]  eta: 0:01:56    time: 0.0293  data: 0.0001  max mem: 8411
+Caption generation:  [1530/5243]  eta: 0:01:55    time: 0.0307  data: 0.0001  max mem: 8411
+Caption generation:  [1540/5243]  eta: 0:01:55    time: 0.0327  data: 0.0001  max mem: 8411
+Caption generation:  [1550/5243]  eta: 0:01:55    time: 0.0317  data: 0.0001  max mem: 8411
+Caption generation:  [1560/5243]  eta: 0:01:54    time: 0.0307  data: 0.0001  max mem: 8411
+Caption generation:  [1570/5243]  eta: 0:01:54    time: 0.0308  data: 0.0001  max mem: 8411
+Caption generation:  [1580/5243]  eta: 0:01:54    time: 0.0293  data: 0.0001  max mem: 8411
+Caption generation:  [1590/5243]  eta: 0:01:53    time: 0.0297  data: 0.0002  max mem: 8411
+Caption generation:  [1600/5243]  eta: 0:01:53    time: 0.0308  data: 0.0002  max mem: 8411
+Caption generation:  [1610/5243]  eta: 0:01:53    time: 0.0308  data: 0.0001  max mem: 8411
+Caption generation:  [1620/5243]  eta: 0:01:52    time: 0.0313  data: 0.0001  max mem: 8411
+Caption generation:  [1630/5243]  eta: 0:01:52    time: 0.0320  data: 0.0001  max mem: 8411
+Caption generation:  [1640/5243]  eta: 0:01:52    time: 0.0308  data: 0.0001  max mem: 8411
+Caption generation:  [1650/5243]  eta: 0:01:51    time: 0.0306  data: 0.0001  max mem: 8411
+Caption generation:  [1660/5243]  eta: 0:01:51    time: 0.0307  data: 0.0001  max mem: 8411
+Caption generation:  [1670/5243]  eta: 0:01:51    time: 0.0302  data: 0.0001  max mem: 8411
+Caption generation:  [1680/5243]  eta: 0:01:50    time: 0.0306  data: 0.0001  max mem: 8411
+Caption generation:  [1690/5243]  eta: 0:01:50    time: 0.0306  data: 0.0001  max mem: 8411
+Caption generation:  [1700/5243]  eta: 0:01:50    time: 0.0306  data: 0.0001  max mem: 8411
+Caption generation:  [1710/5243]  eta: 0:01:50    time: 0.0307  data: 0.0001  max mem: 8411
+Caption generation:  [1720/5243]  eta: 0:01:49    time: 0.0320  data: 0.0001  max mem: 8411
+Caption generation:  [1730/5243]  eta: 0:01:49    time: 0.0334  data: 0.0009  max mem: 8411
+Caption generation:  [1740/5243]  eta: 0:01:49    time: 0.0320  data: 0.0009  max mem: 8411
+Caption generation:  [1750/5243]  eta: 0:01:48    time: 0.0311  data: 0.0008  max mem: 8411
+Caption generation:  [1760/5243]  eta: 0:01:48    time: 0.0326  data: 0.0009  max mem: 8411
+Caption generation:  [1770/5243]  eta: 0:01:48    time: 0.0317  data: 0.0002  max mem: 8411
+Caption generation:  [1780/5243]  eta: 0:01:47    time: 0.0295  data: 0.0001  max mem: 8411
+Caption generation:  [1790/5243]  eta: 0:01:47    time: 0.0305  data: 0.0001  max mem: 8411
+Caption generation:  [1800/5243]  eta: 0:01:47    time: 0.0306  data: 0.0001  max mem: 8411
+Caption generation:  [1810/5243]  eta: 0:01:46    time: 0.0302  data: 0.0001  max mem: 8411
+Caption generation:  [1820/5243]  eta: 0:01:46    time: 0.0309  data: 0.0001  max mem: 8411
+Caption generation:  [1830/5243]  eta: 0:01:46    time: 0.0311  data: 0.0001  max mem: 8411
+Caption generation:  [1840/5243]  eta: 0:01:45    time: 0.0309  data: 0.0001  max mem: 8411
+Caption generation:  [1850/5243]  eta: 0:01:45    time: 0.0307  data: 0.0001  max mem: 8411
+Caption generation:  [1860/5243]  eta: 0:01:45    time: 0.0295  data: 0.0001  max mem: 8411
+Caption generation:  [1870/5243]  eta: 0:01:45    time: 0.0305  data: 0.0001  max mem: 8411
+Caption generation:  [1880/5243]  eta: 0:01:44    time: 0.0316  data: 0.0001  max mem: 8411
+Caption generation:  [1890/5243]  eta: 0:01:44    time: 0.0309  data: 0.0001  max mem: 8411
+Caption generation:  [1900/5243]  eta: 0:01:44    time: 0.0303  data: 0.0001  max mem: 8411
+Caption generation:  [1910/5243]  eta: 0:01:43    time: 0.0294  data: 0.0001  max mem: 8411
+Caption generation:  [1920/5243]  eta: 0:01:43    time: 0.0293  data: 0.0001  max mem: 8411
+Caption generation:  [1930/5243]  eta: 0:01:43    time: 0.0294  data: 0.0001  max mem: 8411
+Caption generation:  [1940/5243]  eta: 0:01:42    time: 0.0296  data: 0.0001  max mem: 8411
+Caption generation:  [1950/5243]  eta: 0:01:42    time: 0.0298  data: 0.0001  max mem: 8411
+Caption generation:  [1960/5243]  eta: 0:01:42    time: 0.0309  data: 0.0001  max mem: 8411
+Caption generation:  [1970/5243]  eta: 0:01:41    time: 0.0329  data: 0.0001  max mem: 8411
+Caption generation:  [1980/5243]  eta: 0:01:41    time: 0.0324  data: 0.0001  max mem: 8411
+Caption generation:  [1990/5243]  eta: 0:01:41    time: 0.0304  data: 0.0001  max mem: 8411
+===eval finish===
+Train Caption Epoch: [4]
+Averaged stats: lr: 0.0000  loss: 9.3339
+Eval Start
+Caption generation:  [   0/5243]  eta: 0:47:52    time: 0.5479  data: 0.4884  max mem: 8411
+Caption generation:  [  10/5243]  eta: 0:06:59    time: 0.0802  data: 0.0445  max mem: 8411
+Caption generation:  [  20/5243]  eta: 0:05:07    time: 0.0343  data: 0.0001  max mem: 8411
+Caption generation:  [  30/5243]  eta: 0:04:23    time: 0.0342  data: 0.0001  max mem: 8411
+Caption generation:  [  40/5243]  eta: 0:04:00    time: 0.0329  data: 0.0001  max mem: 8411
+Caption generation:  [  50/5243]  eta: 0:03:49    time: 0.0342  data: 0.0018  max mem: 8411
+Caption generation:  [  60/5243]  eta: 0:03:38    time: 0.0339  data: 0.0018  max mem: 8411
+Caption generation:  [  70/5243]  eta: 0:03:30    time: 0.0317  data: 0.0001  max mem: 8411
+Caption generation:  [  80/5243]  eta: 0:03:24    time: 0.0316  data: 0.0001  max mem: 8411
+Caption generation:  [  90/5243]  eta: 0:03:19    time: 0.0323  data: 0.0001  max mem: 8411
+Caption generation:  [ 100/5243]  eta: 0:03:16    time: 0.0326  data: 0.0001  max mem: 8411
+Caption generation:  [ 110/5243]  eta: 0:03:13    time: 0.0324  data: 0.0001  max mem: 8411
+Caption generation:  [ 120/5243]  eta: 0:03:10    time: 0.0317  data: 0.0001  max mem: 8411
+Caption generation:  [ 130/5243]  eta: 0:03:07    time: 0.0309  data: 0.0001  max mem: 8411
+Caption generation:  [ 140/5243]  eta: 0:03:05    time: 0.0314  data: 0.0001  max mem: 8411
+Caption generation:  [ 150/5243]  eta: 0:03:03    time: 0.0321  data: 0.0001  max mem: 8411
+Caption generation:  [ 160/5243]  eta: 0:03:01    time: 0.0316  data: 0.0001  max mem: 8411
+Caption generation:  [ 170/5243]  eta: 0:03:00    time: 0.0323  data: 0.0001  max mem: 8411
+Caption generation:  [ 180/5243]  eta: 0:02:59    time: 0.0331  data: 0.0001  max mem: 8411
+Caption generation:  [ 190/5243]  eta: 0:02:58    time: 0.0328  data: 0.0001  max mem: 8411
+Caption generation:  [ 200/5243]  eta: 0:02:56    time: 0.0321  data: 0.0001  max mem: 8411
+Caption generation:  [ 210/5243]  eta: 0:02:56    time: 0.0320  data: 0.0001  max mem: 8411
+Caption generation:  [ 220/5243]  eta: 0:02:55    time: 0.0325  data: 0.0001  max mem: 8411
+Caption generation:  [ 230/5243]  eta: 0:02:53    time: 0.0318  data: 0.0001  max mem: 8411
+Caption generation:  [ 240/5243]  eta: 0:02:53    time: 0.0317  data: 0.0001  max mem: 8411
+Caption generation:  [ 250/5243]  eta: 0:02:52    time: 0.0329  data: 0.0001  max mem: 8411
+Caption generation:  [ 260/5243]  eta: 0:02:51    time: 0.0328  data: 0.0001  max mem: 8411
+Caption generation:  [ 270/5243]  eta: 0:02:50    time: 0.0318  data: 0.0001  max mem: 8411
+Caption generation:  [ 280/5243]  eta: 0:02:49    time: 0.0311  data: 0.0001  max mem: 8411
+Caption generation:  [ 290/5243]  eta: 0:02:49    time: 0.0313  data: 0.0001  max mem: 8411
+Caption generation:  [ 300/5243]  eta: 0:02:48    time: 0.0318  data: 0.0001  max mem: 8411
+Caption generation:  [ 310/5243]  eta: 0:02:47    time: 0.0317  data: 0.0001  max mem: 8411
+Caption generation:  [ 320/5243]  eta: 0:02:47    time: 0.0326  data: 0.0001  max mem: 8411
+Caption generation:  [ 330/5243]  eta: 0:02:46    time: 0.0327  data: 0.0001  max mem: 8411
+Caption generation:  [ 340/5243]  eta: 0:02:45    time: 0.0317  data: 0.0001  max mem: 8411
+Caption generation:  [ 350/5243]  eta: 0:02:45    time: 0.0310  data: 0.0001  max mem: 8411
+Caption generation:  [ 360/5243]  eta: 0:02:44    time: 0.0310  data: 0.0001  max mem: 8411
+Caption generation:  [ 370/5243]  eta: 0:02:43    time: 0.0320  data: 0.0001  max mem: 8411
+Caption generation:  [ 380/5243]  eta: 0:02:43    time: 0.0321  data: 0.0001  max mem: 8411
+Caption generation:  [ 390/5243]  eta: 0:02:43    time: 0.0329  data: 0.0001  max mem: 8411
+Caption generation:  [ 400/5243]  eta: 0:02:43    time: 0.0357  data: 0.0008  max mem: 8411
+Caption generation:  [ 410/5243]  eta: 0:02:42    time: 0.0347  data: 0.0008  max mem: 8411
+Caption generation:  [ 420/5243]  eta: 0:02:42    time: 0.0325  data: 0.0001  max mem: 8411
+Caption generation:  [ 430/5243]  eta: 0:02:41    time: 0.0321  data: 0.0001  max mem: 8411
+Caption generation:  [ 440/5243]  eta: 0:02:41    time: 0.0312  data: 0.0001  max mem: 8411
+Caption generation:  [ 450/5243]  eta: 0:02:40    time: 0.0327  data: 0.0005  max mem: 8411
+Caption generation:  [ 460/5243]  eta: 0:02:40    time: 0.0339  data: 0.0006  max mem: 8411
+Caption generation:  [ 470/5243]  eta: 0:02:39    time: 0.0329  data: 0.0001  max mem: 8411
+Caption generation:  [ 480/5243]  eta: 0:02:39    time: 0.0340  data: 0.0004  max mem: 8411
+Caption generation:  [ 490/5243]  eta: 0:02:39    time: 0.0336  data: 0.0004  max mem: 8411
+Caption generation:  [ 500/5243]  eta: 0:02:38    time: 0.0313  data: 0.0001  max mem: 8411
+Caption generation:  [ 510/5243]  eta: 0:02:38    time: 0.0321  data: 0.0002  max mem: 8411
+Caption generation:  [ 520/5243]  eta: 0:02:37    time: 0.0329  data: 0.0002  max mem: 8411
+Caption generation:  [ 530/5243]  eta: 0:02:37    time: 0.0330  data: 0.0002  max mem: 8411
+Caption generation:  [ 540/5243]  eta: 0:02:37    time: 0.0318  data: 0.0001  max mem: 8411
+Caption generation:  [ 550/5243]  eta: 0:02:36    time: 0.0306  data: 0.0001  max mem: 8411
+Caption generation:  [ 560/5243]  eta: 0:02:35    time: 0.0304  data: 0.0001  max mem: 8411
+Caption generation:  [ 570/5243]  eta: 0:02:35    time: 0.0313  data: 0.0001  max mem: 8411
+Caption generation:  [ 580/5243]  eta: 0:02:35    time: 0.0321  data: 0.0001  max mem: 8411
+Caption generation:  [ 590/5243]  eta: 0:02:34    time: 0.0330  data: 0.0001  max mem: 8411
+Caption generation:  [ 600/5243]  eta: 0:02:34    time: 0.0336  data: 0.0001  max mem: 8411
+Caption generation:  [ 610/5243]  eta: 0:02:33    time: 0.0322  data: 0.0001  max mem: 8411
+Caption generation:  [ 620/5243]  eta: 0:02:33    time: 0.0317  data: 0.0001  max mem: 8411
+Caption generation:  [ 630/5243]  eta: 0:02:33    time: 0.0328  data: 0.0001  max mem: 8411
+Caption generation:  [ 640/5243]  eta: 0:02:32    time: 0.0331  data: 0.0001  max mem: 8411
+Caption generation:  [ 650/5243]  eta: 0:02:32    time: 0.0329  data: 0.0001  max mem: 8411
+Caption generation:  [ 660/5243]  eta: 0:02:32    time: 0.0326  data: 0.0001  max mem: 8411
+Caption generation:  [ 670/5243]  eta: 0:02:31    time: 0.0317  data: 0.0001  max mem: 8411
+Caption generation:  [ 680/5243]  eta: 0:02:31    time: 0.0319  data: 0.0001  max mem: 8411
+Caption generation:  [ 690/5243]  eta: 0:02:30    time: 0.0318  data: 0.0001  max mem: 8411
+Caption generation:  [ 700/5243]  eta: 0:02:30    time: 0.0329  data: 0.0010  max mem: 8411
+Caption generation:  [ 710/5243]  eta: 0:02:30    time: 0.0340  data: 0.0010  max mem: 8411
+Caption generation:  [ 720/5243]  eta: 0:02:29    time: 0.0335  data: 0.0001  max mem: 8411
+Caption generation:  [ 730/5243]  eta: 0:02:29    time: 0.0333  data: 0.0001  max mem: 8411
+Caption generation:  [ 740/5243]  eta: 0:02:29    time: 0.0328  data: 0.0001  max mem: 8411
+Caption generation:  [ 750/5243]  eta: 0:02:28    time: 0.0326  data: 0.0001  max mem: 8411
+Caption generation:  [ 760/5243]  eta: 0:02:28    time: 0.0321  data: 0.0001  max mem: 8411
+Caption generation:  [ 770/5243]  eta: 0:02:28    time: 0.0327  data: 0.0001  max mem: 8411
+Caption generation:  [ 780/5243]  eta: 0:02:27    time: 0.0330  data: 0.0001  max mem: 8411
+Caption generation:  [ 790/5243]  eta: 0:02:27    time: 0.0324  data: 0.0001  max mem: 8411
+Caption generation:  [ 800/5243]  eta: 0:02:27    time: 0.0326  data: 0.0001  max mem: 8411
+Caption generation:  [ 810/5243]  eta: 0:02:26    time: 0.0314  data: 0.0001  max mem: 8411
+Caption generation:  [ 820/5243]  eta: 0:02:26    time: 0.0312  data: 0.0001  max mem: 8411
+Caption generation:  [ 830/5243]  eta: 0:02:25    time: 0.0328  data: 0.0001  max mem: 8411
+Caption generation:  [ 840/5243]  eta: 0:02:25    time: 0.0331  data: 0.0001  max mem: 8411
+Caption generation:  [ 850/5243]  eta: 0:02:25    time: 0.0318  data: 0.0001  max mem: 8411
+Caption generation:  [ 860/5243]  eta: 0:02:24    time: 0.0314  data: 0.0001  max mem: 8411
+Caption generation:  [ 870/5243]  eta: 0:02:24    time: 0.0314  data: 0.0001  max mem: 8411
+Caption generation:  [ 880/5243]  eta: 0:02:23    time: 0.0318  data: 0.0001  max mem: 8411
+Caption generation:  [ 890/5243]  eta: 0:02:23    time: 0.0334  data: 0.0006  max mem: 8411
+Caption generation:  [ 900/5243]  eta: 0:02:23    time: 0.0324  data: 0.0006  max mem: 8411
+Caption generation:  [ 910/5243]  eta: 0:02:22    time: 0.0323  data: 0.0001  max mem: 8411
+Caption generation:  [ 920/5243]  eta: 0:02:22    time: 0.0327  data: 0.0001  max mem: 8411
+Caption generation:  [ 930/5243]  eta: 0:02:22    time: 0.0314  data: 0.0001  max mem: 8411
+Caption generation:  [ 940/5243]  eta: 0:02:21    time: 0.0331  data: 0.0001  max mem: 8411
+Caption generation:  [ 950/5243]  eta: 0:02:21    time: 0.0336  data: 0.0001  max mem: 8411
+Caption generation:  [ 960/5243]  eta: 0:02:21    time: 0.0322  data: 0.0001  max mem: 8411
+Caption generation:  [ 970/5243]  eta: 0:02:20    time: 0.0319  data: 0.0001  max mem: 8411
+Caption generation:  [ 980/5243]  eta: 0:02:20    time: 0.0313  data: 0.0001  max mem: 8411
+Caption generation:  [ 990/5243]  eta: 0:02:19    time: 0.0312  data: 0.0001  max mem: 8411
+Caption generation:  [1000/5243]  eta: 0:02:19    time: 0.0316  data: 0.0001  max mem: 8411
+Caption generation:  [1010/5243]  eta: 0:02:19    time: 0.0321  data: 0.0001  max mem: 8411
+Caption generation:  [1020/5243]  eta: 0:02:18    time: 0.0323  data: 0.0001  max mem: 8411
+Caption generation:  [1030/5243]  eta: 0:02:18    time: 0.0319  data: 0.0001  max mem: 8411
+Caption generation:  [1040/5243]  eta: 0:02:18    time: 0.0331  data: 0.0001  max mem: 8411
+Caption generation:  [1050/5243]  eta: 0:02:17    time: 0.0326  data: 0.0001  max mem: 8411
+Caption generation:  [1060/5243]  eta: 0:02:17    time: 0.0315  data: 0.0001  max mem: 8411
+Caption generation:  [1070/5243]  eta: 0:02:17    time: 0.0320  data: 0.0001  max mem: 8411
+Caption generation:  [1080/5243]  eta: 0:02:16    time: 0.0324  data: 0.0001  max mem: 8411
+Caption generation:  [1090/5243]  eta: 0:02:16    time: 0.0326  data: 0.0001  max mem: 8411
+Caption generation:  [1100/5243]  eta: 0:02:16    time: 0.0318  data: 0.0001  max mem: 8411
+Caption generation:  [1110/5243]  eta: 0:02:15    time: 0.0319  data: 0.0001  max mem: 8411
+Caption generation:  [1120/5243]  eta: 0:02:15    time: 0.0319  data: 0.0001  max mem: 8411
+Caption generation:  [1130/5243]  eta: 0:02:14    time: 0.0315  data: 0.0001  max mem: 8411
+Caption generation:  [1140/5243]  eta: 0:02:14    time: 0.0322  data: 0.0001  max mem: 8411
+Caption generation:  [1150/5243]  eta: 0:02:14    time: 0.0324  data: 0.0001  max mem: 8411
+Caption generation:  [1160/5243]  eta: 0:02:13    time: 0.0319  data: 0.0001  max mem: 8411
+Caption generation:  [1170/5243]  eta: 0:02:13    time: 0.0326  data: 0.0001  max mem: 8411
+Caption generation:  [1180/5243]  eta: 0:02:13    time: 0.0336  data: 0.0001  max mem: 8411
+Caption generation:  [1190/5243]  eta: 0:02:12    time: 0.0338  data: 0.0001  max mem: 8411
+Caption generation:  [1200/5243]  eta: 0:02:12    time: 0.0338  data: 0.0001  max mem: 8411
+Caption generation:  [1210/5243]  eta: 0:02:12    time: 0.0328  data: 0.0001  max mem: 8411
+Caption generation:  [1220/5243]  eta: 0:02:11    time: 0.0317  data: 0.0001  max mem: 8411
+Caption generation:  [1230/5243]  eta: 0:02:11    time: 0.0314  data: 0.0001  max mem: 8411
+Caption generation:  [1240/5243]  eta: 0:02:11    time: 0.0321  data: 0.0001  max mem: 8411
+Caption generation:  [1250/5243]  eta: 0:02:10    time: 0.0322  data: 0.0001  max mem: 8411
+Caption generation:  [1260/5243]  eta: 0:02:10    time: 0.0313  data: 0.0001  max mem: 8411
+Caption generation:  [1270/5243]  eta: 0:02:10    time: 0.0325  data: 0.0001  max mem: 8411
+Caption generation:  [1280/5243]  eta: 0:02:09    time: 0.0328  data: 0.0001  max mem: 8411
+Caption generation:  [1290/5243]  eta: 0:02:09    time: 0.0316  data: 0.0001  max mem: 8411
+Caption generation:  [1300/5243]  eta: 0:02:09    time: 0.0323  data: 0.0001  max mem: 8411
+Caption generation:  [1310/5243]  eta: 0:02:08    time: 0.0325  data: 0.0001  max mem: 8411
+Caption generation:  [1320/5243]  eta: 0:02:08    time: 0.0320  data: 0.0001  max mem: 8411
+Caption generation:  [1330/5243]  eta: 0:02:08    time: 0.0326  data: 0.0001  max mem: 8411
+Caption generation:  [1340/5243]  eta: 0:02:07    time: 0.0328  data: 0.0001  max mem: 8411
+Caption generation:  [1350/5243]  eta: 0:02:07    time: 0.0321  data: 0.0001  max mem: 8411
+Caption generation:  [1360/5243]  eta: 0:02:07    time: 0.0319  data: 0.0001  max mem: 8411
+Caption generation:  [1370/5243]  eta: 0:02:06    time: 0.0327  data: 0.0001  max mem: 8411
+Caption generation:  [1380/5243]  eta: 0:02:06    time: 0.0327  data: 0.0001  max mem: 8411
+Caption generation:  [1390/5243]  eta: 0:02:06    time: 0.0318  data: 0.0001  max mem: 8411
+Caption generation:  [1400/5243]  eta: 0:02:05    time: 0.0328  data: 0.0001  max mem: 8411
+Caption generation:  [1410/5243]  eta: 0:02:05    time: 0.0330  data: 0.0001  max mem: 8411
+Caption generation:  [1420/5243]  eta: 0:02:05    time: 0.0316  data: 0.0001  max mem: 8411
+Caption generation:  [1430/5243]  eta: 0:02:04    time: 0.0311  data: 0.0001  max mem: 8411
+Caption generation:  [1440/5243]  eta: 0:02:04    time: 0.0312  data: 0.0001  max mem: 8411
+Caption generation:  [1450/5243]  eta: 0:02:03    time: 0.0312  data: 0.0001  max mem: 8411
+Caption generation:  [1460/5243]  eta: 0:02:03    time: 0.0313  data: 0.0001  max mem: 8411
+Caption generation:  [1470/5243]  eta: 0:02:03    time: 0.0324  data: 0.0001  max mem: 8411
+Caption generation:  [1480/5243]  eta: 0:02:02    time: 0.0322  data: 0.0001  max mem: 8411
+Caption generation:  [1490/5243]  eta: 0:02:02    time: 0.0322  data: 0.0001  max mem: 8411
+Caption generation:  [1500/5243]  eta: 0:02:02    time: 0.0332  data: 0.0002  max mem: 8411
+Caption generation:  [1510/5243]  eta: 0:02:01    time: 0.0322  data: 0.0002  max mem: 8411
+Caption generation:  [1520/5243]  eta: 0:02:01    time: 0.0318  data: 0.0001  max mem: 8411
+Caption generation:  [1530/5243]  eta: 0:02:01    time: 0.0331  data: 0.0001  max mem: 8411
+Caption generation:  [1540/5243]  eta: 0:02:01    time: 0.0346  data: 0.0001  max mem: 8411
+Caption generation:  [1550/5243]  eta: 0:02:00    time: 0.0329  data: 0.0001  max mem: 8411
+Caption generation:  [1560/5243]  eta: 0:02:00    time: 0.0317  data: 0.0001  max mem: 8411
+Caption generation:  [1570/5243]  eta: 0:02:00    time: 0.0320  data: 0.0001  max mem: 8411
+Caption generation:  [1580/5243]  eta: 0:01:59    time: 0.0320  data: 0.0001  max mem: 8411
+Caption generation:  [1590/5243]  eta: 0:01:59    time: 0.0321  data: 0.0001  max mem: 8411
+Caption generation:  [1600/5243]  eta: 0:01:58    time: 0.0315  data: 0.0001  max mem: 8411
+Caption generation:  [1610/5243]  eta: 0:01:58    time: 0.0315  data: 0.0001  max mem: 8411
+Caption generation:  [1620/5243]  eta: 0:01:58    time: 0.0326  data: 0.0001  max mem: 8411
+Caption generation:  [1630/5243]  eta: 0:01:58    time: 0.0336  data: 0.0001  max mem: 8411
+Caption generation:  [1640/5243]  eta: 0:01:57    time: 0.0321  data: 0.0001  max mem: 8411
+Caption generation:  [1650/5243]  eta: 0:01:57    time: 0.0318  data: 0.0001  max mem: 8411
+Caption generation:  [1660/5243]  eta: 0:01:56    time: 0.0321  data: 0.0001  max mem: 8411
+Caption generation:  [1670/5243]  eta: 0:01:56    time: 0.0319  data: 0.0001  max mem: 8411
+Caption generation:  [1680/5243]  eta: 0:01:56    time: 0.0323  data: 0.0001  max mem: 8411
+Caption generation:  [1690/5243]  eta: 0:01:55    time: 0.0320  data: 0.0001  max mem: 8411
+Caption generation:  [1700/5243]  eta: 0:01:55    time: 0.0330  data: 0.0011  max mem: 8411
+Caption generation:  [1710/5243]  eta: 0:01:55    time: 0.0331  data: 0.0011  max mem: 8411
+Caption generation:  [1720/5243]  eta: 0:01:55    time: 0.0337  data: 0.0001  max mem: 8411
+Caption generation:  [1730/5243]  eta: 0:01:54    time: 0.0342  data: 0.0002  max mem: 8411
+Caption generation:  [1740/5243]  eta: 0:01:54    time: 0.0326  data: 0.0001  max mem: 8411
+Caption generation:  [1750/5243]  eta: 0:01:54    time: 0.0324  data: 0.0001  max mem: 8411
+Caption generation:  [1760/5243]  eta: 0:01:53    time: 0.0336  data: 0.0001  max mem: 8411
+Caption generation:  [1770/5243]  eta: 0:01:53    time: 0.0330  data: 0.0001  max mem: 8411
+Caption generation:  [1780/5243]  eta: 0:01:53    time: 0.0313  data: 0.0001  max mem: 8411
+Caption generation:  [1790/5243]  eta: 0:01:52    time: 0.0322  data: 0.0001  max mem: 8411
+Caption generation:  [1800/5243]  eta: 0:01:52    time: 0.0322  data: 0.0001  max mem: 8411
+Caption generation:  [1810/5243]  eta: 0:01:52    time: 0.0318  data: 0.0001  max mem: 8411
+Caption generation:  [1820/5243]  eta: 0:01:51    time: 0.0324  data: 0.0001  max mem: 8411
+Caption generation:  [1830/5243]  eta: 0:01:51    time: 0.0326  data: 0.0001  max mem: 8411
+Caption generation:  [1840/5243]  eta: 0:01:51    time: 0.0324  data: 0.0001  max mem: 8411
+Caption generation:  [1850/5243]  eta: 0:01:50    time: 0.0323  data: 0.0001  max mem: 8411
+Caption generation:  [1860/5243]  eta: 0:01:50    time: 0.0316  data: 0.0001  max mem: 8411
+Caption generation:  [1870/5243]  eta: 0:01:50    time: 0.0326  data: 0.0001  max mem: 8411
+Caption generation:  [1880/5243]  eta: 0:01:49    time: 0.0332  data: 0.0001  max mem: 8411
+Caption generation:  [1890/5243]  eta: 0:01:49    time: 0.0320  data: 0.0001  max mem: 8411
+Caption generation:  [1900/5243]  eta: 0:01:49    time: 0.0314  data: 0.0001  max mem: 8411
+Caption generation:  [1910/5243]  eta: 0:01:48    time: 0.0310  data: 0.0001  max mem: 8411
+Caption generation:  [1920/5243]  eta: 0:01:48    time: 0.0315  data: 0.0001  max mem: 8411
+Caption generation:  [1930/5243]  eta: 0:01:48    time: 0.0315  data: 0.0001  max mem: 8411
+Caption generation:  [1940/5243]  eta: 0:01:47    time: 0.0315  data: 0.0001  max mem: 8411
+Caption generation:  [1950/5243]  eta: 0:01:47    time: 0.0316  data: 0.0001  max mem: 8411
+Caption generation:  [1960/5243]  eta: 0:01:47    time: 0.0327  data: 0.0001  max mem: 8411
+Caption generation:  [1970/5243]  eta: 0:01:46    time: 0.0344  data: 0.0001  max mem: 8411
+Caption generation:  [1980/5243]  eta: 0:01:46    time: 0.0342  data: 0.0001  max mem: 8411
+Caption generation:  [1990/5243]  eta: 0:01:46    time: 0.0325  data: 0.0001  max mem: 8411
+===eval finish===
+Train Caption Epoch: [5]

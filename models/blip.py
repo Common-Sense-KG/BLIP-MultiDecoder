@@ -84,8 +84,7 @@ class BLIP_Decoder(nn.Module):
                  vit = 'base',
                  vit_grad_ckpt = False,
                  vit_ckpt_layer = 0,
-                 prompt = 'an area of ',
-                 max_length = 5,#理论上是88，但启动太慢，且后半部分多为闲置
+                 prompt = 'an area of',
                  ):
         """
         Args:
@@ -106,7 +105,7 @@ class BLIP_Decoder(nn.Module):
         #     self.text_decoder_list.append(self.text_decoder)
         
         self.prompt = prompt
-        self.prompt_length = len(self.tokenizer(self.prompt).input_ids)-1
+        self.prompt_length = len(self.tokenizer(self.prompt).input_ids)-2
 
         
     def forward(self, image, max_caption_num, ground_truth):
@@ -124,8 +123,9 @@ class BLIP_Decoder(nn.Module):
             decoder_targets = all_encodings.masked_fill(all_encodings == self.tokenizer.pad_token_id, -100)         
             decoder_targets[:,:self.prompt_length] = -100 # why -100
 
-            idx = 0
-            while idx < all_encodings.shape[0]:
+            # idx = 0
+            for idx in range(all_encodings.shape[0]):
+            # while idx < all_encodings.shape[0]:
                 cap_mask = all_encodings[idx].masked_fill(all_encodings[idx] > 0, 1).to(image[0].device)
                 decoder_output = self.text_decoder(all_encodings[idx].unsqueeze(0), #single caption token
                                                attention_mask = cap_mask.unsqueeze(0), #cap length
@@ -133,10 +133,10 @@ class BLIP_Decoder(nn.Module):
                                                encoder_attention_mask = ground_truth[i]['image_mask'][idx].unsqueeze(0).to(image[0].device),           
                                                labels = decoder_targets[idx].unsqueeze(0),#传入该pic对应的caption做crossEntropyloss
                                                return_dict = True, ) 
-                idx += 1
+                # idx += 1
 
 
-                if idx == 1:
+                if idx == 0:
                     crossentropy_loss = decoder_output.loss
                     prediction_res = torch.argmax(decoder_output.logits,dim=2)
                     # prediction_res_list.append(decoder_output.logits)#将预测结果加入到list
@@ -247,8 +247,9 @@ class BLIP_Decoder(nn.Module):
             decoder_targets = all_encodings.masked_fill(all_encodings == self.tokenizer.pad_token_id, -100)         
             decoder_targets[:,:self.prompt_length] = -100 # why -100
 
-            idx = 0
-            while idx < all_encodings.shape[0]:
+            # idx = 0
+            # while idx < all_encodings.shape[0]:
+            for idx in range(all_encodings.shape[0]):
                 cap_mask = all_encodings[idx].masked_fill(all_encodings[idx] > 0, 1).to(image_embeds.device)
                 decoder_output = self.text_decoder(all_encodings[idx].unsqueeze(0), 
                                                attention_mask = cap_mask.unsqueeze(0),
@@ -256,14 +257,14 @@ class BLIP_Decoder(nn.Module):
                                                encoder_attention_mask = image_atts[overall_idx],           
                                                labels = decoder_targets[idx].unsqueeze(0),#传入该pic对应的所有caption逐一做crossEntropyloss 是否正确？
                                                return_dict = True, ) 
-                idx += 1
+                # idx += 1
                 overall_idx += 1
                 encoding_caption = torch.argmax(decoder_output.logits,dim=2).squeeze(0)
                 text_caption = self.tokenizer.decode(encoding_caption, skip_special_tokens=True)
                 caption_list.append({'caption_encodings':encoding_caption,'caption_text':text_caption,'gt_text':self.tokenizer.decode(all_encodings[idx-1], skip_special_tokens=True)})
 
 
-                if idx == 1:
+                if idx == 0:
                     crossentropy_loss = decoder_output.loss
                     prediction_res = torch.argmax(decoder_output.logits,dim=2)
                     # prediction_res_list.append(decoder_output.logits)#将预测结果加入到list
