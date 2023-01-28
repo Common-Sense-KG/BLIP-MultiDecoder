@@ -105,7 +105,7 @@ class BLIP_Decoder(nn.Module):
         #     self.text_decoder_list.append(self.text_decoder)
         
         self.prompt = prompt
-        self.prompt_length = len(self.tokenizer(self.prompt).input_ids)-2
+        self.prompt_length = len(self.tokenizer(self.prompt).input_ids)-1
 
         
     def forward(self, image, max_caption_num, ground_truth):
@@ -114,7 +114,7 @@ class BLIP_Decoder(nn.Module):
         batch_size = len(image)#首先获取batch size
         loss_dict = {"ctploss":[], "regloss":[],"overallloss":[]} 
         for i in range(0,batch_size):
-            image_embeds = self.visual_encoder(image[i].unsqueeze(0)) #1*（576+1）*768  24*24+全局 768为patch的representation的dimension
+            image_embeds = self.visual_encoder(image[i]) #1*（576+1）*768  24*24+全局 768为patch的representation的dimension
 
             crossentropy_loss_list = []
 
@@ -130,7 +130,7 @@ class BLIP_Decoder(nn.Module):
                 decoder_output = self.text_decoder(all_encodings[idx].unsqueeze(0), #single caption token
                                                attention_mask = cap_mask.unsqueeze(0), #cap length
                                                encoder_hidden_states = image_embeds, #image / has grad
-                                               encoder_attention_mask = ground_truth[i]['image_mask'][idx].unsqueeze(0).to(image[0].device),           
+                                               encoder_attention_mask = ground_truth[i]['image_mask'][idx].to(image[0].device),           
                                                labels = decoder_targets[idx].unsqueeze(0),#传入该pic对应的caption做crossEntropyloss
                                                return_dict = True, ) 
                 # idx += 1
@@ -165,7 +165,7 @@ class BLIP_Decoder(nn.Module):
                     sum_reg_loss += output
             # sum_reg_loss = sum_reg_loss // (sum_reg_loss // crossentropy_loss)
             if prediction_res.shape[0] >= 2:
-                loss_thisimg += sum_reg_loss.item() / (prediction_res.shape[0] * (prediction_res.shape[0] - 1) / 2 ) * 10
+                loss_thisimg += sum_reg_loss.item() / (prediction_res.shape[0] * (prediction_res.shape[0] - 1) / 2 ) * 4
                 loss_dict['regloss'].append(sum_reg_loss.item() / (prediction_res.shape[0] * (prediction_res.shape[0] - 1) / 2 ))
             else:
                 loss_thisimg += sum_reg_loss.item() 

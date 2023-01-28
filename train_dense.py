@@ -38,7 +38,7 @@ def train(model, data_loader, optimizer, epoch, device, max_caption_num = 15):#�
 
     # train
     model.train()  
-
+    cudnn.benchmark = True
     writer = SummaryWriter(log_dir='./tensorboard_dense/test/'+ time.strftime('%y-%m-%d_%H.%M', time.localtime())) # 确定路径
     metric_logger = utils.MetricLogger(delimiter="  ")
     metric_logger.add_meter('lr', utils.SmoothedValue(window_size=1, fmt='{value:.6f}'))
@@ -50,7 +50,7 @@ def train(model, data_loader, optimizer, epoch, device, max_caption_num = 15):#�
     for image, image_org_size, targets, img_id in tqdm.tqdm(data_loader):#image:batch_size*3*384*384 caption
             # continue
             model = model.to(device)
-            image = [img.to(device) for img in image]
+            image = [img.to(device).unsqueeze(0) for img in image]
             loss_dict = model(image, max_caption_num, targets)      
         
             optimizer.zero_grad()
@@ -81,7 +81,7 @@ def evaluate(model, mask_model, data_loader, device, config):
     # evaluate
     model.eval() 
     mask_model.eval()
-    
+    cudnn.benchmark = False
     metric_logger = utils.MetricLogger(delimiter="  ")
     header = 'Caption generation:'
     print_freq = 2
@@ -131,7 +131,7 @@ def main(args, config):
     torch.manual_seed(seed)
     np.random.seed(seed)
     random.seed(seed)
-    cudnn.benchmark = False
+    
 
     #### Dataset #### 
     print("Creating captioning dataset")
@@ -156,7 +156,7 @@ def main(args, config):
                            prompt=config['prompt'])
 
     model = model.to(device)  
-    # model.load_state_dict(torch.load('output/blip_extract_model.pt')) 
+    model.load_state_dict(torch.load('output/blip_extract_model.pt')) 
 
     mask_model = densecap_resnet50_fpn(backbone_pretrained=config['backbone_pretrained'],#True
                                   feat_size=config['feat_size'],#4096
@@ -189,7 +189,7 @@ def main(args, config):
             
     best = 100000.0 
     best_epoch = 0
-    args.evaluate = False
+    args.evaluate = True
 
     print("Start training")
     start_time = time.time()    
