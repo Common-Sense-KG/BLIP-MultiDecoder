@@ -165,7 +165,7 @@ class BLIP_Decoder(nn.Module):
                     sum_reg_loss += output
             # sum_reg_loss = sum_reg_loss // (sum_reg_loss // crossentropy_loss)
             if prediction_res.shape[0] >= 2:
-                loss_thisimg += sum_reg_loss.item() / (prediction_res.shape[0] * (prediction_res.shape[0] - 1) / 2 ) * 4
+                loss_thisimg += sum_reg_loss.item() / (prediction_res.shape[0] * (prediction_res.shape[0] - 1) / 2 ) * 10
                 loss_dict['regloss'].append(sum_reg_loss.item() / (prediction_res.shape[0] * (prediction_res.shape[0] - 1) / 2 ))
             else:
                 loss_thisimg += sum_reg_loss.item() 

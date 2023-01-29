@@ -56,15 +56,18 @@ def train(model, data_loader, optimizer, epoch, device, max_caption_num = 15):#å
             optimizer.zero_grad()
             overall_loss = 0.0
             for overall_loss_item in loss_dict['overallloss']:
+                overall_loss_item.backward()
                 overall_loss += overall_loss_item
-            overall_loss.backward()
+            # overall_loss.backward()
             optimizer.step()    
         
             writer.add_scalar('train_overall_loss',overall_loss.item(),i)
             writer.add_scalar('reg_loss',loss_dict['regloss'][-1],i)
             writer.add_scalar('generate_ctp_loss',loss_dict['ctploss'][-1].item(),i)
 
-            # i += 1
+            i += 1 
+            # if i > 10000:
+            #     break
             
             metric_logger.update(loss=overall_loss.item())
             metric_logger.update(lr=optimizer.param_groups[0]["lr"])
@@ -111,7 +114,7 @@ def evaluate(model, mask_model, data_loader, device, config):
         except Exception as e:
             print(str(e))
         
-        if iter0 >= 500:
+        if iter0 >= 300:
             break    
     print("===Eval Finish===")  
   
@@ -156,7 +159,7 @@ def main(args, config):
                            prompt=config['prompt'])
 
     model = model.to(device)  
-    model.load_state_dict(torch.load('output/blip_extract_model.pt')) 
+    # model.load_state_dict(torch.load('output/blip_extract_model.pt')) 
 
     mask_model = densecap_resnet50_fpn(backbone_pretrained=config['backbone_pretrained'],#True
                                   feat_size=config['feat_size'],#4096
@@ -179,17 +182,11 @@ def main(args, config):
         model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[args.gpu])
         model_without_ddp = model.module    
     
-    # optimizer = torch.optim.AdamW(params=model.parameters(), lr=config['init_lr'], weight_decay=config['weight_decay'])
-    optimizer = torch.optim.Adam([{'params': model.parameters()},
-                                  {'params': (para for name, para in mask_model.named_parameters()
-                                        if para.requires_grad and 'box_describer' not in name)},
-                                  {'params': (para for para in mask_model.roi_heads.box_describer.parameters()
-                                              if para.requires_grad), 'lr':  1e-3}],
-                                  lr=config['init_lr'], weight_decay=config['weight_decay'])
+    optimizer = torch.optim.AdamW(params=model.parameters(), lr=config['init_lr'], weight_decay=config['weight_decay'])
             
     best = 100000.0 
     best_epoch = 0
-    args.evaluate = True
+    args.evaluate = False
 
     print("Start training")
     start_time = time.time()    
@@ -202,58 +199,23 @@ def main(args, config):
                 
             train_stats = train(model, train_loader, optimizer, epoch, device)
             try:
-                if best > float(train_stats['loss']):
-                    print("update min loss in epoch "+str(epoch))
-                    print("min loss is "+train_stats['loss'])
-                    best = float(train_stats['loss'])
-                    torch.save(model.state_dict(),'output/blip_extract_model.pt')
+                # if best > float(train_stats['loss']):
+                if epoch % 5 == 0:
+                    # print("update min loss in epoch "+str(epoch))
+                    print("epoch %d loss is %s" %(epoch,train_stats['loss']))
+                    # best = float(train_stats['loss'])
+                    model_name = 'output/knowledge_extract_model'+'_epoch'+str(epoch)+'.pt'
+                    torch.save(model.state_dict(),model_name)
             except Exception as e:
                 print(str(e))
-                
             
             # train_stats = train(mask_model, train_loader, epoch, device) 
              
         val_result = evaluate(model_without_ddp, mask_model, val_loader, device, config)  
-        val_result_file = save_result(val_result, args.result_dir, 'val_epoch%d'%epoch, remove_duplicate='image_id')        
-  
-        # test_result = evaluate(model_without_ddp, test_loader, device, config)  
-        # test_result_file = save_result(test_result, args.result_dir, 'test_epoch%d'%epoch, remove_duplicate='image_id')  
-
-        # if utils.is_main_process():   
-        #     coco_val = coco_caption_eval(config['coco_gt_root'],val_result_file,'val')
-        #     coco_test = coco_caption_eval(config['coco_gt_root'],test_result_file,'test')
-            
-        #     if args.evaluate:            
-        #         log_stats = {**{f'val_{k}': v for k, v in coco_val.eval.items()},
-        #                      **{f'test_{k}': v for k, v in coco_test.eval.items()},                       
-        #                     }
-        #         with open(os.path.join(args.output_dir, "evaluate.txt"),"a") as f:
-        #             f.write(json.dumps(log_stats) + "\n")                   
-        #     else:             
-        #         save_obj = {
-        #             'model': model_without_ddp.state_dict(),
-        #             'optimizer': optimizer.state_dict(),
-        #             'config': config,
-        #             'epoch': epoch,
-        #         }
-
-        #         if coco_val.eval['CIDEr'] + coco_val.eval['Bleu_4'] > best:
-        #             best = coco_val.eval['CIDEr'] + coco_val.eval['Bleu_4']
-        #             best_epoch = epoch                
-        #             torch.save(save_obj, os.path.join(args.output_dir, 'checkpoint_best.pth')) 
-                    
-        #         log_stats = {**{f'train_{k}': v for k, v in train_stats.items()},
-        #                      **{f'val_{k}': v for k, v in coco_val.eval.items()},
-        #                      **{f'test_{k}': v for k, v in coco_test.eval.items()},                       
-        #                      'epoch': epoch,
-        #                      'best_epoch': best_epoch,
-        #                     }
-        #         with open(os.path.join(args.output_dir, "log.txt"),"a") as f:
-        #             f.write(json.dumps(log_stats) + "\n")     
+        val_result_file = save_result(val_result, args.result_dir, 'val_epoch%d'%epoch, remove_duplicate='image_id')            
                     
         if args.evaluate: 
             break
-        # dist.barrier()     
 
     total_time = time.time() - start_time
     total_time_str = str(datetime.timedelta(seconds=int(total_time)))
