@@ -21,11 +21,16 @@ import numpy as np
 import io
 import os
 import time
+import sys
 from collections import defaultdict, deque
 import datetime
 
 import torch
 import torch.distributed as dist
+
+# from sentence_transformers.util import cos_sim  
+# from sentence_transformers import SentenceTransformer as SBert
+import torch.nn.functional as F
 
 class SmoothedValue(object):
     """Track a series of values and provide access to smoothed values over a
@@ -364,3 +369,25 @@ def packToJsonAndVisualize(result,predict_region,matched_gt_boxes,text,img_id,to
             caption = tokenizer.decode(sentence, skip_special_tokens=True)
             true_sentence_list.append(caption)
         result.append({'image_id':imgID,'region_proposal':region,'gt_boxes':gt_boxes,'corr_sentence':true_sentence_list})
+
+def compare_sentence_similarity(caption,captions_list,tokenizer):
+    similarity_score = []
+    tokenize_result = tokenizer(captions_list, padding=True, return_tensors="pt")
+    single_caption = torch.tensor(tokenizer(caption).input_ids).unsqueeze(0)
+    for caption_idx in range(tokenize_result.input_ids.shape[0]):
+        main_tensor = tokenize_result.input_ids[caption_idx].unsqueeze(0)
+        if main_tensor.shape[1] > single_caption.shape[1]:
+            sub_main_tensor = torch.cat([single_caption,torch.zeros(1,main_tensor.shape[1] - single_caption.shape[1])],dim=1)
+            similarity_score.append(F.cosine_similarity(main_tensor[:,4:].float(),sub_main_tensor[:,4:].float()))#去掉前缀再计算相似度
+        else:
+            main_tensor = torch.cat([main_tensor,torch.zeros(1,single_caption.shape[1] - main_tensor.shape[1])],dim=1)
+            similarity_score.append(F.cosine_similarity(main_tensor[:,4:].float(),single_caption[:,4:].float()))
+
+    return max(similarity_score)
+
+    # single_list = [caption]
+    # embedding_single = model.encode(single_list)
+    # embedding_all = model.encode(captions_list)
+    # cosine_scores = cos_sim(embedding_single,embedding_all)
+    # return max(cosine_scores)
+    

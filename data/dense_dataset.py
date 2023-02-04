@@ -15,6 +15,11 @@ import torch
 from transformers import BertTokenizer
 import torchvision.transforms as trans
 
+import sys
+from sentence_transformers.util import cos_sim  
+from sentence_transformers import SentenceTransformer as SBert
+from utils import compare_sentence_similarity
+
 def init_tokenizer():
     tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
     tokenizer.add_special_tokens({'bos_token':'[DEC]'})
@@ -40,6 +45,7 @@ class dense_train(Dataset):
         self.prompt = prompt
         self.tokenizer = init_tokenizer()
         self.device = device
+        # self.similarity_compare_model = SBert('paraphrase-multilingual-MiniLM-L12-v2')
         
         self.img_ids = {}  
         n = 0
@@ -84,11 +90,13 @@ class dense_train(Dataset):
                 caption = self.prompt + pre_caption(phrase['caption'])
                 if caption in captions_list:
                     continue
+                elif len(captions_list) > 0 and compare_sentence_similarity(caption,captions_list,self.tokenizer) > 0.75:
+                    continue
                 captions_list.append(caption)
                 boxes_list.append(phrase['boxes'])
                 mask_list.append(phrase['tensor'])
             
-        tokenize_result = self.tokenizer(captions_list,padding=True, return_tensors="pt")
+        tokenize_result = self.tokenizer(captions_list, padding=True, return_tensors="pt")
 
         output_targets['boxes'] = torch.tensor(boxes_list)
         output_targets['image_mask'] = torch.tensor(mask_list)
@@ -135,20 +143,15 @@ class dense_eval(Dataset):
         image = image.convert('RGB')  
         image_for_region = transToTensor(image)
         image_for_extract = self.transform(image)    
-        # for phrase in ann['phrase_list']:
-        #     tensor_list.append(np.array(phrase['tensor']))    
-              
-        # max_caption_num = 70
-        # truly_length = len(tensor_list)
+
         img_id = ann['image_id']
-        # tensor_list  += [np.zeros((1,577),np.float64) for j in range(max_caption_num - truly_length)]
         
         return image_for_region, image_for_extract, image_org_size, int(img_id)   
         
-    
-    
-class dense_test(Dataset):
-    def __init__(self, transform, image_root, ann_root, device, max_words=30):  
+
+
+class dense_test(Dataset):#contain region inference
+    def __init__(self, transform, image_root, ann_root, device):  
         '''
         image_root (string): Root directory of images (e.g. coco/images/)
         ann_root (string): directory to store the annotation file
@@ -157,42 +160,90 @@ class dense_test(Dataset):
         # urls = {'val':'https://storage.googleapis.com/sfr-vision-language-research/datasets/coco_karpathy_val.json',
         #         'test':'https://storage.googleapis.com/sfr-vision-language-research/datasets/coco_karpathy_test.json'}
         # filenames = {'val':'coco_karpathy_val.json','test':'coco_karpathy_test.json'}
-        
+        filename = 'dense_eval.json'
         # download_url(urls[split],ann_root)
-
-        # filename = 'objects.json'
-        # ann_root = '/home/hcui25/Research/BLIP-MultiDecoder/annotation/vg_org'
-        filename = 'dense_test.json'
         
         self.annotation = json.load(open(os.path.join(ann_root,filename),'r'))
         self.transform = transform
         self.image_root = image_root
         
-        self.text = []
-        self.image = []
-        self.txt2img = {}
-        self.img2txt = {}
-        
-        txt_id = 0
-        for img_id, ann in enumerate(self.annotation):
-            self.image.append(self.image_root+str(ann['image_id'])+'.jpg')#存路径
-            self.img2txt[img_id] = []#逐项初始化
-            for i, caption in enumerate(ann['phrase_list']):#对每一个caption进行预处理 append id
-                self.text.append(pre_caption(caption['caption'],max_words))#是否有不同？ 此处仍为拼接 还是逐个存储
-                self.img2txt[img_id].append(txt_id)
-                self.txt2img[txt_id] = img_id#互相认定
-                txt_id += 1
-                                    
     def __len__(self):
         return len(self.annotation)
     
     def __getitem__(self, index):    
-        
-        image_path = os.path.join(self.image_root, str(self.annotation[index]['image_id'])+'.jpg')        
-        image = Image.open(image_path)
-        # image = self.transform(image)  
 
-        return image, int(self.annotation[index]['image_id'])
+        transToTensor = trans.ToTensor()
+        
+        ann = self.annotation[index]
+        image_path = os.path.join(self.image_root,str(ann['image_id'])+'.jpg')      
+        # model = torch.hub.load('ultralytics/yolov5', 'yolov5s')  #modify
+        image = Image.open(image_path) 
+        width,height = image.size[1],image.size[0]
+        image_org_size = [width,height]
+        # results = model(image) 
+        tensor_list = []
+        boxes_list = []
+        image = image.convert('RGB')  
+        image_for_extract = self.transform(image)    
+        for phrase in ann['phrase_list']:
+            tensor_list.append(torch.tensor(np.array(phrase['tensor'])))  
+            boxes_list.append(phrase['boxes'])  
+              
+        # max_caption_num = 70
+        # truly_length = len(tensor_list)
+        img_id = ann['image_id']
+        # tensor_list  += [np.zeros((1,577),np.float64) for j in range(max_caption_num - truly_length)]
+        
+        return image_for_extract, tensor_list, boxes_list, int(img_id)   
+        
+ 
+    
+# class dense_test(Dataset):
+#     def __init__(self, transform, image_root, ann_root, device, max_words=30):  
+#         '''
+#         image_root (string): Root directory of images (e.g. coco/images/)
+#         ann_root (string): directory to store the annotation file
+#         split (string): val or test
+#         '''
+#         # urls = {'val':'https://storage.googleapis.com/sfr-vision-language-research/datasets/coco_karpathy_val.json',
+#         #         'test':'https://storage.googleapis.com/sfr-vision-language-research/datasets/coco_karpathy_test.json'}
+#         # filenames = {'val':'coco_karpathy_val.json','test':'coco_karpathy_test.json'}
+        
+#         # download_url(urls[split],ann_root)
+
+#         # filename = 'objects.json'
+#         # ann_root = '/home/hcui25/Research/BLIP-MultiDecoder/annotation/vg_org'
+#         filename = 'dense_test.json'
+        
+#         self.annotation = json.load(open(os.path.join(ann_root,filename),'r'))
+#         self.transform = transform
+#         self.image_root = image_root
+        
+#         self.text = []
+#         self.image = []
+#         self.txt2img = {}
+#         self.img2txt = {}
+        
+#         txt_id = 0
+#         for img_id, ann in enumerate(self.annotation):
+#             self.image.append(self.image_root+str(ann['image_id'])+'.jpg')#存路径
+#             self.img2txt[img_id] = []#逐项初始化
+#             for i, caption in enumerate(ann['phrase_list']):#对每一个caption进行预处理 append id
+#                 self.text.append(pre_caption(caption['caption'],max_words))#是否有不同？ 此处仍为拼接 还是逐个存储
+#                 self.img2txt[img_id].append(txt_id)
+#                 self.txt2img[txt_id] = img_id#互相认定
+#                 txt_id += 1
+                                    
+#     def __len__(self):
+#         return len(self.annotation)
+    
+#     def __getitem__(self, index):    
+        
+#         image_path = os.path.join(self.image_root, str(self.annotation[index]['image_id'])+'.jpg')        
+#         image = Image.open(image_path)
+#         # image = self.transform(image)  
+
+#         return image, int(self.annotation[index]['image_id'])
 
 def blip_eval_collate_fn(data):
     # image_for_region, image_for_extract, image_org_size, int(img_id)  
@@ -214,5 +265,15 @@ def blip_collate_fn(data):
         image_id_list.append(image_id)
 
     return image_list, image_org_size, output_targets, image_id_list
+
+def blip_test_collate_fn(data):
+    image_for_extract_list, tensor_list_overalllist, boxes_list_overalllist, image_id_list = [],[],[],[]
+    for image_for_extract, tensor_list, boxes_list, image_id in data:
+        tensor_list_overalllist.append(tensor_list)
+        image_for_extract_list.append(image_for_extract)
+        boxes_list_overalllist.append(boxes_list)
+        image_id_list.append(image_id)
+
+    return image_for_extract_list, tensor_list_overalllist, boxes_list_overalllist, image_id_list
 
 

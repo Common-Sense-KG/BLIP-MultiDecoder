@@ -52,8 +52,8 @@ def train(mask_model, data_loader, optimizer, epoch, device):#实际应为88
         res['predict_region'] = postprocess(res['predict_region'],image_org_size,after_mask_model_size,device)
         res['matched_gt_boxes'] = postprocess(res['matched_gt_boxes'],image_org_size,after_mask_model_size,device)
         ##添加部分训练集的预测结果，供可视化查看效果
-        if i % 1000 == 0: 
-            packToJsonAndVisualize(visualize_region_result,res['predict_region'],res['matched_gt_boxes'],res['corr_region_cap'],img_id,tokenizer)
+        # if i % 1000 == 0: 
+        #     packToJsonAndVisualize(visualize_region_result,res['predict_region'],res['matched_gt_boxes'],res['corr_region_cap'],img_id,tokenizer)
 
         optimizer.zero_grad()
         overall_loss = mask_losses['loss_box_reg'] + mask_losses['loss_rpn_box_reg'] + mask_losses['loss_text_generate']
@@ -69,9 +69,9 @@ def train(mask_model, data_loader, optimizer, epoch, device):#实际应为88
         metric_logger.update(loss=overall_loss.item())
         metric_logger.update(lr=optimizer.param_groups[0]["lr"])       
 
-    visualize_region_result_fileName = 'visualize_train_result-epoch' + str(epoch) +'.json'
-    with open("/local/scratch3/xfang31/BLIP-MultiDecoder/output/Caption_dense/region_train/"+ visualize_region_result_fileName,"w") as f1:
-        json.dump(visualize_region_result,f1)
+    # visualize_region_result_fileName = 'visualize_train_result-epoch' + str(epoch) +'.json'
+    # with open("/local/scratch3/xfang31/BLIP-MultiDecoder/output/Caption_dense/region_train/"+ visualize_region_result_fileName,"w") as f1:
+    #     json.dump(visualize_region_result,f1)
     print("Averaged stats:", metric_logger.global_avg())     
     return {k: "{:.3f}".format(meter.global_avg) for k, meter in metric_logger.meters.items()}  
 
@@ -145,8 +145,9 @@ def main(args, config):
                                   fusion_type=config['fusion_type'],#init_inject
                                   box_detections_per_img=config['box_detections_per_img'])#50
     # if config['use_pretrain_fasterrcnn']:#true
-    mask_model.backbone.load_state_dict(fasterrcnn_resnet50_fpn(pretrained=True).backbone.state_dict(), strict=False)
-    mask_model.rpn.load_state_dict(fasterrcnn_resnet50_fpn(pretrained=True).rpn.state_dict(), strict=False)
+    mask_model.load_state_dict(torch.load('region_model/model_result/region_detection_model.pt'))
+    #mask_model.backbone.load_state_dict(fasterrcnn_resnet50_fpn(pretrained=True).backbone.state_dict(), strict=False)
+    #mask_model.rpn.load_state_dict(fasterrcnn_resnet50_fpn(pretrained=True).rpn.state_dict(), strict=False)
 
     mask_model = mask_model.to(device)
     print("Finish Creating model- pretrain")
@@ -175,10 +176,14 @@ def main(args, config):
                 print("update min loss in epoch "+str(epoch))
                 print("min loss is "+train_stats['loss'])
                 minloss = float(train_stats['loss'])
-                torch.save(mask_model.state_dict(),'region_model/model_result/region_detection_model.pt')
+                torch.save(mask_model.state_dict(),'region_model/model_result/region_detection_model_minloss_epoch%d.pt'%epoch)
+            elif (epoch + 1) % 5 == 0:
+                print("epoch "+str(epoch)+" loss is "+train_stats['loss'])
+                torch.save(mask_model.state_dict(),'region_model/model_result/region_detection_model_epoch%d.pt'%epoch)
+
             
-        val_result = evaluate(mask_model, val_loader, device, config)  
-        val_result_file = save_result(val_result, args.result_dir, 'region_cap_val_epoch%d'%epoch, remove_duplicate='image_id')        
+        #val_result = evaluate(mask_model, val_loader, device, config)  
+        #val_result_file = save_result(val_result, args.result_dir, 'region_cap_val_epoch%d'%epoch, remove_duplicate='image_id')        
                     
         if args.evaluate: 
             break
