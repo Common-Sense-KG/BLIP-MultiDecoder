@@ -21,3 +21,8 @@ CODE_OF_CONDUCT.md
 CODEOWNERS
 cog.yaml
 LICENSE.txt
+inference_dense_output.txt
+train_dense_output.txt
+train_dense_region.txt
+.gitignore
+comet_code/*

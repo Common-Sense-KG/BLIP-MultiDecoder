@@ -159,7 +159,7 @@ def main(args, config):
                            prompt=config['prompt'])
 
     model = model.to(device)  
-    model.load_state_dict(torch.load('output/knowledge_extract_model_epoch5.pt')) 
+    model.load_state_dict(torch.load('output/knowledge_extract_model_epoch15.pt')) 
 
     mask_model = densecap_resnet50_fpn(backbone_pretrained=config['backbone_pretrained'],#True
                                   feat_size=config['feat_size'],#4096
@@ -171,7 +171,7 @@ def main(args, config):
                                   fusion_type=config['fusion_type'],#init_inject
                                   box_detections_per_img=config['box_detections_per_img'])#50
     # if config['use_pretrain_fasterrcnn']:#true
-    mask_model.load_state_dict(torch.load('region_model/model_result/region_detection_model_minloss_epoch3.pt'))
+    mask_model.load_state_dict(torch.load('region_model/model_result/region_detection_model.pt'))
     # mask_model.backbone.load_state_dict(fasterrcnn_resnet50_fpn(pretrained=True).backbone.state_dict(), strict=False)
     # mask_model.rpn.load_state_dict(fasterrcnn_resnet50_fpn(pretrained=True).rpn.state_dict(), strict=False)
 
@@ -202,10 +202,10 @@ def main(args, config):
                     print("update min loss in epoch "+str(epoch))
                     print("min loss is "+train_stats['loss'])
                     min_loss = float(train_stats['loss'])
-                    torch.save(mask_model.state_dict(),'output/modify_input_knowledge_extract_model_epoch%d.pt'%epoch)
+                    torch.save(model.state_dict(),'output/ConceptNet_input_knowledge_extract_model_epoch%d.pt'%(epoch+1))
                 elif (epoch + 1) % 5 == 0:
                     print("epoch "+str(epoch)+" loss is "+train_stats['loss'])
-                    torch.save(mask_model.state_dict(),'output/modify_input_knowledge_extract_model_epoch%d.pt'%epoch)
+                    torch.save(model.state_dict(),'output/ConceptNet_input_knowledge_extract_model_epoch%d.pt'%(epoch+1))
                     
             except Exception as e:
                 print(str(e))

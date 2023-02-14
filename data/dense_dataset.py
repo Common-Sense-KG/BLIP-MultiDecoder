@@ -34,7 +34,7 @@ class dense_train(Dataset):
         ann_root (string): directory to store the annotation file
         '''        
         #url = 'https://storage.googleapis.com/sfr-vision-language-research/datasets/coco_karpathy_train.json'
-        filename = 'dense_train.json'
+        filename = 'augment/dense_train_ConceptNet_augment.json'
         
         self.annotation = json.load(open(os.path.join(ann_root,filename),'r'))
         tf_idf_name = 'dense_train_predicate_tfidf_score.json'
@@ -60,10 +60,10 @@ class dense_train(Dataset):
     
     def __getitem__(self, index):    
 
-        transToTensor = trans.ToTensor()
+        # transToTensor = trans.ToTensor()
         
         ann = self.annotation[index]#根据index获取annotation
-        match_tf_idf = self.corresponding_tf_idf[index]
+        # match_tf_idf = self.corresponding_tf_idf[index]
         output_targets = {'boxes':torch.tensor([]),'caps':torch.tensor([]),'caps_len':torch.tensor([])}
         
         image_path = os.path.join(self.image_root,str(ann['image_id'])+'.jpg')        
@@ -73,28 +73,53 @@ class dense_train(Dataset):
         image = self.transform(image)
         image_org_size = [width,height]
 
-        caption = ''
+
+        ###### org: tfidf + cosine similarity
+        # caption = ''
+        # captions_list = []
+        # boxes_list = []
+        # mask_list = []
+        # times = 0
+        # ##引入tf idf对数据做筛选
+        # while len(captions_list) < len(ann['phrase_list']) * 0.6 :
+        #     times += 1
+        #     if times > 500 and len(captions_list) > 0:
+        #         break
+        #     for i,(phrase) in enumerate(ann['phrase_list']):
+        #         tf_idf_score = match_tf_idf['predicate_tf_idf_score'][i]
+        #         if tf_idf_score['tf_idf_score']< 0.4 and random.uniform(tf_idf_score['tf_idf_score'], 1) < 0.55 :
+        #             continue
+        #         caption = self.prompt + pre_caption(phrase['caption'])
+        #         if caption in captions_list:
+        #             continue
+        #         elif len(captions_list) > 0 and compare_sentence_similarity(caption,captions_list,self.tokenizer) > 0.75:
+        #             continue
+                
+        #         captions_list.append(caption)
+        #         boxes_list.append(phrase['boxes'])
+        #         mask_list.append(phrase['tensor'])
+            
+        # tokenize_result = self.tokenizer(captions_list, padding=True, return_tensors="pt")
+
+        # output_targets['boxes'] = torch.tensor(boxes_list)
+        # output_targets['image_mask'] = torch.tensor(mask_list)
+        # output_targets['caps'] = tokenize_result.input_ids
+        # caps_len = []
+        # for i in range(tokenize_result.attention_mask.shape[0]):
+        #     caps_len.append(torch.count_nonzero(tokenize_result.attention_mask[i]).item())
+
+        # output_targets['caps_len'] = torch.tensor(caps_len)
+         
+        # return image, image_org_size, output_targets, ann['image_id']
+
+        ###new code
         captions_list = []
         boxes_list = []
         mask_list = []
-        times = 0
-        ##引入tf idf对数据做筛选
-        while len(captions_list) < len(ann['phrase_list']) * 0.6 :
-            times += 1
-            if times > 500 and len(captions_list) > 0:
-                break
-            for i,(phrase) in enumerate(ann['phrase_list']):
-                tf_idf_score = match_tf_idf['predicate_tf_idf_score'][i]
-                if tf_idf_score['tf_idf_score']< 0.4 and random.uniform(tf_idf_score['tf_idf_score'], 1) < 0.55 :
-                    continue
-                caption = self.prompt + pre_caption(phrase['caption'])
-                if caption in captions_list:
-                    continue
-                elif len(captions_list) > 0 and compare_sentence_similarity(caption,captions_list,self.tokenizer) > 0.75:
-                    continue
-                captions_list.append(caption)
-                boxes_list.append(phrase['boxes'])
-                mask_list.append(phrase['tensor'])
+        for phrase in ann['phrase_list']:
+            captions_list.append(self.prompt + pre_caption(phrase['caption']))
+            boxes_list.append(phrase['boxes'])
+            mask_list.append(phrase['tensor'])
             
         tokenize_result = self.tokenizer(captions_list, padding=True, return_tensors="pt")
 

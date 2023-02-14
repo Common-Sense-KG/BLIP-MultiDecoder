@@ -391,3 +391,18 @@ def compare_sentence_similarity(caption,captions_list,tokenizer):
     # cosine_scores = cos_sim(embedding_single,embedding_all)
     # return max(cosine_scores)
     
+def filter_region(region_tensor, image_org_size):
+    return_region_tensor = []
+    for i,(item) in enumerate(region_tensor):
+        region_tensor_perpic = []
+        ratio_width, ratio_height = image_org_size[i]
+        for idx in range(item.shape[0]):
+            xmin, ymin, xmax, ymax = item[idx].t()
+            if (xmax-xmin) * (ymax-ymin) <= ratio_width * ratio_height * 0.15:
+                continue
+            else:
+                region_tensor_perpic.append(item[idx])
+
+        return_region_tensor.append(torch.stack(region_tensor_perpic))
+
+    return return_region_tensor

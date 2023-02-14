@@ -25,7 +25,7 @@ from torch.utils.data import DataLoader
 
 from models.blip import blip_decoder
 import utils
-from utils import cosine_lr_schedule, getImgEmbed, postprocess
+from utils import cosine_lr_schedule, getImgEmbed, postprocess, filter_region
 from data import create_dataset, create_sampler, create_loader
 from data.utils import save_result
 from torch.utils.tensorboard import SummaryWriter
@@ -50,23 +50,25 @@ def evaluate(model, mask_model, data_loader, device, config):
     for image_for_region, image_for_extract, image_org_size, image_id in metric_logger.log_every(data_loader, print_freq, header): 
         # torch.cuda.empty_cache()
         iter0 += 1
-        # if iter0 < 340:
-        #     continue
+
         try:
             image_for_region = [img.to(device) for img in image_for_region]     
             image_for_extract = torch.stack(image_for_extract).to(device)
             _, res, after_mask_model_size = mask_model(image_for_region)  
             res['predict_region'] = postprocess(res['predict_region'], image_org_size, after_mask_model_size, device)
+            res['predict_region'] = filter_region(res['predict_region'], image_org_size)
             mask_tensor_list = getImgEmbed(res['predict_region'], image_org_size)
             mask_tensor_list = [mask_tensor.to(device) for mask_tensor in mask_tensor_list]
             
             for idx in range(0,image_for_extract.shape[0]):#逐张
-                captions = model.generate(image_for_extract[idx].unsqueeze(0), mask_tensor_list[idx], device, sample=False, num_beams=config['num_beams'], max_length=config['max_length'], 
+                captions = model.generate(image_for_extract[idx].unsqueeze(0), mask_tensor_list[idx], device, sample=True, num_beams=config['num_beams'], max_length=config['max_length'], 
                                         min_length=config['min_length'])
                 for region_idx, (caption) in enumerate(captions):       
                     result.append({"image_id": image_id[idx], "caption": caption, "corresponding_region":res['predict_region'][idx][region_idx].cpu().numpy().tolist()})                 
         except Exception as e:
             print(str(e))
+        # if iter0 < 340:
+        #     continue
         
    
     print("===Normal Eval Finish===")  
@@ -104,7 +106,7 @@ def main(args, config):
                            prompt=config['prompt'])
 
     model = model.to(device)  
-    model.load_state_dict(torch.load('output/knowledge_extract_model_epoch5.pt')) 
+    model.load_state_dict(torch.load('output/modify_input_knowledge_extract_model_epoch1.pt')) 
 
     mask_model = densecap_resnet50_fpn(backbone_pretrained=config['backbone_pretrained'],#True
                                   feat_size=config['feat_size'],#4096
@@ -128,7 +130,7 @@ def main(args, config):
 
              
     val_result = evaluate(model_without_ddp, mask_model, val_loader, device, config)  
-    val_result_file = save_result(val_result, args.result_dir, 'full_val_for_5', remove_duplicate='image_id')            
+    val_result_file = save_result(val_result, args.result_dir, 'val_for_mdf_extractK_rd_nu_filterregion', remove_duplicate='image_id')            
                     
 
 

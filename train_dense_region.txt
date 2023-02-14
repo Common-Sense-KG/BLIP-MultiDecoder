@@ -4,17 +4,49 @@ load checkpoint from https://storage.googleapis.com/sfr-vision-language-research
 Finish Creating model- pretrain
 Start training
 Train Caption Epoch: [0]
-Averaged stats: lr: 0.0000  loss: 11.6519
+Averaged stats: lr: 0.0000  loss: 9.7946
 update min loss in epoch 0
-min loss is 11.652
+min loss is 9.795
 Train Caption Epoch: [1]
-Averaged stats: lr: 0.0000  loss: 9.4699
+Averaged stats: lr: 0.0000  loss: 9.7245
 update min loss in epoch 1
-min loss is 9.470
+min loss is 9.724
 Train Caption Epoch: [2]
-Averaged stats: lr: 0.0000  loss: 9.4923
+Averaged stats: lr: 0.0000  loss: 9.5151
+update min loss in epoch 2
+min loss is 9.515
 Train Caption Epoch: [3]
-Averaged stats: lr: 0.0000  loss: 9.4151
-update min loss in epoch 3
-min loss is 9.415
+Averaged stats: lr: 0.0000  loss: 9.5254
 Train Caption Epoch: [4]
+Averaged stats: lr: 0.0000  loss: 9.4168
+update min loss in epoch 4
+min loss is 9.417
+Train Caption Epoch: [5]
+Averaged stats: lr: 0.0000  loss: 9.3914
+update min loss in epoch 5
+min loss is 9.391
+Train Caption Epoch: [6]
+Averaged stats: lr: 0.0000  loss: 9.2893
+update min loss in epoch 6
+min loss is 9.289
+Train Caption Epoch: [7]
+Averaged stats: lr: 0.0000  loss: 9.4832
+Train Caption Epoch: [8]
+Averaged stats: lr: 0.0000  loss: 9.3070
+Train Caption Epoch: [9]
+Averaged stats: lr: 0.0000  loss: 9.4348
+epoch 9 loss is 9.435
+Train Caption Epoch: [10]
+Averaged stats: lr: 0.0000  loss: 9.3599
+Train Caption Epoch: [11]
+Averaged stats: lr: 0.0000  loss: 9.2506
+update min loss in epoch 11
+min loss is 9.251
+Train Caption Epoch: [12]
+Averaged stats: lr: 0.0000  loss: 9.3887
+Train Caption Epoch: [13]
+Averaged stats: lr: 0.0000  loss: 9.4152
+Train Caption Epoch: [14]
+Averaged stats: lr: 0.0000  loss: 9.5329
+epoch 14 loss is 9.533
+Train Caption Epoch: [15]

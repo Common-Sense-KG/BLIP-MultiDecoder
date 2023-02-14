@@ -191,10 +191,11 @@ class BLIP_Decoder(nn.Module):
         input_ids = input_ids[:, :-1] 
         captions = []   
         
-        if sample:
+
+        for idx in range(0,tensor_list.shape[0]):
+            if sample:
             #nucleus sampling // #can try
-            for i in range(0,decoder_num):
-                outputs = self.text_decoder.generate(input_ids=input_ids,
+                outputs = self.text_decoder.generate(input_ids=input_ids.to(device),
                                                     max_length=max_length,
                                                     min_length=min_length,
                                                     do_sample=True,
@@ -203,15 +204,12 @@ class BLIP_Decoder(nn.Module):
                                                     eos_token_id=self.tokenizer.sep_token_id,
                                                     pad_token_id=self.tokenizer.pad_token_id, 
                                                     repetition_penalty=1.1, 
-                                                    output_scores = True,                                           
+                                                    output_scores = True,    
+                                                    encoder_extended_attention_mask=tensor_list[idx],                                       
                                                     **model_kwargs)
-                for output in outputs:
-                    caption = self.tokenizer.decode(output, skip_special_tokens=True)    
-                    captions.append(caption[len(self.prompt):])
 
-        else:
+            else:
             # beam search
-            for idx in range(0,tensor_list.shape[0]):
                 outputs = self.text_decoder.generate(input_ids=input_ids.to(device),
                                                     max_length=max_length,
                                                     min_length=min_length,
@@ -222,9 +220,9 @@ class BLIP_Decoder(nn.Module):
                                                     output_scores = True,
                                                     encoder_attention_mask=tensor_list[idx].unsqueeze(0).repeat_interleave(num_beams,dim=0),
                                                     **model_kwargs)
-                for output in outputs:
-                    caption = self.tokenizer.decode(output, skip_special_tokens=True)
-                    captions.append(caption[len(self.prompt):]) 
+            for output in outputs:
+                caption = self.tokenizer.decode(output, skip_special_tokens=True)
+                captions.append(caption[len(self.prompt):]) 
 
         return captions
 

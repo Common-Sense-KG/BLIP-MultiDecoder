@@ -10,7 +10,7 @@
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
-            "justMyCode": false,
+            "justMyCode": true,
             "purpose": ["debug-in-terminal"],
             "env":{
                 "CUDA_VISIBLE_DEVICES":"5,6",
